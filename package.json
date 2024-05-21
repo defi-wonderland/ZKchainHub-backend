@@ -16,7 +16,5 @@
     "prettier": "3.2.5",
     "turbo": "latest"
   },
-  "engines": {
-    "node": ">=20"
-  }
+  "packageManager": "yarn@3.8.2"
 }
