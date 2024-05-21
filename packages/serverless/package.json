@@ -1,0 +1,30 @@
+{
+  "name": "@hyperhub/serverless",
+  "private": true,
+  "version": "0.0.0",
+  "main": "./dist-cjs/index.js",
+  "types": "./dist-types/index.d.ts",
+  "module": "./dist-es/index.js",
+  "scripts": {
+    "build:types": "tsc -p tsconfig.types.json",
+    "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx src",
+    "test": "vitest run --dir src",
+    "tsc": "tsc --noEmit"
+  },
+  "dependencies": {
+    "vite": "^4.1.4"
+  },
+  "devDependencies": {
+    "@serverless/typescript": "^3.27.0",
+    "@types/aws-lambda": "^8.10.71",
+    "@types/node": "^18.13.0",
+    "esbuild": "^0.16.0",
+    "serverless": "^3.27.0",
+    "serverless-esbuild": "^1.37.3",
+    "serverless-iam-roles-per-function": "^3.2.0",
+    "serverless-offline": "^12.0.4",
+    "ts-node-dev": "2.0.0",
+    "typescript": "4.9.4",
+    "vitest": "^0.27.1"
+  }
+}
