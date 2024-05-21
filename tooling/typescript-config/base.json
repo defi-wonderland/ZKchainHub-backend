@@ -3,15 +3,20 @@
   "display": "Default",
 
   "compilerOptions": {
-    "lib": ["es2021"],
-    "module": "commonjs",
-    "target": "es2021",
-
-    "strict": true,
-    "esModuleInterop": true,
+    "lib": ["ESNext"],
+    "allowJs": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node"
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "target": "ES2020",
+    "outDir": "lib"
   },
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "build", "dist"]
 }

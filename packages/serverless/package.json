@@ -6,7 +6,7 @@
   "types": "./dist-types/index.d.ts",
   "module": "./dist-es/index.js",
   "scripts": {
-    "build:types": "tsc -p tsconfig.types.json",
+    "build": "tsc -p tsconfig.json",
     "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx src",
     "test": "vitest run --dir src",
     "tsc": "tsc --noEmit"
