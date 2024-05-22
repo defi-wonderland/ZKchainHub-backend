@@ -1249,6 +1249,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@hyperhub/serverless@workspace:packages/serverless"
   dependencies:
+    "@hyperhub/test-config": "workspace:*"
     "@hyperhub/typescript-config": "workspace:*"
     "@serverless/typescript": 3.27.0
     "@types/aws-lambda": 8.10.71
@@ -1262,6 +1263,17 @@ __metadata:
     ts-node-dev: 2.0.0
     typescript: 4.9.4
     vitest: 1.6.0
+  languageName: unknown
+  linkType: soft
+
+"@hyperhub/test-config@workspace:*, @hyperhub/test-config@workspace:tooling/test-config":
+  version: 0.0.0-use.local
+  resolution: "@hyperhub/test-config@workspace:tooling/test-config"
+  dependencies:
+    "@hyperhub/typescript-config": "workspace:*"
+    "@vitest/coverage-v8": ^1.6.0
+    typescript: ^5.4.5
+    vitest: ^1.6.0
   languageName: unknown
   linkType: soft
 
@@ -4899,6 +4911,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "hyperhub@workspace:."
   dependencies:
+    "@hyperhub/test-config": "workspace:*"
     "@hyperhub/typescript-config": "workspace:*"
     prettier: 3.2.5
     turbo: latest
@@ -8154,6 +8167,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@npm:^5.4.5":
+  version: 5.4.5
+  resolution: "typescript@npm:5.4.5"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 53c879c6fa1e3bcb194b274d4501ba1985894b2c2692fa079db03c5a5a7140587a1e04e1ba03184605d35f439b40192d9e138eb3279ca8eee313c081c8bcd9b0
+  languageName: node
+  linkType: hard
+
 "typescript@patch:typescript@4.9.4#~builtin<compat/typescript>":
   version: 4.9.4
   resolution: "typescript@patch:typescript@npm%3A4.9.4#~builtin<compat/typescript>::version=4.9.4&hash=289587"
@@ -8161,6 +8184,16 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 2160f7ad975c59b2f5816817d3916be1d156c5688a7517602b3b640c5015e740f4ba933996ac85371d68f7bbdd41602150fb8b68334122ac637fdb5418085e7a
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@^5.4.5#~builtin<compat/typescript>":
+  version: 5.4.5
+  resolution: "typescript@patch:typescript@npm%3A5.4.5#~builtin<compat/typescript>::version=5.4.5&hash=5adc0c"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: d59e26e74f6b444517d0ba16e0ee16e75c652c2b49a59f2ebdbeb16647a855fd50c7fc786a58987e45f03bce0677092e2dd3333649fd53b11d0b0d271455837c
   languageName: node
   linkType: hard
 
@@ -8389,7 +8422,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitest@npm:1.6.0":
+"vitest@npm:1.6.0, vitest@npm:^1.6.0":
   version: 1.6.0
   resolution: "vitest@npm:1.6.0"
   dependencies:

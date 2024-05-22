@@ -1,10 +1,10 @@
-import { defineConfig } from 'vitest/config'
+import { baseConfig } from '@hyperhub/test-config'
+import { mergeConfig, defineConfig } from 'vitest/config'
 
-export default defineConfig({
+console.log('BASE CONFIG', baseConfig);
+
+export default mergeConfig(baseConfig, defineConfig({
   test: {
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-    },
+    exclude: ['coverage/*'],
   },
-})
+}))
