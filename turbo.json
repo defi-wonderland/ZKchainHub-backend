@@ -9,13 +9,6 @@
     "test": {
       "dependsOn": [],
       "outputs": []
-    },
-    "test:watch": {
-      "cache": false
-    },
-    "dev": {
-      "dependsOn": ["build", "test"],
-      "outputs": []
     }
   }
 }
