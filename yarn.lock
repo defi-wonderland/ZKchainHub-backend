@@ -1249,7 +1249,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@hyperhub/serverless@workspace:packages/serverless"
   dependencies:
-    "@hyperhub/test-config": "workspace:*"
     "@hyperhub/typescript-config": "workspace:*"
     "@serverless/typescript": 3.27.0
     "@types/aws-lambda": 8.10.71
