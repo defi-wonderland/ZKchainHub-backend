@@ -5,16 +5,25 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prepare": "husky"
   },
   "workspaces": [
     "packages/*",
     "tooling/*"
   ],
   "devDependencies": {
+    "@commitlint/config-conventional": "19.2.2",
     "@hyperhub/typescript-config": "workspace:*",
+    "commitlint": "19.3.0",
+    "husky": "9.0.11",
+    "lint-staged": "15.2.4",
     "prettier": "3.2.5",
     "turbo": "latest"
   },
-  "packageManager": "yarn@3.8.2"
+  "packageManager": "yarn@3.8.2",
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx}": "eslint --cache --fix",
+    "**/*.{md,json,yml,yaml}": "prettier --write"
+  }
 }
