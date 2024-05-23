@@ -11,7 +11,7 @@ The Hyperhub project for zkSync involves the creation of a comprehensive data ma
 
 ## Dev Environment
 
-To install and build all apps and packages, run the following command:
+Installing and building packages can be done through the following command:
 
 ```
 yarn && yarn build
@@ -20,7 +20,7 @@ yarn && yarn build
 Here `yarn`: Install deps, create symlinks, hoist packages.
 And `yarn build` Build all packages.
 
-Individual commands can be run against workspaces as so (example for serverless package):
+Address changes for each package can be done the following way:
 
 ```
 yarn workspace @hyperhub/serverless dev
@@ -34,7 +34,7 @@ To test for the complete repository run:
 yarn build && yarn test
 ```
 
-If you want to test just a package:
+For testing individual packages:
 
 ```
 yarn workspace @huperhub/serverless build
@@ -45,7 +45,7 @@ yarn workspace @hyperhub/serverless test
 
 <!-- //TODO: add a boilerplate tool -->
 
-You can just create a new folder within `packages` and copy and paste stuff from other packages.
+Creating a new package can be replicated from already existing packages structure.
 
 ## Installing dependencies
 
@@ -55,8 +55,8 @@ For global dependencies:
 yarn add ethers
 ```
 
-To add new dependencies to an specific package you should be able to do everything from the root and not need to go into the individual package dirs.
-You can run for example:
+Adding new dependencies should be done from root level, and not from each package.
+For example:
 
 ```
 yarn workspace @hyperhub/serverless add ethers
