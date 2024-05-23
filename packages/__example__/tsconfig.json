@@ -1,0 +1,8 @@
+{
+  "extends": "@hyperhub/typescript-config/base.json",
+  "exclude": ["dist", "node_modules", "__test__"],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+  }
+}
