@@ -1470,7 +1470,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@hyperhub/serverless@workspace:*, @hyperhub/serverless@workspace:packages/serverless":
+"@hyperhub/example@workspace:packages/__example__":
+  version: 0.0.0-use.local
+  resolution: "@hyperhub/example@workspace:packages/__example__"
+  dependencies:
+    "@hyperhub/errors": "workspace:*"
+    "@hyperhub/test-config": "workspace:*"
+    "@hyperhub/typescript-config": "workspace:*"
+    typescript: 4.9.4
+    vitest: 1.6.0
+  languageName: unknown
+  linkType: soft
+
+"@hyperhub/serverless@workspace:packages/serverless":
   version: 0.0.0-use.local
   resolution: "@hyperhub/serverless@workspace:packages/serverless"
   dependencies:
@@ -5430,9 +5442,6 @@ __metadata:
   resolution: "hyperhub@workspace:."
   dependencies:
     "@commitlint/config-conventional": 19.2.2
-    "@hyperhub/errors": "workspace:*"
-    "@hyperhub/serverless": "workspace:*"
-    "@hyperhub/test-config": "workspace:*"
     "@hyperhub/typescript-config": "workspace:*"
     commitlint: 19.3.0
     husky: 9.0.11
