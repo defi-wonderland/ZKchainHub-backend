@@ -1,8 +1,17 @@
 {
   "extends": "@hyperhub/typescript-config/base.json",
-  "exclude": ["dist", "node_modules", "__test__"],
   "compilerOptions": {
+<<<<<<< HEAD
+    "outDir": "./dist",
+    "rootDir": "./src",
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+=======
     "rootDir": "./src",
     "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true
   }
+>>>>>>> feeaa35 (chore: add EOF)
 }

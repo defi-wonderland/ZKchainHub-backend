@@ -1,8 +1,15 @@
 {
   "extends": "@hyperhub/typescript-config/base.json",
+<<<<<<< HEAD
   "exclude": ["dist", "node_modules", "__test__"],
   "compilerOptions": {
-    "rootDir": "./src",
     "outDir": "./dist",
+=======
+  "include": ["./src/**/*.ts"],
+  "exclude": ["dist", "node_modules"],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist"
+>>>>>>> 5d538ab (fix: deps (#10))
   }
 }

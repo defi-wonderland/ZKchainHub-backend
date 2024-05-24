@@ -1,5 +1,5 @@
 {
-  "name": "@hyperhub/serverless",
+  "name": "@hyperhub/example",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -11,13 +11,9 @@
   },
   "devDependencies": {
     "@hyperhub/errors": "workspace:*",
+    "@hyperhub/test-config": "workspace:*",
     "@hyperhub/typescript-config": "workspace:*",
-    "@serverless/typescript": "3.27.0",
-    "@types/aws-lambda": "8.10.71",
-    "esbuild": "0.16.0",
-    "serverless": "3.27.0",
-    "serverless-esbuild": "1.37.3",
-    "serverless-iam-roles-per-function": "3.2.0",
-    "serverless-offline": "12.0.4"
+    "typescript": "4.9.4",
+    "vitest": "1.6.0"
   }
 }
