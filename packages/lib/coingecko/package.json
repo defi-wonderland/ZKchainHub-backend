@@ -12,8 +12,6 @@
   "devDependencies": {
     "@hyperhub/errors": "workspace:*",
     "@hyperhub/test-config": "workspace:*",
-    "@hyperhub/typescript-config": "workspace:*",
-    "typescript": "4.9.4",
-    "vitest": "1.6.0"
+    "@hyperhub/typescript-config": "workspace:*"
   }
 }
