@@ -1,13 +1,13 @@
-# Hyperhub
+# ZkChainHub
 
 ## Description
 
-The Hyperhub project for zkSync involves the creation of a comprehensive data management system. This project is designed to provide key insights into the zkSync network, making it an invaluable tool for users and developers.
+The ZkChainHub project for zkSync involves the creation of a comprehensive data management system. This project is designed to provide key insights into the zkSync network, making it an invaluable tool for users and developers.
 
 ## Packages
 
-- `@hyperhub/typescript-config`: `tsconfig.json`s used throughout the monorepo
-- `@hyperhub/serverless`: Includes all serverless functions from the repository.
+- `@ZkChainHub/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `@ZkChainHub/serverless`: Includes all serverless functions from the repository.
 
 ## Dev Environment
 
@@ -23,7 +23,7 @@ And `yarn build` Build all packages.
 Address changes for each package can be done the following way:
 
 ```
-yarn workspace @hyperhub/serverless dev
+yarn workspace @ZkChainHub/serverless dev
 ```
 
 ## Running tests
@@ -38,7 +38,7 @@ For testing individual packages:
 
 ```
 yarn workspace @huperhub/serverless build
-yarn workspace @hyperhub/serverless test
+yarn workspace @ZkChainHub/serverless test
 ```
 
 ## Creating a new package
@@ -59,5 +59,5 @@ Adding new dependencies should be done from root level, and not from each packag
 For example:
 
 ```
-yarn workspace @hyperhub/serverless add ethers
+yarn workspace @ZkChainHub/serverless add ethers
 ```

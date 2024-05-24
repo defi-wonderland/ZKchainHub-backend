@@ -1,3 +1,3 @@
-## @hyperhub - Typescript config
+## @ZkChainHub - Typescript config
 
 All typescript config package related files
