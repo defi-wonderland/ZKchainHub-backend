@@ -1,5 +1,5 @@
 {
-  "name": "ZkChainHub",
+  "name": "zkChainHub",
   "private": true,
   "scripts": {
     "build": "turbo build",
@@ -15,8 +15,8 @@
     "tooling/*"
   ],
   "devDependencies": {
-    "@ZkChainHub/test-config": "workspace:*",
-    "@ZkChainHub/typescript-config": "workspace:*",
+    "@zkChainHub/test-config": "workspace:*",
+    "@zkChainHub/typescript-config": "workspace:*",
     "@commitlint/config-conventional": "19.2.2",
     "commitlint": "19.3.0",
     "husky": "9.0.11",

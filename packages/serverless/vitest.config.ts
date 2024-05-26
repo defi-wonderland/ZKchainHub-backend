@@ -1,4 +1,4 @@
-import { baseConfig } from "@ZkChainHub/test-config";
+import { baseConfig } from "@zkChainHub/test-config";
 import { mergeConfig, defineConfig } from "vitest/config";
 
 export default mergeConfig(
