@@ -1,6 +1,6 @@
 {
-  "extends": "@zkChainHub/typescript-config/base.jso",
-  "include": ["."],
+  "extends": "@zkChainHub/typescript-config/base.json",
+  "include": ["./src/**/*.ts"],
   "exclude": ["dist", "node_modules"],
   "compilerOptions": {
     "rootDir": "./src",
