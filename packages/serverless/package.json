@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest",
+    "eslint": "eslint --fix . --max-warnings 0",
     "coverage": "vitest run --coverage",
     "tsc": "tsc --noEmit"
   },
@@ -12,6 +13,7 @@
     "@serverless/typescript": "3.27.0",
     "@types/aws-lambda": "8.10.71",
     "@zkChainHub/errors": "workspace:*",
+    "@zkChainHub/eslint-config": "workspace:*",
     "@zkChainHub/typescript-config": "workspace:*",
     "esbuild": "0.16.0",
     "serverless": "3.27.0",

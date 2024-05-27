@@ -5,12 +5,14 @@
   "license": "MIT",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "eslint": "eslint --fix . --max-warnings 0"
   },
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
+    "@zkChainHub/eslint-config": "workspace:*",
     "@zkChainHub/test-config": "workspace:*",
     "@zkChainHub/typescript-config": "workspace:*"
   }
