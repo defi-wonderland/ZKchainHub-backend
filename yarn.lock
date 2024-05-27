@@ -2791,6 +2791,7 @@ __metadata:
     "@zkChainHub/eslint-config": "workspace:*"
     "@zkChainHub/test-config": "workspace:*"
     "@zkChainHub/typescript-config": "workspace:*"
+    eslint: "npm:9.3.0"
   languageName: unknown
   linkType: soft
 
@@ -2801,6 +2802,7 @@ __metadata:
     "@zkChainHub/eslint-config": "workspace:*"
     "@zkChainHub/test-config": "workspace:*"
     "@zkChainHub/typescript-config": "workspace:*"
+    eslint: "npm:9.3.0"
   languageName: unknown
   linkType: soft
 
@@ -2838,6 +2840,7 @@ __metadata:
     "@zkChainHub/eslint-config": "workspace:*"
     "@zkChainHub/typescript-config": "workspace:*"
     esbuild: "npm:0.16.0"
+    eslint: "npm:9.3.0"
     serverless: "npm:3.27.0"
     serverless-esbuild: "npm:1.37.3"
     serverless-iam-roles-per-function: "npm:3.2.0"
@@ -10356,7 +10359,6 @@ __metadata:
   dependencies:
     "@commitlint/config-conventional": "npm:19.2.2"
     "@types/node": "npm:18.13.0"
-    "@zkChainHub/eslint-config": "workspace:*"
     "@zkChainHub/test-config": "workspace:*"
     "@zkChainHub/typescript-config": "workspace:*"
     commitlint: "npm:19.3.0"
