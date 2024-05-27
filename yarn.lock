@@ -1531,6 +1531,7 @@ __metadata:
   resolution: "@hyperhub/coingecko@workspace:packages/lib/coingecko"
   dependencies:
     "@hyperhub/errors": "workspace:*"
+    "@hyperhub/linter": "workspace:*"
     "@hyperhub/test-config": "workspace:*"
     "@hyperhub/typescript-config": "workspace:*"
   languageName: unknown
@@ -1540,6 +1541,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@hyperhub/errors@workspace:packages/errors"
   dependencies:
+    "@hyperhub/linter": "workspace:*"
     "@hyperhub/test-config": "workspace:*"
     "@hyperhub/typescript-config": "workspace:*"
   languageName: unknown
@@ -1550,6 +1552,7 @@ __metadata:
   resolution: "@hyperhub/example@workspace:packages/__example__"
   dependencies:
     "@hyperhub/errors": "workspace:*"
+    "@hyperhub/linter": "workspace:*"
     "@hyperhub/test-config": "workspace:*"
     "@hyperhub/typescript-config": "workspace:*"
   languageName: unknown
@@ -1585,7 +1588,6 @@ __metadata:
   dependencies:
     "@hyperhub/errors": "workspace:*"
     "@hyperhub/linter": "workspace:*"
-    "@hyperhub/prettier": "workspace:*"
     "@hyperhub/typescript-config": "workspace:*"
     "@serverless/typescript": "npm:3.27.0"
     "@types/aws-lambda": "npm:8.10.71"
@@ -5963,6 +5965,8 @@ __metadata:
   resolution: "hyperhub@workspace:."
   dependencies:
     "@commitlint/config-conventional": "npm:19.2.2"
+    "@hyperhub/linter": "workspace:*"
+    "@hyperhub/prettier": "workspace:*"
     "@hyperhub/test-config": "workspace:*"
     "@hyperhub/typescript-config": "workspace:*"
     "@types/node": "npm:18.13.0"

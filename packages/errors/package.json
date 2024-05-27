@@ -5,13 +5,15 @@
   "license": "MIT",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint --fix . --max-warnings 0"
   },
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
     "@hyperhub/test-config": "workspace:*",
-    "@hyperhub/typescript-config": "workspace:*"
+    "@hyperhub/typescript-config": "workspace:*",
+    "@hyperhub/linter": "workspace:*"
   }
 }

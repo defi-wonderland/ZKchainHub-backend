@@ -16,6 +16,8 @@
   ],
   "devDependencies": {
     "@commitlint/config-conventional": "19.2.2",
+    "@hyperhub/linter": "workspace:*",
+    "@hyperhub/prettier": "workspace:*",
     "@hyperhub/test-config": "workspace:*",
     "@hyperhub/typescript-config": "workspace:*",
     "@types/node": "18.13.0",

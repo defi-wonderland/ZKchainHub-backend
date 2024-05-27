@@ -8,8 +8,6 @@
     "./base": "./base.js"
   },
   "scripts": {
-    "format": "prettier --check .",
-    "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx src",
+    "lint": "eslint --fix --max-warnings 0 .",
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "tsc": "tsc --noEmit"
@@ -12,7 +12,6 @@
   "devDependencies": {
     "@hyperhub/errors": "workspace:*",
     "@hyperhub/linter": "workspace:*",
-    "@hyperhub/prettier": "workspace:*",
     "@hyperhub/typescript-config": "workspace:*",
     "@serverless/typescript": "3.27.0",
     "@types/aws-lambda": "8.10.71",
