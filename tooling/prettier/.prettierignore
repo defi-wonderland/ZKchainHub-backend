@@ -1,0 +1,43 @@
+tsconfig.tsbuildinfo
+
+# dependencies
+node_modules
+
+# testing
+coverage
+
+#build
+dist
+dist-types
+.build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# environment variables
+.env*.local
+.env
+.aws/
+
+# turborepo
+.turbo
+
+yarn-lock.json
+
+
+# Serverless directories
+.serverless
+.esbuild
+
+CHANGELOG.md
