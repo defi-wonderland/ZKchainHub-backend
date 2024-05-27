@@ -1459,6 +1459,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hyperhub/coingecko@workspace:packages/lib/coingecko":
+  version: 0.0.0-use.local
+  resolution: "@hyperhub/coingecko@workspace:packages/lib/coingecko"
+  dependencies:
+    "@hyperhub/errors": "workspace:*"
+    "@hyperhub/test-config": "workspace:*"
+    "@hyperhub/typescript-config": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@hyperhub/errors@workspace:*, @hyperhub/errors@workspace:packages/errors":
+  version: 0.0.0-use.local
+  resolution: "@hyperhub/errors@workspace:packages/errors"
+  dependencies:
+    "@hyperhub/test-config": "workspace:*"
+    "@hyperhub/typescript-config": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
+"@hyperhub/example@workspace:packages/__example__":
+  version: 0.0.0-use.local
+  resolution: "@hyperhub/example@workspace:packages/__example__"
+  dependencies:
+    "@hyperhub/errors": "workspace:*"
+    "@hyperhub/test-config": "workspace:*"
+    "@hyperhub/typescript-config": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@hyperhub/serverless@workspace:packages/serverless":
   version: 0.0.0-use.local
   resolution: "@hyperhub/serverless@workspace:packages/serverless"
