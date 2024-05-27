@@ -1563,7 +1563,6 @@ __metadata:
   resolution: "@hyperhub/linter@workspace:tooling/linter"
   dependencies:
     "@hyperhub/prettier": "workspace:*"
-    "@hyperhub/typescript-config": "workspace:*"
     "@typescript-eslint/eslint-plugin": "npm:7.10.0"
     "@typescript-eslint/parser": "npm:7.10.0"
     eslint: "npm:8.56.0"

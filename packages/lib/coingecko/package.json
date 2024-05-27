@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "lint": "eslint --fix --max-warnings 0 .",
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "tsc": "tsc --noEmit"
@@ -14,5 +13,11 @@
     "@hyperhub/linter": "workspace:*",
     "@hyperhub/test-config": "workspace:*",
     "@hyperhub/typescript-config": "workspace:*"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "@hyperhub/linter/base"
+    ]
   }
 }

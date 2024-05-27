@@ -7,8 +7,7 @@
     "lint": "turbo lint",
     "prepare": "husky",
     "test": "turbo run test",
-    "test:watch": "turbo run test:watch",
-    "format": "prettier --write \"**/*.{ts,md}\""
+    "test:watch": "turbo run test:watch"
   },
   "workspaces": [
     "packages/**",

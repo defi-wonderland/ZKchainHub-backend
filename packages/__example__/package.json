@@ -14,5 +14,11 @@
     "@hyperhub/linter": "workspace:*",
     "@hyperhub/test-config": "workspace:*",
     "@hyperhub/typescript-config": "workspace:*"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "@hyperhub/linter/base"
+    ]
   }
 }
