@@ -9,6 +9,10 @@
     "test": {
       "dependsOn": [],
       "outputs": []
+    },
+    "lint": {
+      "dependsOn": ["build"],    
+      "outputs": ["node_modules/.cache/.eslintcache"]  
     }
   }
 }

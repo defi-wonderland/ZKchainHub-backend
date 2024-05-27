@@ -8,17 +8,20 @@
     "./base": "./base.js"
   },
   "scripts": {
-    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "format": "prettier --check .",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.7.0",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-config-turbo": "^1.13.2",
-    "prettier": "^3.2.4",
-    "typescript": "^5.3.3"
+    "@hyperhub/prettier": "workspace:*",
+    "@hyperhub/typescript-config": "workspace:*",
+    "@typescript-eslint/eslint-plugin": "7.10.0",
+    "@typescript-eslint/parser": "7.10.0",
+    "eslint": "8.56.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-config-turbo": "1.13.3",
+    "eslint-plugin-prettier": "5.1.3",
+    "prettier": "3.2.4"
   },
   "eslintConfig": {
     "root": true,
@@ -28,5 +31,6 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "prettier": "@hyperhub/prettier"
 }

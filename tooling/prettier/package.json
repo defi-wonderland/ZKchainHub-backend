@@ -1,5 +1,5 @@
 {
-    "name": "@hyperhub/prettier-config",
+    "name": "@hyperhub/prettier",
     "version": "0.0.0",
     "private": true,
     "type": "module",
