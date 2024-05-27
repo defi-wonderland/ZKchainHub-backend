@@ -1,5 +1,5 @@
 {
-  "name": "@hyperhub/example",
+  "name": "@hyperhub/coingecko",
   "private": true,
   "version": "0.0.0",
   "scripts": {
