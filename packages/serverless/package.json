@@ -10,6 +10,7 @@
     "tsc": "tsc --noEmit"
   },
   "devDependencies": {
+    "@hyperhub/errors": "workspace:*",
     "@hyperhub/typescript-config": "workspace:*",
     "@hyperhub/eslint": "workspace:*",
     "@hyperhub/prettier": "workspace:*",
