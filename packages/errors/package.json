@@ -1,0 +1,17 @@
+{
+  "name": "@zkChainHub/errors",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@zkChainHub/test-config": "workspace:*",
+    "@zkChainHub/typescript-config": "workspace:*"
+  }
+}
