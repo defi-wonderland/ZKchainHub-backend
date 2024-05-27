@@ -41,3 +41,6 @@ yarn-lock.json
 .esbuild
 
 CHANGELOG.md
+
+# Tooling packages
+./tooling/*
