@@ -11,8 +11,9 @@
   },
   "devDependencies": {
     "@zkChainHub/errors": "workspace:*",
+    "@zkChainHub/eslint-config": "workspace:*",
     "@zkChainHub/test-config": "workspace:*",
     "@zkChainHub/typescript-config": "workspace:*",
-    "@zkChainHub/eslint-config": "workspace:*"
+    "eslint": "9.3.0"
   }
 }

@@ -2,8 +2,9 @@
   "name": "@zkChainHub/eslint-config",
   "private": true,
   "version": "0.0.0",
+  "main": "eslint.config.mjs",
+  "module": "true",
   "devDependencies": {
-    "@zkChainHub/eslint-config": "workspace:*",
     "@typescript-eslint/eslint-plugin": "7.10.0",
     "@typescript-eslint/parser": "7.10.0",
     "eslint": "9.3.0",
