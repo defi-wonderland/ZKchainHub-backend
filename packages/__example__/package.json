@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "eslint --fix . --max-warnings 0",
+    "format": "prettier --write \"**/*.{ts,md}\"",
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "tsc": "tsc --noEmit"
@@ -12,8 +13,10 @@
   "devDependencies": {
     "@zkChainHub/errors": "workspace:*",
     "@zkChainHub/eslint-config": "workspace:*",
+    "@zkChainHub/prettier-config": "workspace:*",
     "@zkChainHub/test-config": "workspace:*",
     "@zkChainHub/typescript-config": "workspace:*",
     "eslint": "9.3.0"
-  }
+  },
+  "prettier": "@zkChainHub/prettier-config"
 }
