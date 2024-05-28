@@ -33,4 +33,4 @@ jobs:
         run: yarn format
 
       - name: Run Linter
-        run: yarn lint
+        run: yarn lint --max-warnings 0
