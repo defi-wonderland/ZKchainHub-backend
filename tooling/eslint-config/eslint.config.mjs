@@ -11,6 +11,7 @@ export default [
       "@typescript-eslint": tsPlugin,
       prettier: prettierPlugin,
     },
+    ignores: ["dist/*", ".eslint.config.mjs", "node_modules"],
     languageOptions: {
       parser: tsParser
     },
