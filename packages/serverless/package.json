@@ -12,13 +12,16 @@
     },
     "devDependencies": {
         "@serverless/typescript": "3.27.0",
+        "@total-typescript/tsconfig": "1.0.4",
         "@types/aws-lambda": "8.10.71",
         "@zkchainhub/errors": "workspace:*",
         "@zkchainhub/eslint-config": "workspace:*",
         "esbuild": "0.16.0",
+        "eslint": "8.56.0",
         "serverless": "3.27.0",
         "serverless-esbuild": "1.37.3",
         "serverless-iam-roles-per-function": "3.2.0",
-        "serverless-offline": "12.0.4"
+        "serverless-offline": "12.0.4",
+        "vitest": "1.6.0"
     }
 }

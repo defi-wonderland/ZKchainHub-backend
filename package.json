@@ -8,7 +8,7 @@
         "prepare": "husky",
         "test": "turbo test",
         "format": "prettier --write \"**/*.{js,ts,md,json,yml,yaml}\"",
-        "clean": "rimraf **/dist **/.turbo **/node_modules **/**.tsbuildinfo **/.cache"
+        "clean": "rimraf **/*.tsbuildinfo & rimraf **/dist & rimraf **/.turbo & rimraf **/.cache & rimraf **/node_modules "
     },
     "workspaces": [
         "packages/**",
