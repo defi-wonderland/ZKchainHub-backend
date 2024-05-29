@@ -8,7 +8,6 @@ jobs:
     name: Run unit tests
     runs-on: ubuntu-latest
     steps:
-      
       - name: Log Not Implemented Message
         run: echo "Not implemented yet"
       # - name: Check out github repository

@@ -1,7 +1,8 @@
 {
-  "name": "@zkChainHub/example",
+  "name": "@zkchainhub/example",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "eslint --fix . --max-warnings 0",
@@ -11,12 +12,10 @@
     "tsc": "tsc --noEmit"
   },
   "devDependencies": {
-    "@zkChainHub/errors": "workspace:*",
-    "@zkChainHub/eslint-config": "workspace:*",
-    "@zkChainHub/prettier-config": "workspace:*",
-    "@zkChainHub/test-config": "workspace:*",
-    "@zkChainHub/typescript-config": "workspace:*",
-    "eslint": "9.3.0"
+    "@zkchainhub/errors": "workspace:*",
+    "@zkchainhub/eslint-config": "workspace:*",
+    "@zkchainhub/prettier-config": "workspace:*",
+    "@zkchainhub/test-config": "workspace:*"
   },
-  "prettier": "@zkChainHub/prettier-config"
+  "prettier": "@zkchainhub/prettier-config"
 }

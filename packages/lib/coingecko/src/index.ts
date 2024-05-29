@@ -1,5 +1,5 @@
-import type { AxiosInstance, CreateAxiosDefaults } from "axios";
-import axios from "axios";
+import type {AxiosInstance, CreateAxiosDefaults} from 'axios';
+import axios from 'axios';
 
 export default class CoingeckoService {
   private instance: AxiosInstance;
@@ -11,7 +11,7 @@ export default class CoingeckoService {
     const config: CreateAxiosDefaults = {
       baseURL: url,
       headers: {
-        "x-cg-demo-api-key": this.apiKey,
+        'x-cg-demo-api-key': this.apiKey,
       },
     };
 
@@ -20,7 +20,7 @@ export default class CoingeckoService {
 
   get(): AxiosInstance {
     if (!this.instance) {
-      throw new Error("Client not initialized");
+      throw new Error('Client not initialized');
     }
     return this.instance;
   }

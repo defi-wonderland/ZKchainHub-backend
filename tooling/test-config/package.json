@@ -1,9 +1,10 @@
 {
-  "name": "@zkChainHub/test-config",
+  "name": "@zkchainhub/test-config",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json"
   },
@@ -11,8 +12,6 @@
     "access": "public"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "1.6.0",
-    "@zkChainHub/typescript-config": "workspace:*",
-    "vitest": "1.6.0"
+    "@vitest/coverage-v8": "1.6.0"
   }
 }

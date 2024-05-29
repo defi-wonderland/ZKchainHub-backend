@@ -1,8 +1,8 @@
 export abstract class BaseError extends Error {
-  readonly name: string;
+  override readonly name: string;
   readonly description: string;
 
-  constructor({ name, description }: { name: string; description: string }) {
+  constructor({name, description}: {name: string; description: string}) {
     super(description);
     this.name = name;
     this.description = description;

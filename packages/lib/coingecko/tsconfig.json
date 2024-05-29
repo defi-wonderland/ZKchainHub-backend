@@ -1,5 +1,5 @@
 {
-  "extends": "@zkChainHub/typescript-config/base.json",
+  "extends": "@total-typescript/tsconfig/tsc/no-dom/library-monorepo",
   "include": ["./src/**/*.ts"],
   "exclude": ["dist", "node_modules"],
   "compilerOptions": {
