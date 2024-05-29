@@ -14,7 +14,7 @@ export default [
         languageOptions: {
             parser: tsParser,
         },
-        ignores: ["dist/**", "node_modules/**"], // Add patterns to ignore dist and node_modules
+        ignores: ["dist/**", "node_modules/**", "eslint.config.js"], // Add patterns to ignore dist and node_modules
         rules: {
             ...tsPlugin.configs["eslint-recommended"].rules,
             ...tsPlugin.configs["recommended"].rules,
