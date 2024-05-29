@@ -1,9 +1,9 @@
 {
-  "extends": "@total-typescript/tsconfig/tsc/no-dom/library-monorepo",
-  "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist"
-  },
-  "include": ["./src/**/*.ts"],
-  "exclude": ["dist", "node_modules"]
+    "extends": "@total-typescript/tsconfig/tsc/no-dom/library-monorepo",
+    "compilerOptions": {
+        "rootDir": "./src",
+        "outDir": "./dist"
+    },
+    "include": ["./src/**/*.ts"],
+    "exclude": ["dist", "node_modules"]
 }

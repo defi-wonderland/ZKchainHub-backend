@@ -6,7 +6,7 @@ The zkChainHub project for zkSync involves the creation of a comprehensive data 
 
 ## Packages
 
-- `@zkchainhub/serverless`: Includes all serverless functions from the repository.
+-   `@zkchainhub/serverless`: Includes all serverless functions from the repository.
 
 ## Dev Environment
 

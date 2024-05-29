@@ -1,7 +1,10 @@
-import {BaseError} from '@zkchainhub/errors';
+import axios from "axios";
+
+import { BaseError } from "@zkchainhub/errors";
 
 export default class LambdaError extends BaseError {
-  constructor(description: string) {
-    super({name: 'LambdaError', description});
-  }
+    constructor(description: string) {
+        super({ name: "LambdaError", description });
+        axios.create();
+    }
 }
