@@ -1,12 +1,12 @@
-# zkChainHub
+# ZKchainHub
 
 ## Description
 
-The zkChainHub project for zkSync involves the creation of a comprehensive data management system. This project is designed to provide key insights into the zkSync network, making it an invaluable tool for users and developers.
+The ZKchainHub project designed to provide key insights into the ZK ecosystems, making it an invaluable tool for users and developers.
 
 ## Packages
 
--   `@zkchainhub/serverless`: Includes all serverless functions from the repository.
+-   `@zkchainhub/metrics`: <add description>.
 
 ## Dev Environment
 
@@ -22,7 +22,7 @@ And `yarn build` Build all packages.
 Address changes for each package can be done the following way:
 
 ```
-yarn workspace @zkchainhub/serverless dev
+yarn workspace @zkchainhub/metrics dev
 ```
 
 ## Running tests
@@ -36,8 +36,7 @@ yarn build && yarn test
 For testing individual packages:
 
 ```
-yarn workspace @huperhub/serverless build
-yarn workspace @zkchainhub/serverless test
+yarn workspace @zkchainhub/metrics test
 ```
 
 ## Creating a new package
@@ -58,5 +57,5 @@ Adding new dependencies should be done from root level, and not from each packag
 For example:
 
 ```
-yarn workspace @zkchainhub/serverless add ethers
+yarn workspace @zkchainhub/metrics add ethers
 ```
