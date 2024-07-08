@@ -4,59 +4,40 @@
 
 The zkChainHub project for zkSync involves the creation of a comprehensive data management system. This project is designed to provide key insights into the zkSync network, making it an invaluable tool for users and developers.
 
-## Packages
+## Installation
 
--   `@zkchainhub/serverless`: Includes all serverless functions from the repository.
-
-## Dev Environment
-
-Installing and building packages can be done through the following command:
-
-```
-yarn && yarn build
+```bash
+$ pnpm install
 ```
 
-Here `yarn`: Install deps, create symlinks, hoist packages.
-And `yarn build` Build all packages.
+## Running the app
 
-Address changes for each package can be done the following way:
+```bash
+# development
+$ pnpm run start
 
-```
-yarn workspace @zkchainhub/serverless dev
-```
+# watch mode
+$ pnpm run start:dev
 
-## Running tests
-
-To test for the complete repository run:
-
-```
-yarn build && yarn test
+# production mode
+$ pnpm run start:prod
 ```
 
-For testing individual packages:
+## Test
 
+```bash
+# unit tests
+$ pnpm run test
+
+# e2e tests
+$ pnpm run test:e2e
+
+# test coverage
+$ pnpm run test:cov
 ```
-yarn workspace @huperhub/serverless build
-yarn workspace @zkchainhub/serverless test
-```
+## Creating a new library
 
-## Creating a new package
 
-<!-- //TODO: add a boilerplate tool -->
-
-Creating a new package can be replicated from already existing packages structure.
-
-## Installing dependencies
-
-For global dependencies:
-
-```
-yarn add ethers
-```
-
-Adding new dependencies should be done from root level, and not from each package.
-For example:
-
-```
-yarn workspace @zkchainhub/serverless add ethers
+```bash
+$ nest g library my-library
 ```
