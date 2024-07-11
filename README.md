@@ -11,7 +11,7 @@ You can fetch metrics from the ZKsync ecosystem and ZK chains from L1 RPC (Ether
 
 
 ## Diagram
-This is a high level architecture diagram of the zkChainhub
+This is a high level architecture diagram of the ZKchainHub
 ```mermaid
 graph LR
     API -->|Ethereum RPC| ETH_RPC[Ethereum RPC]
