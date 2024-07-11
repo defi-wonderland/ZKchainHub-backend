@@ -3,10 +3,11 @@ import { ProvidersModule } from "@packages/providers";
 
 import { ApiController } from "./api.controller";
 import { RequestLoggerMiddleware } from "./common/middleware/request.middleware";
+import { MetricsController } from "./metrics/metrics.controller";
 
 @Module({
     imports: [ProvidersModule],
-    controllers: [ApiController],
+    controllers: [ApiController, MetricsController],
     providers: [],
 })
 export class ApiModule implements NestModule {
