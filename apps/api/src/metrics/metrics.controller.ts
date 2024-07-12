@@ -1,7 +1,8 @@
 import { Controller, Get, Param } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ZKChainInfo } from "@shared/dtos/dto/chain.dto";
 import { ParsePositiveIntPipe } from "apps/api/src/common/pipes/parsePositiveInt.pipe";
-import { getEcosystemInfo } from "apps/api/src/metrics/mocks/metrics.mock";
+import { getEcosystemInfo, getZKChainInfo } from "apps/api/src/metrics/mocks/metrics.mock";
 
 @ApiTags("metrics")
 @Controller("metrics")
@@ -21,10 +22,12 @@ export class MetricsController {
     /**
      * Retrieves the chain information for the specified chain ID.
      * @param {number} chainId - The ID of the chain.
-     * @returns {Promise<ChainInfo>} The chain information.
+     * @returns {Promise<ZKChainInfo>} The chain information.
      */
+
+    @ApiResponse({ status: 200, type: ZKChainInfo })
     @Get("zkchain/:chainId")
-    public async getChain(@Param("chainId", new ParsePositiveIntPipe()) _chainId: number) {
-        throw new Error("Not implemented");
+    public async getChain(@Param("chainId", new ParsePositiveIntPipe()) chainId: number) {
+        return getZKChainInfo(chainId);
     }
 }
