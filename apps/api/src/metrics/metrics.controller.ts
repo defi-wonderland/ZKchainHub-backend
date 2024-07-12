@@ -1,8 +1,9 @@
 import { Controller, Get, Param } from "@nestjs/common";
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ZKChainInfo } from "@shared/dtos/dto/chain.dto";
-import { ParsePositiveIntPipe } from "apps/api/src/common/pipes/parsePositiveInt.pipe";
-import { getEcosystemInfo, getZKChainInfo } from "apps/api/src/metrics/mocks/metrics.mock";
+
+import { ParsePositiveIntPipe } from "../common/pipes/parsePositiveInt.pipe";
+import { getEcosystemInfo, getZKChainInfo } from "./mocks/metrics.mock";
 
 @ApiTags("metrics")
 @Controller("metrics")
