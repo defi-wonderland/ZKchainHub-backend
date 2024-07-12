@@ -1,44 +1,43 @@
-import { ApiProperty } from "@nestjs/swagger";
-
 export class AssetDistribution {
     [asset: string]: number;
 }
 
 export class BatchesInfo {
-    @ApiProperty()
-    commited!: number;
+    commited: number;
+    verified: number;
+    proved: number;
 
-    @ApiProperty()
-    verified!: number;
-
-    @ApiProperty()
-    proved!: number;
+    constructor(data: BatchesInfo) {
+        this.commited = data.commited;
+        this.verified = data.verified;
+        this.proved = data.proved;
+    }
 }
 
 export class EthGasInfo {
-    @ApiProperty()
-    gasPrice!: number;
+    gasPrice: number;
+    ethTransfer: number;
+    erc20Transfer: number;
 
-    @ApiProperty()
-    ethTransfer!: number;
-
-    @ApiProperty()
-    erc20Transfer!: number;
+    constructor(data: EthGasInfo) {
+        this.gasPrice = data.gasPrice;
+        this.ethTransfer = data.ethTransfer;
+        this.erc20Transfer = data.erc20Transfer;
+    }
 }
 
 export class FeeParams {
-    @ApiProperty()
-    batchOverheadL1Gas!: number;
+    batchOverheadL1Gas: number;
+    maxPubdataPerBatch: number;
+    maxL2GasPerBatch: number;
+    priorityTxMaxPubdata: number;
+    minimalL2GasPrice: number;
 
-    @ApiProperty()
-    maxPubdataPerBatch!: number;
-
-    @ApiProperty()
-    maxL2GasPerBatch!: number;
-
-    @ApiProperty()
-    priorityTxMaxPubdata!: number;
-
-    @ApiProperty()
-    minimalL2GasPrice!: number;
+    constructor(data: FeeParams) {
+        this.batchOverheadL1Gas = data.batchOverheadL1Gas;
+        this.maxPubdataPerBatch = data.maxPubdataPerBatch;
+        this.maxL2GasPerBatch = data.maxL2GasPerBatch;
+        this.priorityTxMaxPubdata = data.priorityTxMaxPubdata;
+        this.minimalL2GasPrice = data.minimalL2GasPrice;
+    }
 }

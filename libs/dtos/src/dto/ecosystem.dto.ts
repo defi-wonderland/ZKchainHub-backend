@@ -1,10 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import {
-    AssetDistribution,
-    BatchesInfo,
-    EthGasInfo,
-    FeeParams,
-} from "@shared/dtos/dto/l1Metrics.dto";
+import { AssetDistribution, EthGasInfo } from "@shared/dtos/dto/l1Metrics.dto";
 import { Chains, ChainType } from "@shared/dtos/types";
 
 export class EcosystemInfo {
@@ -15,21 +10,40 @@ export class EcosystemInfo {
             type: "number",
         },
     })
-    l1Tvl!: AssetDistribution;
+    l1Tvl: AssetDistribution;
 
-    @ApiProperty({
-        example: { "1": { commited: 100, verified: 90, proved: 80 } },
-        description: "Batches info for each chain id",
-        additionalProperties: {
-            type: "number",
-        },
-    })
-    getBatchesInfo!: Record<number, BatchesInfo>;
+    ethGasInfo: EthGasInfo;
+
+    @ApiProperty({ isArray: true })
+    zkChains: ZKChainSummary[];
+
+    constructor(data: EcosystemInfo) {
+        this.l1Tvl = data.l1Tvl;
+        this.ethGasInfo = data.ethGasInfo;
+        this.zkChains = data.zkChains;
+    }
+}
+
+export class ZKChainSummary {
+    chainId: number;
 
     @ApiProperty({ enum: Chains, enumName: "ChainType" })
-    chainType!: ChainType;
+    chainType: ChainType;
 
-    ethGasInfo!: EthGasInfo;
+    nativeToken?: string;
 
-    feeParams!: FeeParams;
+    tvl: number;
+
+    metadata?: boolean;
+
+    rpc?: boolean;
+
+    constructor(data: ZKChainSummary) {
+        this.chainId = data.chainId;
+        this.chainType = data.chainType;
+        this.nativeToken = data.nativeToken;
+        this.tvl = data.tvl;
+        this.metadata = data.metadata;
+        this.rpc = data.rpc;
+    }
 }

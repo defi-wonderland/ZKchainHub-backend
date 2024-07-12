@@ -4,25 +4,46 @@ import { L2ChainInfo } from "@shared/dtos/dto/l2Metrics.dto";
 import { Metadata } from "@shared/dtos/dto/metadata.dto";
 
 export const getEcosystemInfo = () => {
-    const mock = new EcosystemInfo();
-    mock.chainType = "Rollup";
-    mock.l1Tvl = { ETH: 1000000, USDC: 500000 };
-    mock.getBatchesInfo = {
-        1: { commited: 100, verified: 90, proved: 80 },
-        2: { commited: 200, verified: 180, proved: 160 },
-    };
-    mock.ethGasInfo = {
-        gasPrice: 50,
-        ethTransfer: 21000,
-        erc20Transfer: 65000,
-    };
-    mock.feeParams = {
-        batchOverheadL1Gas: 50000,
-        maxPubdataPerBatch: 120000,
-        maxL2GasPerBatch: 10000000,
-        priorityTxMaxPubdata: 15000,
-        minimalL2GasPrice: 0.25,
-    };
+    const mock = new EcosystemInfo({
+        l1Tvl: { ETH: 1000000, USDC: 500000 },
+        ethGasInfo: {
+            gasPrice: 50,
+            ethTransfer: 21000,
+            erc20Transfer: 65000,
+        },
+        zkChains: [
+            {
+                chainId: 0,
+                chainType: "Rollup",
+                nativeToken: "ETH",
+                tvl: 1000000,
+                metadata: true,
+                rpc: true,
+            },
+            {
+                chainId: 1,
+                chainType: "Validium",
+                nativeToken: "ETH",
+                tvl: 500000,
+                metadata: true,
+                rpc: false,
+            },
+            {
+                chainId: 2,
+                chainType: "Rollup",
+                tvl: 300000,
+                metadata: false,
+                rpc: true,
+            },
+            {
+                chainId: 3,
+                chainType: "Rollup",
+                tvl: 10000,
+                metadata: false,
+                rpc: false,
+            },
+        ],
+    });
     return mock;
 };
 
@@ -73,7 +94,7 @@ export const getZKChainInfo = (chainId: number): ZKChainInfo => {
             mock.metadata = mockMetadata;
             break;
         case 2:
-            mock.metadata = mockMetadata;
+            mock.l2ChainInfo = mockL2Info;
             break;
         default:
             break;
