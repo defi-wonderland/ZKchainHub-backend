@@ -1,41 +1,50 @@
 {
-    "$schema": "https://json.schemastore.org/nest-cli",
-    "collection": "@nestjs/schematics",
-    "sourceRoot": "apps/api/src",
-    "compilerOptions": {
-        "deleteOutDir": true,
-        "webpack": true,
-        "tsConfigPath": "apps/api/tsconfig.app.json"
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/api/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/api/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/api",
+  "projects": {
+    "api": {
+      "type": "application",
+      "root": "apps/api",
+      "entryFile": "main",
+      "sourceRoot": "apps/api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api/tsconfig.app.json",
+        "plugins": [
+          {
+            "name": "@nestjs/swagger",
+            "options": {
+              "classValidatorShim": false,
+              "introspectComments": true
+            }
+          }
+        ]
+      }
     },
-    "monorepo": true,
-    "root": "apps/api",
-    "projects": {
-        "api": {
-            "type": "application",
-            "root": "apps/api",
-            "entryFile": "main",
-            "sourceRoot": "apps/api/src",
-            "compilerOptions": {
-                "tsConfigPath": "apps/api/tsconfig.app.json",
-                "plugins": [
-                    {
-                        "name": "@nestjs/swagger",
-                        "options": {
-                            "classValidatorShim": false,
-                            "introspectComments": true
-                        }
-                    }
-                ]
-            }
-        },
-        "providers": {
-            "type": "library",
-            "root": "libs/providers",
-            "entryFile": "index",
-            "sourceRoot": "libs/providers/src",
-            "compilerOptions": {
-                "tsConfigPath": "libs/providers/tsconfig.lib.json"
-            }
-        }
+    "providers": {
+      "type": "library",
+      "root": "libs/providers",
+      "entryFile": "index",
+      "sourceRoot": "libs/providers/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/providers/tsconfig.lib.json"
+      }
+    },
+    "abis": {
+      "type": "library",
+      "root": "libs/abis",
+      "entryFile": "index",
+      "sourceRoot": "libs/abis/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/abis/tsconfig.lib.json"
+      }
     }
+  }
 }
