@@ -1,7 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { AssetDistribution, BatchesInfo, FeeParams } from "@shared/dtos/dto/l1Metrics.dto";
-import { L2ChainInfo } from "@shared/dtos/dto/l2Metrics.dto";
-import { Metadata } from "@shared/dtos/dto/metadata.dto";
+import { AssetDistribution, BatchesInfo, FeeParams, L2ChainInfo, Metadata } from "@shared/dtos/dto";
 import { Chains, ChainType } from "@shared/dtos/types";
 
 /**
@@ -62,10 +60,6 @@ export class ZKChainInfo {
     @ApiPropertyOptional()
     l2ChainInfo?: L2ChainInfo;
 
-    /**
-     * Constructs an instance of the ZKChainInfo class.
-     * @param {ZKChainInfo} data - The data to initialize the instance with.
-     */
     constructor(data: ZKChainInfo) {
         this.chainType = data.chainType;
         this.tvl = data.tvl;

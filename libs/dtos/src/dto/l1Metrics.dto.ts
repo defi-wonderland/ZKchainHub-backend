@@ -66,10 +66,6 @@ export class EthGasInfo {
      */
     erc20Transfer: number;
 
-    /**
-     * Constructs an instance of the EthGasInfo class.
-     * @param {EthGasInfo} data - The data to initialize the instance with.
-     */
     constructor(data: EthGasInfo) {
         this.gasPrice = data.gasPrice;
         this.ethTransfer = data.ethTransfer;

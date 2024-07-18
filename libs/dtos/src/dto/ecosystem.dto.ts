@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { AssetDistribution, EthGasInfo } from "@shared/dtos/dto/l1Metrics.dto";
+import { AssetDistribution, EthGasInfo } from "@shared/dtos/dto";
 import { Chains, ChainType } from "@shared/dtos/types";
 
 /**
@@ -94,10 +94,6 @@ export class ZKChainSummary {
      */
     rpc?: boolean;
 
-    /**
-     * Constructs an instance of the ZKChainSummary class.
-     * @param {ZKChainSummary} data - The data to initialize the instance with.
-     */
     constructor(data: ZKChainSummary) {
         this.chainId = data.chainId;
         this.chainType = data.chainType;

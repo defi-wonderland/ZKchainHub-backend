@@ -16,10 +16,6 @@ export class RPC {
      */
     status?: boolean;
 
-    /**
-     * Constructs an instance of the RPC class.
-     * @param {RPC} data - The data to initialize the instance with.
-     */
     constructor(data: RPC) {
         this.url = data.url;
         this.status = data.status;
@@ -79,10 +75,6 @@ export class Metadata {
      */
     nativeToken: string;
 
-    /**
-     * Constructs an instance of the Metadata class.
-     * @param {Metadata} data - The data to initialize the instance with.
-     */
     constructor(data: Metadata) {
         this.iconUrl = data.iconUrl;
         this.chainName = data.chainName;

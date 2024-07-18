@@ -30,10 +30,6 @@ export class L2ChainInfo {
      */
     lastBlockVerified: number;
 
-    /**
-     * Constructs an instance of the L2ChainInfo class.
-     * @param {L2ChainInfo} data - The data to initialize the instance with.
-     */
     constructor(data: L2ChainInfo) {
         this.tps = data.tps;
         this.avgBlockTime = data.avgBlockTime;
