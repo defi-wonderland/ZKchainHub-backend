@@ -1,7 +1,5 @@
 import { Module } from "@nestjs/common";
-import { EthersEvmProviderService } from "@packages/providers/ethersEvmProvider.service";
-
-import { EvmProviderService } from "./evmProvider.service";
+import { EthersEvmProviderService, EvmProviderService } from "@packages/providers/providers";
 
 @Module({
     providers: [EvmProviderService, EthersEvmProviderService],
