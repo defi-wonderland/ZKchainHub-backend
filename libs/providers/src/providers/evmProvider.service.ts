@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { InvalidArgumentException } from "@packages/providers/exceptions";
-import { IEvmProvider } from "@packages/providers/interfaces";
 import {
     Abi,
     Address,
@@ -19,7 +18,7 @@ import {
  * Acts as a wrapper around Viem library to provide methods to interact with an EVM-based blockchain.
  */
 @Injectable()
-export class EvmProviderService implements IEvmProvider {
+export class EvmProviderService {
     private client: ReturnType<typeof createPublicClient<HttpTransport, Chain>>;
 
     constructor(
@@ -32,6 +31,11 @@ export class EvmProviderService implements IEvmProvider {
         });
     }
 
+    /**
+     * Retrieves the balance of the specified address.
+     * @param {Address} address The address for which to retrieve the balance.
+     * @returns {Promise<bigint>} A Promise that resolves to the balance of the address.
+     */
     async getBalance(address: Address): Promise<bigint> {
         return this.client.getBalance({ address });
     }
