@@ -1,13 +1,19 @@
 import { Injectable } from "@nestjs/common";
 import { InvalidArgumentException } from "@packages/providers/exceptions";
+import { AbiWithConstructor } from "@packages/providers/types";
+import { AbiParameter } from "abitype";
 import {
     Abi,
     Address,
     Chain,
+    ContractConstructorArgs,
     ContractFunctionArgs,
     ContractFunctionName,
     ContractFunctionReturnType,
     createPublicClient,
+    decodeAbiParameters,
+    DecodeAbiParametersReturnType,
+    encodeDeployData,
     Hex,
     http,
     HttpTransport,
@@ -107,5 +113,33 @@ export class EvmProviderService {
             functionName,
             args,
         });
+    }
+
+    /**
+     * Executes a batch request to deploy a contract and returns the decoded constructor return parameters.
+     * @param {AbiWithConstructor} abi - The ABI (Application Binary Interface) of the contract. Must contain a constructor.
+     * @param {Hex} bytecode - The bytecode of the contract.
+     * @param {ContractConstructorArgs<typeof abi>} args - The constructor arguments for the contract.
+     * @param constructorReturnParams - The return parameters of the contract's constructor.
+     * @returns The decoded constructor return parameters.
+     * @throws Error if there is no return data from contract deployment.
+     */
+    async batchRequest<ReturnType extends readonly AbiParameter[]>(
+        abi: AbiWithConstructor,
+        bytecode: Hex,
+        args: ContractConstructorArgs<typeof abi>,
+        constructorReturnParams: ReturnType,
+    ): Promise<DecodeAbiParametersReturnType<ReturnType>> {
+        const deploymentData = args ? encodeDeployData({ abi, bytecode, args }) : bytecode;
+
+        const { data: returnData } = await this.client.call({
+            data: deploymentData,
+        });
+
+        if (!returnData) {
+            throw new Error("No return data from contract deployment");
+        }
+
+        return decodeAbiParameters(constructorReturnParams, returnData);
     }
 }
