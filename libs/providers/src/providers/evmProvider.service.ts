@@ -19,7 +19,7 @@ import {
  * Acts as a wrapper around Viem library to provide methods to interact with an EVM-based blockchain.
  */
 @Injectable()
-export class ViemProviderService implements IEvmProvider {
+export class EvmProviderService implements IEvmProvider {
     private client: ReturnType<typeof createPublicClient<HttpTransport, Chain>>;
 
     constructor(
@@ -32,11 +32,6 @@ export class ViemProviderService implements IEvmProvider {
         });
     }
 
-    /**
-     * Retrieves the balance of the specified address.
-     * @param {Address} address The address for which to retrieve the balance.
-     * @returns {Promise<bigint>} A Promise that resolves to the balance of the address.
-     */
     async getBalance(address: Address): Promise<bigint> {
         return this.client.getBalance({ address });
     }

@@ -1,1 +1,1 @@
-export * from "./viemProvider.service";
+export * from "./evmProvider.service";

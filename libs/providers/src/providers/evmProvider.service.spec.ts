@@ -4,7 +4,7 @@ import { parseAbi } from "abitype";
 import * as viem from "viem";
 import { localhost } from "viem/chains";
 
-import { ViemProviderService } from "./viemProvider.service";
+import { EvmProviderService } from "./evmProvider.service";
 
 const mockClient = createMock<ReturnType<typeof viem.createPublicClient>>();
 
@@ -14,8 +14,8 @@ jest.mock("viem", () => ({
     http: jest.fn(),
 }));
 
-describe("ViemProviderService", () => {
-    let viemProvider: ViemProviderService;
+describe("EvmProviderService", () => {
+    let viemProvider: EvmProviderService;
     const testAbi = parseAbi([
         "function balanceOf(address owner) view returns (uint256)",
         "function tokenURI(uint256 tokenId) pure returns (string)",
@@ -25,17 +25,17 @@ describe("ViemProviderService", () => {
         const app: TestingModule = await Test.createTestingModule({
             providers: [
                 {
-                    provide: ViemProviderService,
+                    provide: EvmProviderService,
                     useFactory: () => {
                         const rpcUrl = "http://localhost:8545";
                         const chain = localhost;
-                        return new ViemProviderService(rpcUrl, chain);
+                        return new EvmProviderService(rpcUrl, chain);
                     },
                 },
             ],
         }).compile();
 
-        viemProvider = app.get<ViemProviderService>(ViemProviderService);
+        viemProvider = app.get<EvmProviderService>(EvmProviderService);
     });
 
     afterEach(() => {
