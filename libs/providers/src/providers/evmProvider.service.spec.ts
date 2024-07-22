@@ -1,8 +1,10 @@
 import { createMock } from "@golevelup/ts-jest";
 import { Test, TestingModule } from "@nestjs/testing";
+import { DataDecodeException } from "@packages/providers/exceptions";
 import { parseAbi } from "abitype";
 import * as viem from "viem";
 import { localhost } from "viem/chains";
+import { z } from "zod";
 
 import { EvmProviderService } from "./evmProvider.service";
 
@@ -181,7 +183,6 @@ describe("EvmProviderService", () => {
                 "struct TokenData { uint8 tokenDecimals; string tokenSymbol; string tokenName; }",
             ]);
 
-            // Mock the readContract method of the Viem client
             jest.spyOn(mockClient, "call").mockResolvedValue(expectedReturnValue);
 
             const returnValue = await viemProvider.batchRequest(
@@ -205,6 +206,66 @@ describe("EvmProviderService", () => {
                     },
                 ],
             ]);
+        });
+
+        it("should fail if no data is returned", async () => {
+            const expectedReturnValue = {
+                data: undefined,
+            } as const;
+
+            const args = [
+                [
+                    "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                    "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                ],
+            ] as const;
+
+            const returnAbiParams = viem.parseAbiParameters([
+                "TokenData[] returnData",
+                "struct TokenData { uint8 tokenDecimals; string tokenSymbol; string tokenName; }",
+            ]);
+
+            jest.spyOn(mockClient, "call").mockResolvedValue(expectedReturnValue);
+
+            await expect(
+                viemProvider.batchRequest(abi, bytecode, args, returnAbiParams),
+            ).rejects.toThrowError(DataDecodeException);
+        });
+
+        it("should fail if decoded data does not match validator", async () => {
+            const expectedReturnValue = {
+                data: `0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000045745544800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d57726170706564204574686572000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000045553444300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000855534420436f696e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000`,
+            } as const;
+
+            const args = [
+                [
+                    "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                    "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                ],
+            ] as const;
+
+            // this schema is incorrect, it should have 3 fields instead of 2
+            const returnAbiParams = viem.parseAbiParameters([
+                "TokenData[] returnData",
+                "struct TokenData { string tokenSymbol; string tokenName; }",
+            ]);
+            const tokenDataSchema = z.strictObject({
+                tokenName: z.string(),
+                tokenSymbol: z.string(),
+            });
+            const tokenDataArraySchema = z.array(z.array(tokenDataSchema));
+
+            jest.spyOn(mockClient, "call").mockResolvedValue(expectedReturnValue);
+
+            await expect(
+                viemProvider.batchRequest(
+                    abi,
+                    bytecode,
+                    args,
+                    returnAbiParams,
+                    tokenDataArraySchema,
+                ),
+            ).rejects.toThrowError(DataDecodeException);
         });
     });
 });
