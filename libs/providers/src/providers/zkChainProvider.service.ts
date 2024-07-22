@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InvalidArgumentException } from "@packages/providers/exceptions";
 import { EvmProviderService } from "@packages/providers/providers/evmProvider.service";
-import { Chain, Client, createClient, Hex, http, HttpTransport } from "viem";
+import { Chain, Client, createClient, http, HttpTransport } from "viem";
 import { GetL1BatchDetailsReturnType, PublicActionsL2, publicActionsL2 } from "viem/zksync";
 
 @Injectable()
@@ -29,8 +29,8 @@ export class ZKChainProviderService extends EvmProviderService {
      * Retrieves the current L1 batch number.
      * @returns Current L1 batch number.
      */
-    async getL1BatchNumber(): Promise<Hex> {
-        return this.zkClient.getL1BatchNumber();
+    async getL1BatchNumber(): Promise<number> {
+        return parseInt((await this.zkClient.getL1BatchNumber()).toString(), 16);
     }
 
     /**
@@ -58,7 +58,7 @@ export class ZKChainProviderService extends EvmProviderService {
      * @returns TPS value.
      */
     async tps(): Promise<number> {
-        const currentBatchNumber = parseInt((await this.getL1BatchNumber()).toString(), 16);
+        const currentBatchNumber = await this.getL1BatchNumber();
         const [currentBatch, prevBatch] = await Promise.all([
             this.getL1BatchDetails(currentBatchNumber),
             this.getL1BatchDetails(currentBatchNumber - 1),
@@ -67,6 +67,6 @@ export class ZKChainProviderService extends EvmProviderService {
         const txCount = currentBatch.l2TxCount;
         const blockTime = currentBatch.timestamp - prevBatch.timestamp;
 
-        return parseFloat((txCount / blockTime).toFixed(3));
+        return txCount / blockTime;
     }
 }

@@ -67,18 +67,17 @@ describe("ZKChainProviderService", () => {
 
     describe("tps", () => {
         it("should return the transactions per second (TPS)", async () => {
-            const currentBatchNumber = "0x3e8"; // 1000 in hexadecimal
-            const currentBatchNumberNum = parseInt(currentBatchNumber, 16);
+            const currentBatchNumber = 1000; // 1000 in hexadecimal
             const currentBatchDetails = { l2TxCount: 200, timestamp: 123234345 };
             const prevBatchDetails = { timestamp: 123123123 };
 
             jest.spyOn(zkProvider, "getL1BatchNumber").mockResolvedValue(currentBatchNumber);
             jest.spyOn(zkProvider, "getL1BatchDetails").mockImplementation((batchNumber) => {
-                if (batchNumber === currentBatchNumberNum) {
+                if (batchNumber === currentBatchNumber) {
                     return Promise.resolve(
                         currentBatchDetails as unknown as GetL1BatchDetailsReturnType,
                     );
-                } else if (batchNumber === currentBatchNumberNum - 1) {
+                } else if (batchNumber === currentBatchNumber - 1) {
                     return Promise.resolve(
                         prevBatchDetails as unknown as GetL1BatchDetailsReturnType,
                     );
@@ -86,25 +85,24 @@ describe("ZKChainProviderService", () => {
                 return Promise.reject(new Error("Block number not found"));
             });
             const tps = await zkProvider.tps();
-            expect(tps).toBe(0.002);
+            expect(tps).toBe(0.0017982053910197623);
             expect(zkProvider.getL1BatchNumber).toHaveBeenCalled();
             expect(zkProvider.getL1BatchDetails).toHaveBeenCalledWith(1000);
             expect(zkProvider.getL1BatchDetails).toHaveBeenCalledWith(999);
         });
 
         it("should handle the case when there are no transactions", async () => {
-            const currentBatchNumber = "0x3e8"; // 1000 in hexadecimal
-            const currentBatchNumberNum = parseInt(currentBatchNumber, 16);
+            const currentBatchNumber = 1000; // 1000 in hexadecimal
             const currentBatchDetails = { l2TxCount: 0, timestamp: 123234345 };
             const prevBatchDetails = { timestamp: 123123123 };
 
             jest.spyOn(zkProvider, "getL1BatchNumber").mockResolvedValue(currentBatchNumber);
             jest.spyOn(zkProvider, "getL1BatchDetails").mockImplementation((batchNumber) => {
-                if (batchNumber === currentBatchNumberNum) {
+                if (batchNumber === currentBatchNumber) {
                     return Promise.resolve(
                         currentBatchDetails as unknown as GetL1BatchDetailsReturnType,
                     );
-                } else if (batchNumber === currentBatchNumberNum - 1) {
+                } else if (batchNumber === currentBatchNumber - 1) {
                     return Promise.resolve(
                         prevBatchDetails as unknown as GetL1BatchDetailsReturnType,
                     );

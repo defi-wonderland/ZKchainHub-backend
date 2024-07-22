@@ -51,7 +51,7 @@ export class EvmProviderService {
 
     /**
      * Retrieves the current block number.
-     * @returns {Promise<bigint>} Latest block number.
+     * @returns {Promise<GetBlockReturnType>} Latest block number.
      */
     async getBlockByNumber(blockNumber: number): Promise<GetBlockReturnType> {
         return this.client.getBlock({ blockNumber: BigInt(blockNumber) });
