@@ -19,7 +19,6 @@ import {
     HttpTransport,
     toHex,
 } from "viem";
-import { z } from "zod";
 
 /**
  * Acts as a wrapper around Viem library to provide methods to interact with an EVM-based blockchain.
@@ -122,7 +121,6 @@ export class EvmProviderService {
      * @param {Hex} bytecode - The bytecode of the contract.
      * @param {ContractConstructorArgs<typeof abi>} args - The constructor arguments for the contract.
      * @param constructorReturnParams - The return parameters of the contract's constructor.
-     * @param {ZodSchema} [zodSchemaValidator] - An optional Zod schema validator to validate the decoded return parameters.
      * @returns The decoded constructor return parameters.
      * @throws {DataDecodeException} if there is no return data or if the return data does not match the expected type.
      */
@@ -131,7 +129,6 @@ export class EvmProviderService {
         bytecode: Hex,
         args: ContractConstructorArgs<typeof abi>,
         constructorReturnParams: ReturnType,
-        zodSchemaValidator?: z.ZodSchema,
     ): Promise<DecodeAbiParametersReturnType<ReturnType>> {
         const deploymentData = args ? encodeDeployData({ abi, bytecode, args }) : bytecode;
 
@@ -142,17 +139,12 @@ export class EvmProviderService {
         if (!returnData) {
             throw new DataDecodeException("No return data");
         }
-        const decoded = decodeAbiParameters(constructorReturnParams, returnData);
 
-        if (zodSchemaValidator) {
-            const validationResult = zodSchemaValidator.safeParse(decoded);
-            if (!validationResult.success) {
-                throw new DataDecodeException(
-                    "Return data does not match expected type: " + validationResult.error.message,
-                );
-            }
+        try {
+            const decoded = decodeAbiParameters(constructorReturnParams, returnData);
+            return decoded;
+        } catch (e) {
+            throw new DataDecodeException("Error decoding return data with given AbiParameters");
         }
-
-        return decoded;
     }
 }
