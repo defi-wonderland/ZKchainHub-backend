@@ -45,6 +45,15 @@
             "compilerOptions": {
                 "tsConfigPath": "libs/dtos/tsconfig.lib.json"
             }
+        },
+        "pricing": {
+            "type": "library",
+            "root": "libs/pricing",
+            "entryFile": "index",
+            "sourceRoot": "libs/pricing/src",
+            "compilerOptions": {
+                "tsConfigPath": "libs/pricing/tsconfig.lib.json"
+            }
         }
     }
 }
