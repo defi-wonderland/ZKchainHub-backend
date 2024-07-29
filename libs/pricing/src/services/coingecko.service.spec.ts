@@ -69,6 +69,7 @@ describe("CoingeckoService", () => {
                     params: {
                         vs_currencies: currency,
                         ids: tokenIds.join(","),
+                        precision: service["DECIMALS_PRECISION"].toString(),
                     },
                     headers: {
                         "x-cg-pro-api-key": apiKey,
