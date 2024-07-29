@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { IPricingService } from "@packages/pricing/interfaces";
+
+import { IPricingService } from "@zkchainhub/pricing/interfaces";
 
 @Injectable()
 export class CoingeckoService implements IPricingService {

@@ -23,8 +23,8 @@
             "@packages/providers/*": ["libs/providers/src/*"],
             "@shared/dtos": ["libs/dtos/src"],
             "@shared/dtos/*": ["libs/dtos/src/*"],
-            "@packages/pricing": ["libs/pricing/src"],
-            "@packages/pricing/*": ["libs/pricing/src/*"]
+            "@zkchainhub/pricing": ["libs/pricing/src"],
+            "@zkchainhub/pricing/*": ["libs/pricing/src/*"]
         },
         "verbatimModuleSyntax": false
     }
