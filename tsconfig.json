@@ -19,10 +19,12 @@
         "forceConsistentCasingInFileNames": true,
         "noFallthroughCasesInSwitch": true,
         "paths": {
-            "@packages/providers": ["libs/providers/src"],
-            "@packages/providers/*": ["libs/providers/src/*"],
-            "@shared/dtos": ["libs/dtos/src"],
-            "@shared/dtos/*": ["libs/dtos/src/*"],
+            "@zkchainhub/providers": ["libs/providers/src"],
+            "@zkchainhub/providers/*": ["libs/providers/src/*"],
+            "@zkchainhub/metrics": ["libs/metrics/src"],
+            "@zkchainhub/metrics/*": ["libs/metrics/src/*"],
+            "@zkchainhub/shared": ["libs/shared/src"],
+            "@zkchainhub/shared/*": ["libs/shared/src/*"],
             "@zkchainhub/pricing": ["libs/pricing/src"],
             "@zkchainhub/pricing/*": ["libs/pricing/src/*"]
         },

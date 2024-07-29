@@ -37,13 +37,22 @@
                 "tsConfigPath": "libs/providers/tsconfig.lib.json"
             }
         },
-        "dtos": {
+        "metrics": {
             "type": "library",
-            "root": "libs/dtos",
+            "root": "libs/metrics",
             "entryFile": "index",
-            "sourceRoot": "libs/dtos/src",
+            "sourceRoot": "libs/metrics/src",
             "compilerOptions": {
-                "tsConfigPath": "libs/dtos/tsconfig.lib.json"
+                "tsConfigPath": "libs/metrics/tsconfig.lib.json"
+            }
+        },
+        "shared": {
+            "type": "library",
+            "root": "libs/shared",
+            "entryFile": "index",
+            "sourceRoot": "libs/shared/src",
+            "compilerOptions": {
+                "tsConfigPath": "libs/shared/tsconfig.lib.json"
             }
         },
         "pricing": {
