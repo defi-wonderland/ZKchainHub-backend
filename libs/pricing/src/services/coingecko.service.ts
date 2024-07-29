@@ -4,8 +4,10 @@ import { IPricingService } from "@zkchainhub/pricing/interfaces";
 
 @Injectable()
 export class CoingeckoService implements IPricingService {
-    private readonly API_BASE_URL = "https://api.coingecko.com/api/v3/";
-    constructor(private readonly apiKey: string) {}
+    constructor(
+        private readonly apiKey: string,
+        private readonly apiBaseUrl: string = "https://api.coingecko.com/api/v3/",
+    ) {}
 
     async getTokenPrices(
         _tokenIds: string[],

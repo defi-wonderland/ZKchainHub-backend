@@ -12,7 +12,8 @@ describe("CoingeckoService", () => {
                     provide: CoingeckoService,
                     useFactory: () => {
                         const apiKey = "COINGECKO_API_KEY";
-                        return new CoingeckoService(apiKey);
+                        const apiBaseUrl = "https://api.coingecko.com/api/v3/";
+                        return new CoingeckoService(apiKey, apiBaseUrl);
                     },
                 },
             ],
