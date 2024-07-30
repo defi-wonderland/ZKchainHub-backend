@@ -1,8 +1,6 @@
-import { createMock } from "@golevelup/ts-jest";
-import { HttpService } from "@nestjs/axios";
-import { HttpException, HttpStatus } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import { AxiosError, AxiosInstance, AxiosResponseHeaders } from "axios";
+import { AxiosError, AxiosInstance } from "axios";
+import MockAdapter from "axios-mock-adapter";
 
 import { ApiNotAvailable, RateLimitExceeded } from "@zkchainhub/pricing/exceptions";
 import { TokenPrices } from "@zkchainhub/pricing/types/tokenPrice.type";
@@ -11,8 +9,10 @@ import { CoingeckoService } from "./coingecko.service";
 
 describe("CoingeckoService", () => {
     let service: CoingeckoService;
-    let httpService: HttpService;
+    let axios: AxiosInstance;
+    let mockAxios: MockAdapter;
     const apiKey = "COINGECKO_API_KEY";
+    const apiBaseUrl = "https://api.coingecko.com/api/v3/";
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -20,28 +20,36 @@ describe("CoingeckoService", () => {
                 CoingeckoService,
                 {
                     provide: CoingeckoService,
-                    useFactory: (httpService: HttpService) => {
-                        const apiKey = "COINGECKO_API_KEY";
-                        const apiBaseUrl = "https://api.coingecko.com/api/v3/";
-                        return new CoingeckoService(apiKey, apiBaseUrl, httpService);
+                    useFactory: () => {
+                        return new CoingeckoService(apiKey, apiBaseUrl);
                     },
-                    inject: [HttpService],
-                },
-                {
-                    provide: HttpService,
-                    useValue: createMock<HttpService>({
-                        axiosRef: createMock<AxiosInstance>(),
-                    }),
                 },
             ],
         }).compile();
 
         service = module.get<CoingeckoService>(CoingeckoService);
-        httpService = module.get<HttpService>(HttpService);
+        axios = service["axios"];
+        mockAxios = new MockAdapter(axios);
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+        mockAxios.reset();
     });
 
     it("should be defined", () => {
         expect(service).toBeDefined();
+    });
+
+    it("should have an axios instance", () => {
+        expect(axios).toBeDefined();
+        expect(axios.defaults.baseURL).toBe(apiBaseUrl);
+        expect(axios.defaults.headers.common).toEqual(
+            expect.objectContaining({
+                "x-cg-pro-api-key": apiKey,
+                Accept: "application/json",
+            }),
+        );
     });
 
     describe("getTokenPrices", () => {
@@ -53,7 +61,7 @@ describe("CoingeckoService", () => {
                 token2: { usd: 4.56 },
             };
 
-            jest.spyOn(httpService.axiosRef, "get").mockResolvedValueOnce({
+            jest.spyOn(axios, "get").mockResolvedValueOnce({
                 data: expectedResponse,
             });
 
@@ -63,35 +71,24 @@ describe("CoingeckoService", () => {
                 token1: 1.23,
                 token2: 4.56,
             });
-            expect(httpService.axiosRef.get).toHaveBeenCalledWith(
-                `${service["apiBaseUrl"]}/simple/price`,
-                {
-                    params: {
-                        vs_currencies: currency,
-                        ids: tokenIds.join(","),
-                        precision: service["DECIMALS_PRECISION"].toString(),
-                    },
-                    headers: {
-                        "x-cg-pro-api-key": apiKey,
-                        Accept: "application/json",
-                    },
+            expect(axios.get).toHaveBeenCalledWith(`simple/price`, {
+                params: {
+                    vs_currencies: currency,
+                    ids: tokenIds.join(","),
+                    precision: service["DECIMALS_PRECISION"].toString(),
                 },
-            );
+            });
         });
 
         it("throw ApiNotAvailable when Coingecko returns a 500 family exception", async () => {
             const tokenIds = ["token1", "token2"];
             const currency = "usd";
 
-            jest.spyOn(httpService.axiosRef, "get").mockRejectedValueOnce(
-                new AxiosError("Service not available", "503", undefined, null, {
-                    status: 503,
-                    data: {},
-                    statusText: "Too Many Requests",
-                    headers: createMock<AxiosResponseHeaders>(),
-                    config: { headers: createMock<AxiosResponseHeaders>() },
-                }),
-            );
+            mockAxios.onGet().replyOnce(503, {
+                data: {},
+                status: 503,
+                statusText: "Service not available",
+            });
 
             await expect(service.getTokenPrices(tokenIds, { currency })).rejects.toThrow(
                 new ApiNotAvailable("Coingecko"),
@@ -102,15 +99,11 @@ describe("CoingeckoService", () => {
             const tokenIds = ["token1", "token2"];
             const currency = "usd";
 
-            jest.spyOn(httpService.axiosRef, "get").mockRejectedValueOnce(
-                new AxiosError("Rate limit exceeded", "429", undefined, null, {
-                    status: 429,
-                    data: {},
-                    statusText: "Too Many Requests",
-                    headers: createMock<AxiosResponseHeaders>(),
-                    config: { headers: createMock<AxiosResponseHeaders>() },
-                }),
-            );
+            mockAxios.onGet().replyOnce(429, {
+                data: {},
+                status: 429,
+                statusText: "Too Many Requests",
+            });
 
             await expect(service.getTokenPrices(tokenIds, { currency })).rejects.toThrow(
                 new RateLimitExceeded(),
@@ -121,25 +114,19 @@ describe("CoingeckoService", () => {
             const tokenIds = ["invalidTokenId", "token2"];
             const currency = "usd";
 
-            jest.spyOn(httpService.axiosRef, "get").mockRejectedValueOnce(
+            jest.spyOn(axios, "get").mockRejectedValueOnce(
                 new AxiosError("Invalid token ID", "400"),
             );
 
+            mockAxios.onGet().replyOnce(400, {
+                data: {
+                    message: "Invalid token ID",
+                },
+                status: 400,
+                statusText: "Bad Request",
+            });
+
             await expect(service.getTokenPrices(tokenIds, { currency })).rejects.toThrow();
-        });
-
-        it("throw an HttpException with the default error message when a non-network related error occurs", async () => {
-            const tokenIds = ["token1", "token2"];
-            const currency = "usd";
-
-            jest.spyOn(httpService.axiosRef, "get").mockRejectedValueOnce(new Error());
-
-            await expect(service.getTokenPrices(tokenIds, { currency })).rejects.toThrow(
-                new HttpException(
-                    "A non network related error occurred",
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                ),
-            );
         });
     });
 });

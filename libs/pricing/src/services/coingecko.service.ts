@@ -1,6 +1,5 @@
-import { HttpService } from "@nestjs/axios";
 import { Injectable, Logger } from "@nestjs/common";
-import { isAxiosError } from "axios";
+import axios, { AxiosInstance, isAxiosError } from "axios";
 
 import { ApiNotAvailable, RateLimitExceeded } from "@zkchainhub/pricing/exceptions";
 import { IPricingService } from "@zkchainhub/pricing/interfaces";
@@ -15,6 +14,7 @@ export class CoingeckoService implements IPricingService {
 
     private readonly AUTH_HEADER = "x-cg-pro-api-key";
     private readonly DECIMALS_PRECISION = 3;
+    private readonly axios: AxiosInstance;
 
     /**
      *
@@ -24,8 +24,21 @@ export class CoingeckoService implements IPricingService {
     constructor(
         private readonly apiKey: string,
         private readonly apiBaseUrl: string = "https://api.coingecko.com/api/v3/",
-        private readonly httpService: HttpService,
-    ) {}
+    ) {
+        this.axios = axios.create({
+            baseURL: apiBaseUrl,
+            headers: {
+                common: {
+                    [this.AUTH_HEADER]: apiKey,
+                    Accept: "application/json",
+                },
+            },
+        });
+        this.axios.interceptors.response.use(
+            (response) => response,
+            (error: unknown) => this.handleError(error),
+        );
+    }
 
     /**
      * @param tokenIds - An array of Coingecko Tokens IDs.
@@ -36,57 +49,50 @@ export class CoingeckoService implements IPricingService {
         config: { currency: string } = { currency: "usd" },
     ): Promise<Record<string, number>> {
         const { currency } = config;
-        return this.httpGet<TokenPrices>("/simple/price", {
-            vs_currencies: currency,
-            ids: tokenIds.join(","),
-            precision: this.DECIMALS_PRECISION.toString(),
-        }).then((data) => {
-            return Object.fromEntries(Object.entries(data).map(([key, value]) => [key, value.usd]));
-        });
+
+        return this.axios
+            .get<TokenPrices>("simple/price", {
+                params: {
+                    vs_currencies: currency,
+                    ids: tokenIds.join(","),
+                    precision: this.DECIMALS_PRECISION.toString(),
+                },
+            })
+            .then((response) => {
+                const { data } = response;
+                return Object.fromEntries(
+                    Object.entries(data).map(([key, value]) => [key, value.usd]),
+                );
+            });
     }
 
     /**
-     * HTTP GET wrapper to perform a GET request to the specified endpoint with optional parameters.
-     * Also injects the API key and sets the Accept header to "application/json".
-     * @param endpoint - The endpoint to send the GET request to.
-     * @param params - Optional parameters to include in the request.
-     * @returns A promise that resolves to the response data.
-     * @throws {ApiNotAvailable} If the Coingecko API is not available (status code >= 500).
-     * @throws {RateLimitExceeded} If the rate limit for the API is exceeded (status code 429).
-     * @throws {Error} If an error occurs while fetching data or a non-network related error occurs.
+     * Handles errors that occur during API requests.
+     * @param error - The error object to handle.
+     * @throws {ApiNotAvailable} - If the error is a server-side error (status code >= 500).
+     * @throws {RateLimitExceeded} - If the error is a rate limit exceeded error (status code 429).
+     * @throws {Error} - If the error is a client-side error or an unknown error.
+     * @throws {Error} - If the error is a non-network related error.
      */
-    private async httpGet<ResponseType>(endpoint: string, params: Record<string, string> = {}) {
-        try {
-            const response = await this.httpService.axiosRef.get<ResponseType>(
-                `${this.apiBaseUrl}${endpoint}`,
-                {
-                    params,
-                    headers: {
-                        [this.AUTH_HEADER]: this.apiKey,
-                        Accept: "application/json",
-                    },
-                },
-            );
-            return response.data;
-        } catch (error: unknown) {
-            let exception;
-            if (isAxiosError(error)) {
-                const statusCode = error.response?.status ?? 0;
-                if (statusCode >= 500) {
-                    exception = new ApiNotAvailable("Coingecko");
-                } else if (statusCode === 429) {
-                    exception = new RateLimitExceeded();
-                } else {
-                    exception = new Error(
-                        error.response?.data || "An error occurred while fetching data",
-                    );
-                }
+    private handleError(error: unknown) {
+        let exception;
 
-                throw exception;
+        if (isAxiosError(error)) {
+            const statusCode = error.response?.status ?? 0;
+            if (statusCode >= 500) {
+                exception = new ApiNotAvailable("Coingecko");
+            } else if (statusCode === 429) {
+                exception = new RateLimitExceeded();
             } else {
-                this.logger.error(error);
-                throw new Error("A non network related error occurred");
+                exception = new Error(
+                    error.response?.data || "An error occurred while fetching data",
+                );
             }
+
+            throw exception;
+        } else {
+            this.logger.error(error);
+            throw new Error("A non network related error occurred");
         }
     }
 }
