@@ -2,7 +2,7 @@ import { createMock } from "@golevelup/ts-jest";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Logger } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import { AxiosError, AxiosInstance } from "axios";
+import { AxiosInstance } from "axios";
 import MockAdapter from "axios-mock-adapter";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 
@@ -117,12 +117,12 @@ describe("CoingeckoService", () => {
             const tokenIds = ["token1", "token2"];
             const currency = "usd";
 
+            jest.spyOn(cache.store, "mget").mockResolvedValueOnce([null, null]);
             mockAxios.onGet().replyOnce(503, {
                 data: {},
                 status: 503,
                 statusText: "Service not available",
             });
-            jest.spyOn(cache.store, "mget").mockResolvedValueOnce([null, null]);
 
             await expect(service.getTokenPrices(tokenIds, { currency })).rejects.toThrow(
                 new ApiNotAvailable("Coingecko"),
@@ -133,12 +133,12 @@ describe("CoingeckoService", () => {
             const tokenIds = ["token1", "token2"];
             const currency = "usd";
 
+            jest.spyOn(cache.store, "mget").mockResolvedValueOnce([null, null]);
             mockAxios.onGet().replyOnce(429, {
                 data: {},
                 status: 429,
                 statusText: "Too Many Requests",
             });
-            jest.spyOn(cache.store, "mget").mockResolvedValueOnce([null, null]);
 
             await expect(service.getTokenPrices(tokenIds, { currency })).rejects.toThrow(
                 new RateLimitExceeded(),
@@ -150,10 +150,6 @@ describe("CoingeckoService", () => {
             const currency = "usd";
 
             jest.spyOn(cache.store, "mget").mockResolvedValueOnce([null, null]);
-            jest.spyOn(axios, "get").mockRejectedValueOnce(
-                new AxiosError("Invalid token ID", "400"),
-            );
-
             mockAxios.onGet().replyOnce(400, {
                 data: {
                     message: "Invalid token ID",
