@@ -1,5 +1,6 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, LoggerService } from "@nestjs/common";
 import axios, { AxiosInstance, isAxiosError } from "axios";
+import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
 
 import { ApiNotAvailable, RateLimitExceeded } from "@zkchainhub/pricing/exceptions";
 import { IPricingService } from "@zkchainhub/pricing/interfaces";
@@ -10,8 +11,6 @@ import { TokenPrices } from "@zkchainhub/pricing/types/tokenPrice.type";
  */
 @Injectable()
 export class CoingeckoService implements IPricingService {
-    private readonly logger = new Logger(CoingeckoService.name);
-
     private readonly AUTH_HEADER = "x-cg-pro-api-key";
     private readonly DECIMALS_PRECISION = 3;
     private readonly axios: AxiosInstance;
@@ -24,6 +23,7 @@ export class CoingeckoService implements IPricingService {
     constructor(
         private readonly apiKey: string,
         private readonly apiBaseUrl: string = "https://api.coingecko.com/api/v3/",
+        @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService,
     ) {
         this.axios = axios.create({
             baseURL: apiBaseUrl,

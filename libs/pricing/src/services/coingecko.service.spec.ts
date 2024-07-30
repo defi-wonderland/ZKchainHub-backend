@@ -1,11 +1,20 @@
+import { Logger } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { AxiosError, AxiosInstance } from "axios";
 import MockAdapter from "axios-mock-adapter";
+import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 
 import { ApiNotAvailable, RateLimitExceeded } from "@zkchainhub/pricing/exceptions";
 import { TokenPrices } from "@zkchainhub/pricing/types/tokenPrice.type";
 
 import { CoingeckoService } from "./coingecko.service";
+
+export const mockLogger: Partial<Logger> = {
+    log: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+};
 
 describe("CoingeckoService", () => {
     let service: CoingeckoService;
@@ -20,9 +29,14 @@ describe("CoingeckoService", () => {
                 CoingeckoService,
                 {
                     provide: CoingeckoService,
-                    useFactory: () => {
-                        return new CoingeckoService(apiKey, apiBaseUrl);
+                    useFactory: (logger: Logger) => {
+                        return new CoingeckoService(apiKey, apiBaseUrl, logger);
                     },
+                    inject: [WINSTON_MODULE_PROVIDER],
+                },
+                {
+                    provide: WINSTON_MODULE_PROVIDER,
+                    useValue: mockLogger,
                 },
             ],
         }).compile();
