@@ -15,7 +15,7 @@ import * as winston from "winston";
                         winston.format.colorize(),
                         winston.format.printf(
                             ({ timestamp, level, message, stack }: Record<string, string>) => {
-                                return `${timestamp} ${level}: ${stack || message}`;
+                                return `${timestamp} ${level}: ${stack ?? message ?? ""}`;
                             },
                         ),
                     ),
