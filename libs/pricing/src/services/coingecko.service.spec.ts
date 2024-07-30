@@ -1,3 +1,5 @@
+import { createMock } from "@golevelup/ts-jest";
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Logger } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { AxiosError, AxiosInstance } from "axios";
@@ -20,6 +22,7 @@ describe("CoingeckoService", () => {
     let service: CoingeckoService;
     let axios: AxiosInstance;
     let mockAxios: MockAdapter;
+    let cache: Cache;
     const apiKey = "COINGECKO_API_KEY";
     const apiBaseUrl = "https://api.coingecko.com/api/v3/";
 
@@ -29,14 +32,23 @@ describe("CoingeckoService", () => {
                 CoingeckoService,
                 {
                     provide: CoingeckoService,
-                    useFactory: (logger: Logger) => {
-                        return new CoingeckoService(apiKey, apiBaseUrl, logger);
+                    useFactory: (logger: Logger, cache: Cache) => {
+                        return new CoingeckoService(apiKey, apiBaseUrl, logger, cache);
                     },
-                    inject: [WINSTON_MODULE_PROVIDER],
+                    inject: [WINSTON_MODULE_PROVIDER, CACHE_MANAGER],
                 },
                 {
                     provide: WINSTON_MODULE_PROVIDER,
                     useValue: mockLogger,
+                },
+                {
+                    provide: CACHE_MANAGER,
+                    useValue: createMock<Cache>({
+                        store: createMock<Cache["store"]>({
+                            mget: jest.fn(),
+                            mset: jest.fn(),
+                        }),
+                    }),
                 },
             ],
         }).compile();
@@ -44,6 +56,7 @@ describe("CoingeckoService", () => {
         service = module.get<CoingeckoService>(CoingeckoService);
         axios = service["axios"];
         mockAxios = new MockAdapter(axios);
+        cache = module.get<Cache>(CACHE_MANAGER);
     });
 
     afterEach(() => {
@@ -67,7 +80,7 @@ describe("CoingeckoService", () => {
     });
 
     describe("getTokenPrices", () => {
-        it("return token prices", async () => {
+        it("all token prices are fetched from Coingecko", async () => {
             const tokenIds = ["token1", "token2"];
             const currency = "usd";
             const expectedResponse: TokenPrices = {
@@ -75,6 +88,7 @@ describe("CoingeckoService", () => {
                 token2: { usd: 4.56 },
             };
 
+            jest.spyOn(cache.store, "mget").mockResolvedValueOnce([null, null]);
             jest.spyOn(axios, "get").mockResolvedValueOnce({
                 data: expectedResponse,
             });
@@ -92,6 +106,11 @@ describe("CoingeckoService", () => {
                     precision: service["DECIMALS_PRECISION"].toString(),
                 },
             });
+            expect(cache.store.mget).toHaveBeenCalledWith("token1.usd", "token2.usd");
+            expect(cache.store.mset).toHaveBeenCalledWith([
+                ["token1.usd", 1.23],
+                ["token2.usd", 4.56],
+            ]);
         });
 
         it("throw ApiNotAvailable when Coingecko returns a 500 family exception", async () => {
@@ -103,6 +122,7 @@ describe("CoingeckoService", () => {
                 status: 503,
                 statusText: "Service not available",
             });
+            jest.spyOn(cache.store, "mget").mockResolvedValueOnce([null, null]);
 
             await expect(service.getTokenPrices(tokenIds, { currency })).rejects.toThrow(
                 new ApiNotAvailable("Coingecko"),
@@ -118,6 +138,7 @@ describe("CoingeckoService", () => {
                 status: 429,
                 statusText: "Too Many Requests",
             });
+            jest.spyOn(cache.store, "mget").mockResolvedValueOnce([null, null]);
 
             await expect(service.getTokenPrices(tokenIds, { currency })).rejects.toThrow(
                 new RateLimitExceeded(),
@@ -128,6 +149,7 @@ describe("CoingeckoService", () => {
             const tokenIds = ["invalidTokenId", "token2"];
             const currency = "usd";
 
+            jest.spyOn(cache.store, "mget").mockResolvedValueOnce([null, null]);
             jest.spyOn(axios, "get").mockRejectedValueOnce(
                 new AxiosError("Invalid token ID", "400"),
             );
