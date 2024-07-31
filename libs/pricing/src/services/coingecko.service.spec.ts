@@ -80,7 +80,7 @@ describe("CoingeckoService", () => {
     });
 
     describe("getTokenPrices", () => {
-        it("all token prices are fetched from Coingecko", async () => {
+        it("fetches all token prices from Coingecko", async () => {
             const tokenIds = ["token1", "token2"];
             const currency = "usd";
             const expectedResponse: TokenPrices = {
