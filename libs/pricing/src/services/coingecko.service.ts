@@ -54,15 +54,17 @@ export class CoingeckoService implements IPricingService {
 
         const cacheKeys = tokenIds.map((tokenId) => this.formatTokenCacheKey(tokenId, currency));
         const cachedTokenPrices = await this.getTokenPricesFromCache(cacheKeys);
+        const missingTokenIds: string[] = [];
         const cachedMap = cachedTokenPrices.reduce(
             (result, price, index) => {
                 if (price !== null) result[tokenIds.at(index) as string] = price;
+                else missingTokenIds.push(tokenIds.at(index) as string);
+
                 return result;
             },
             {} as Record<string, number>,
         );
 
-        const missingTokenIds = tokenIds.filter((_, index) => !cachedTokenPrices[index]);
         const missingTokenPrices = await this.fetchTokenPrices(missingTokenIds, currency);
 
         await this.saveTokenPricesToCache(missingTokenPrices, currency);
