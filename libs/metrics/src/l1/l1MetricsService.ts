@@ -27,28 +27,32 @@ export class L1MetricsService {
         @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService,
     ) {}
 
-    l1Tvl(): { [asset: string]: { amount: number; amountUsd: number } } {
+    async l1Tvl(): Promise<{ [asset: string]: { amount: number; amountUsd: number } }> {
         return { ETH: { amount: 1000000, amountUsd: 1000000 } };
     }
-    getBatchesInfo(_chainId: number): { commited: number; verified: number; proved: number } {
+    async getBatchesInfo(
+        _chainId: number,
+    ): Promise<{ commited: number; verified: number; proved: number }> {
         return { commited: 100, verified: 100, proved: 100 };
     }
-    tvl(_chainId: number): { [asset: string]: { amount: number; amountUsd: number } } {
+    async tvl(
+        _chainId: number,
+    ): Promise<{ [asset: string]: { amount: number; amountUsd: number } }> {
         return { ETH: { amount: 1000000, amountUsd: 1000000 } };
     }
-    chainType(_chainId: number): "validium" | "rollup" {
+    async chainType(_chainId: number): Promise<"validium" | "rollup"> {
         return "rollup";
     }
-    ethGasInfo(): { gasPrice: number; ethTransfer: number; erc20Transfer: number } {
+    async ethGasInfo(): Promise<{ gasPrice: number; ethTransfer: number; erc20Transfer: number }> {
         return { gasPrice: 50, ethTransfer: 21000, erc20Transfer: 65000 };
     }
-    feeParams(_chainId: number): {
+    async feeParams(_chainId: number): Promise<{
         batchOverheadL1Gas: number;
         maxPubdataPerBatch: number;
         maxL2GasPerBatch: number;
         priorityTxMaxPubdata: number;
         minimalL2GasPrice: number;
-    } {
+    }> {
         return {
             batchOverheadL1Gas: 50000,
             maxPubdataPerBatch: 120000,
