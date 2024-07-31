@@ -3,7 +3,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 
 import { bridgeHubAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
-import { IPricingService } from "@zkchainhub/pricing";
+import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
 import { L1_CONTRACTS } from "@zkchainhub/shared";
 
@@ -41,14 +41,14 @@ describe("L1MetricsService", () => {
                     ) => {
                         return new L1MetricsService(evmProviderService, pricingService, logger);
                     },
-                    inject: [EvmProviderService, "IPricingService", WINSTON_MODULE_PROVIDER],
+                    inject: [EvmProviderService, PRICING_PROVIDER, WINSTON_MODULE_PROVIDER],
                 },
                 {
                     provide: EvmProviderService,
                     useValue: mockEvmProviderService,
                 },
                 {
-                    provide: "IPricingService",
+                    provide: PRICING_PROVIDER,
                     useValue: mockPricingService,
                 },
                 {

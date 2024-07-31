@@ -2,7 +2,7 @@ import { Inject, Injectable, LoggerService } from "@nestjs/common";
 import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
 
 import { bridgeHubAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
-import { IPricingService } from "@zkchainhub/pricing";
+import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
 import { AbiWithAddress, ChainId, L1_CONTRACTS } from "@zkchainhub/shared";
 
@@ -23,7 +23,7 @@ export class L1MetricsService {
 
     constructor(
         private readonly evmProviderService: EvmProviderService,
-        @Inject("IPricingService") private readonly pricingService: IPricingService,
+        @Inject(PRICING_PROVIDER) private readonly pricingService: IPricingService,
         @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService,
     ) {}
 

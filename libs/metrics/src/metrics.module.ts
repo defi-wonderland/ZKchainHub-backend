@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 
-import { CoingeckoService, PricingModule } from "@zkchainhub/pricing";
+import { CoingeckoService, PRICING_PROVIDER, PricingModule } from "@zkchainhub/pricing";
 import { ProvidersModule } from "@zkchainhub/providers";
 import { LoggerModule } from "@zkchainhub/shared";
 
@@ -15,7 +15,7 @@ import { L1MetricsService } from "./l1";
     providers: [
         L1MetricsService,
         {
-            provide: "IPricingService",
+            provide: PRICING_PROVIDER,
             useClass: CoingeckoService,
         },
     ],
