@@ -27,25 +27,31 @@ export class L1MetricsService {
         @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService,
     ) {}
 
+    //TODO: Implement l1Tvl.
     async l1Tvl(): Promise<{ [asset: string]: { amount: number; amountUsd: number } }> {
         return { ETH: { amount: 1000000, amountUsd: 1000000 } };
     }
+    //TODO: Implement getBatchesInfo.
     async getBatchesInfo(
         _chainId: number,
     ): Promise<{ commited: number; verified: number; proved: number }> {
         return { commited: 100, verified: 100, proved: 100 };
     }
+    //TODO: Implement tvl.
     async tvl(
         _chainId: number,
     ): Promise<{ [asset: string]: { amount: number; amountUsd: number } }> {
         return { ETH: { amount: 1000000, amountUsd: 1000000 } };
     }
+    //TODO: Implement chainType.
     async chainType(_chainId: number): Promise<"validium" | "rollup"> {
         return "rollup";
     }
+    //TODO: Implement ethGasInfo.
     async ethGasInfo(): Promise<{ gasPrice: number; ethTransfer: number; erc20Transfer: number }> {
         return { gasPrice: 50, ethTransfer: 21000, erc20Transfer: 65000 };
     }
+    //TODO: Implement feeParams.
     async feeParams(_chainId: number): Promise<{
         batchOverheadL1Gas: number;
         maxPubdataPerBatch: number;
