@@ -1,4 +1,5 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable, LoggerService } from "@nestjs/common";
+import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
 
 import { bridgeHubAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
 import { IPricingService } from "@zkchainhub/pricing";
@@ -22,6 +23,38 @@ export class L1MetricsService {
 
     constructor(
         private readonly evmProviderService: EvmProviderService,
-        private readonly pricingService: IPricingService,
+        @Inject("IPricingService") private readonly pricingService: IPricingService,
+        @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService,
     ) {}
+
+    l1Tvl(): { [asset: string]: { amount: number; amountUsd: number } } {
+        return { ETH: { amount: 1000000, amountUsd: 1000000 } };
+    }
+    getBatchesInfo(_chainId: number): { commited: number; verified: number; proved: number } {
+        return { commited: 100, verified: 100, proved: 100 };
+    }
+    tvl(_chainId: number): { [asset: string]: { amount: number; amountUsd: number } } {
+        return { ETH: { amount: 1000000, amountUsd: 1000000 } };
+    }
+    chainType(_chainId: number): "validium" | "rollup" {
+        return "rollup";
+    }
+    ethGasInfo(): { gasPrice: number; ethTransfer: number; erc20Transfer: number } {
+        return { gasPrice: 50, ethTransfer: 21000, erc20Transfer: 65000 };
+    }
+    feeParams(_chainId: number): {
+        batchOverheadL1Gas: number;
+        maxPubdataPerBatch: number;
+        maxL2GasPerBatch: number;
+        priorityTxMaxPubdata: number;
+        minimalL2GasPrice: number;
+    } {
+        return {
+            batchOverheadL1Gas: 50000,
+            maxPubdataPerBatch: 120000,
+            maxL2GasPerBatch: 10000000,
+            priorityTxMaxPubdata: 15000,
+            minimalL2GasPrice: 10000000,
+        };
+    }
 }
