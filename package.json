@@ -6,8 +6,7 @@
     "private": true,
     "license": "UNLICENSED",
     "scripts": {
-        "build": "forge build --root contracts && nest build",
-        "build:app": "nest build",
+        "build": "nest build",
         "build:contracts": "forge build --root contracts",
         "format": "prettier --write \"{apps,libs}/**/*.ts\"",
         "start": "nest start",
@@ -27,7 +26,8 @@
         "test:e2e": "jest --config ./apps/api/test/jest-e2e.json",
         "create-lib": "echo @zkchainhub | pnpm nest g library $1 ",
         "prepare": "husky",
-        "preinstall": "npx only-allow pnpm"
+        "preinstall": "npx only-allow pnpm",
+        "postinstall": "pnpm build:contracts"
     },
     "dependencies": {
         "@nestjs/axios": "3.0.2",
@@ -115,6 +115,6 @@
             "pnpm lint",
             "pnpm format"
         ],
-        "contracts/**/*.(sol)": "forge fmt"
+        "contracts/**/*.(sol)": "pnpm lint:contracts"
     }
 }
