@@ -79,43 +79,43 @@ describe("L1MetricsService", () => {
     });
 
     describe("l1Tvl", () => {
-        it("return l1Tvl", () => {
-            const result = l1MetricsService.l1Tvl();
+        it("return l1Tvl", async () => {
+            const result = await l1MetricsService.l1Tvl();
             expect(result).toEqual({ ETH: { amount: 1000000, amountUsd: 1000000 } });
         });
     });
 
     describe("getBatchesInfo", () => {
-        it("return getBatchesInfo", () => {
-            const result = l1MetricsService.getBatchesInfo(1);
+        it("return getBatchesInfo", async () => {
+            const result = await l1MetricsService.getBatchesInfo(1);
             expect(result).toEqual({ commited: 100, verified: 100, proved: 100 });
         });
     });
 
     describe("tvl", () => {
-        it("return tvl", () => {
-            const result = l1MetricsService.tvl(1);
+        it("return tvl", async () => {
+            const result = await l1MetricsService.tvl(1);
             expect(result).toEqual({ ETH: { amount: 1000000, amountUsd: 1000000 } });
         });
     });
 
     describe("chainType", () => {
-        it("return chainType", () => {
-            const result = l1MetricsService.chainType(1);
+        it("return chainType", async () => {
+            const result = await l1MetricsService.chainType(1);
             expect(result).toBe("rollup");
         });
     });
 
     describe("ethGasInfo", () => {
-        it("return ethGasInfo", () => {
-            const result = l1MetricsService.ethGasInfo();
+        it("return ethGasInfo", async () => {
+            const result = await l1MetricsService.ethGasInfo();
             expect(result).toEqual({ gasPrice: 50, ethTransfer: 21000, erc20Transfer: 65000 });
         });
     });
 
     describe("feeParams", () => {
-        it("return feeParams", () => {
-            const result = l1MetricsService.feeParams(1);
+        it("return feeParams", async () => {
+            const result = await l1MetricsService.feeParams(1);
             expect(result).toEqual({
                 batchOverheadL1Gas: 50000,
                 maxPubdataPerBatch: 120000,
