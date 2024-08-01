@@ -6,14 +6,17 @@ import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
 import { ApiNotAvailable, RateLimitExceeded } from "@zkchainhub/pricing/exceptions";
 import { IPricingService } from "@zkchainhub/pricing/interfaces";
 import { TokenPrices } from "@zkchainhub/pricing/types/tokenPrice.type";
+import { BASE_CURRENCY } from "@zkchainhub/shared";
+
+export const AUTH_HEADER = "x-cg-pro-api-key";
+export const DECIMALS_PRECISION = 3;
 
 /**
  * Service for fetching token prices from Coingecko API.
+ * Prices are always denominated in USD.
  */
 @Injectable()
 export class CoingeckoService implements IPricingService {
-    private readonly AUTH_HEADER = "x-cg-pro-api-key";
-    private readonly DECIMALS_PRECISION = 3;
     private readonly axios: AxiosInstance;
 
     /**
@@ -31,7 +34,7 @@ export class CoingeckoService implements IPricingService {
             baseURL: apiBaseUrl,
             headers: {
                 common: {
-                    [this.AUTH_HEADER]: apiKey,
+                    [AUTH_HEADER]: apiKey,
                     Accept: "application/json",
                 },
             },
@@ -44,16 +47,10 @@ export class CoingeckoService implements IPricingService {
 
     /**
      * @param tokenIds - An array of Coingecko Tokens IDs.
-     * @param config.currency - The currency in which the prices should be returned (default: "usd").
+     * @returns A promise that resolves to a record of token prices in USD.
      */
-    async getTokenPrices(
-        tokenIds: string[],
-        config: { currency: string } = { currency: "usd" },
-    ): Promise<Record<string, number>> {
-        const { currency } = config;
-
-        const cacheKeys = tokenIds.map((tokenId) => this.formatTokenCacheKey(tokenId, currency));
-        const cachedTokenPrices = await this.getTokenPricesFromCache(cacheKeys);
+    async getTokenPrices(tokenIds: string[]): Promise<Record<string, number>> {
+        const cachedTokenPrices = await this.getTokenPricesFromCache(tokenIds);
         const missingTokenIds: string[] = [];
         const cachedMap = cachedTokenPrices.reduce(
             (result, price, index) => {
@@ -65,9 +62,9 @@ export class CoingeckoService implements IPricingService {
             {} as Record<string, number>,
         );
 
-        const missingTokenPrices = await this.fetchTokenPrices(missingTokenIds, currency);
+        const missingTokenPrices = await this.fetchTokenPrices(missingTokenIds);
 
-        await this.saveTokenPricesToCache(missingTokenPrices, currency);
+        await this.saveTokenPricesToCache(missingTokenPrices);
 
         return { ...cachedMap, ...missingTokenPrices };
     }
@@ -91,21 +88,15 @@ export class CoingeckoService implements IPricingService {
      * @param prices - The token prices to be saved.
      * @param currency - The currency in which the prices are denominated.
      */
-    private async saveTokenPricesToCache(prices: Record<string, number>, currency: string) {
+    private async saveTokenPricesToCache(prices: Record<string, number>) {
         if (Object.keys(prices).length === 0) return;
 
         this.cacheManager.store.mset(
-            Object.entries(prices).map(([key, value]) => [
-                this.formatTokenCacheKey(key, currency),
-                value,
-            ]),
+            Object.entries(prices).map(([tokenId, price]) => [tokenId, price]),
         );
     }
 
-    private async fetchTokenPrices(
-        tokenIds: string[],
-        currency: string,
-    ): Promise<Record<string, number>> {
+    private async fetchTokenPrices(tokenIds: string[]): Promise<Record<string, number>> {
         if (tokenIds.length === 0) {
             return {};
         }
@@ -113,9 +104,9 @@ export class CoingeckoService implements IPricingService {
         return this.axios
             .get<TokenPrices>("simple/price", {
                 params: {
-                    vs_currencies: currency,
+                    vs_currencies: BASE_CURRENCY,
                     ids: tokenIds.join(","),
-                    precision: this.DECIMALS_PRECISION.toString(),
+                    precision: DECIMALS_PRECISION.toString(),
                 },
             })
             .then((response) => {

@@ -8,8 +8,9 @@ import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 
 import { ApiNotAvailable, RateLimitExceeded } from "@zkchainhub/pricing/exceptions";
 import { TokenPrices } from "@zkchainhub/pricing/types/tokenPrice.type";
+import { BASE_CURRENCY } from "@zkchainhub/shared";
 
-import { CoingeckoService } from "./coingecko.service";
+import { CoingeckoService, DECIMALS_PRECISION } from "./coingecko.service";
 
 export const mockLogger: Partial<Logger> = {
     log: jest.fn(),
@@ -82,7 +83,6 @@ describe("CoingeckoService", () => {
     describe("getTokenPrices", () => {
         it("fetches all token prices from Coingecko", async () => {
             const tokenIds = ["token1", "token2"];
-            const currency = "usd";
             const expectedResponse: TokenPrices = {
                 token1: { usd: 1.23 },
                 token2: { usd: 4.56 },
@@ -93,7 +93,7 @@ describe("CoingeckoService", () => {
                 data: expectedResponse,
             });
 
-            const result = await service.getTokenPrices(tokenIds, { currency });
+            const result = await service.getTokenPrices(tokenIds);
 
             expect(result).toEqual({
                 token1: 1.23,
@@ -101,21 +101,20 @@ describe("CoingeckoService", () => {
             });
             expect(axios.get).toHaveBeenCalledWith(`simple/price`, {
                 params: {
-                    vs_currencies: currency,
+                    vs_currencies: BASE_CURRENCY,
                     ids: tokenIds.join(","),
-                    precision: service["DECIMALS_PRECISION"].toString(),
+                    precision: DECIMALS_PRECISION.toString(),
                 },
             });
-            expect(cache.store.mget).toHaveBeenCalledWith("token1.usd", "token2.usd");
+            expect(cache.store.mget).toHaveBeenCalledWith("token1", "token2");
             expect(cache.store.mset).toHaveBeenCalledWith([
-                ["token1.usd", 1.23],
-                ["token2.usd", 4.56],
+                ["token1", 1.23],
+                ["token2", 4.56],
             ]);
         });
 
         it("throw ApiNotAvailable when Coingecko returns a 500 family exception", async () => {
             const tokenIds = ["token1", "token2"];
-            const currency = "usd";
 
             jest.spyOn(cache.store, "mget").mockResolvedValueOnce([null, null]);
             mockAxios.onGet().replyOnce(503, {
@@ -124,14 +123,13 @@ describe("CoingeckoService", () => {
                 statusText: "Service not available",
             });
 
-            await expect(service.getTokenPrices(tokenIds, { currency })).rejects.toThrow(
+            await expect(service.getTokenPrices(tokenIds)).rejects.toThrow(
                 new ApiNotAvailable("Coingecko"),
             );
         });
 
         it("throw RateLimitExceeded when Coingecko returns 429 exception", async () => {
             const tokenIds = ["token1", "token2"];
-            const currency = "usd";
 
             jest.spyOn(cache.store, "mget").mockResolvedValueOnce([null, null]);
             mockAxios.onGet().replyOnce(429, {
@@ -140,14 +138,11 @@ describe("CoingeckoService", () => {
                 statusText: "Too Many Requests",
             });
 
-            await expect(service.getTokenPrices(tokenIds, { currency })).rejects.toThrow(
-                new RateLimitExceeded(),
-            );
+            await expect(service.getTokenPrices(tokenIds)).rejects.toThrow(new RateLimitExceeded());
         });
 
         it("throw an HttpException with the error message when an error occurs", async () => {
             const tokenIds = ["invalidTokenId", "token2"];
-            const currency = "usd";
 
             jest.spyOn(cache.store, "mget").mockResolvedValueOnce([null, null]);
             mockAxios.onGet().replyOnce(400, {
@@ -158,7 +153,7 @@ describe("CoingeckoService", () => {
                 statusText: "Bad Request",
             });
 
-            await expect(service.getTokenPrices(tokenIds, { currency })).rejects.toThrow();
+            await expect(service.getTokenPrices(tokenIds)).rejects.toThrow();
         });
     });
 });
