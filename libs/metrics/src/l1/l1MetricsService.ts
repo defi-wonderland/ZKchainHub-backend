@@ -1,10 +1,17 @@
+import assert from "assert";
 import { Inject, Injectable, LoggerService } from "@nestjs/common";
 import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
+import { Address, ContractConstructorArgs, parseAbiParameters } from "viem";
 
 import { bridgeHubAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
+import { tokenBalancesAbi } from "@zkchainhub/metrics/l1/abis/tokenBalances.abi";
+import { tokenBalancesBytecode } from "@zkchainhub/metrics/l1/bytecode";
+import { Tvl } from "@zkchainhub/metrics/types";
 import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
 import { AbiWithAddress, ChainId, L1_CONTRACTS } from "@zkchainhub/shared";
+import { tokens } from "@zkchainhub/shared/tokens/tokens";
+import { parseUnits } from "@zkchainhub/shared/utils";
 
 /**
  * Acts as a wrapper around Viem library to provide methods to interact with an EVM-based blockchain.
@@ -27,10 +34,79 @@ export class L1MetricsService {
         @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService,
     ) {}
 
-    //TODO: Implement l1Tvl.
-    async l1Tvl(): Promise<{ [asset: string]: { amount: number; amountUsd: number } }> {
-        return { ETH: { amount: 1000000, amountUsd: 1000000 } };
+    /**
+     * Retrieves the Total Value Locked by token on L1 Shared Bridge contract
+     * @returns A Promise that resolves to an object representing the TVL.
+     */
+    async l1Tvl(): Promise<Tvl> {
+        const addresses = tokens
+            .filter((token) => !!token.contractAddress)
+            .map((token) => token.contractAddress) as Address[];
+
+        const balances = await this.fetchTokenBalances(addresses);
+        const pricesRecord = await this.pricingService.getTokenPrices(
+            tokens.map((token) => token.coingeckoId),
+        );
+
+        assert(balances.length === addresses.length + 1, "Invalid balances length");
+        assert(Object.keys(pricesRecord).length === tokens.length, "Invalid prices length");
+
+        return this.calculateTvl(balances, addresses, pricesRecord);
     }
+
+    private calculateTvl(
+        balances: bigint[],
+        addresses: Address[],
+        prices: Record<string, number>,
+    ): Tvl {
+        const tvl: Tvl = {};
+
+        for (const token of tokens) {
+            const balance =
+                token.type === "native"
+                    ? balances[addresses.length]
+                    : balances[addresses.indexOf(token.contractAddress as Address)];
+
+            assert(balance !== undefined, `Balance for ${token.symbol} not found`);
+
+            const price = prices[token.coingeckoId] as number;
+            const parsedBalance = parseUnits(balance, token.decimals);
+            const tvlValue = parsedBalance * price;
+
+            tvl[token.symbol] = {
+                amount: parsedBalance,
+                amountUsd: tvlValue,
+                name: token.name,
+                imageUrl: token.imageUrl,
+            };
+        }
+
+        return tvl;
+    }
+
+    /**
+     * Fetches the token balances of Shared Bridgefor the given addresses.
+     * Note: The last balance in the returned array is the ETH balance.
+     * @param addresses The addresses for which to fetch the token balances.
+     * @returns A promise that resolves to an array of token balances as bigints.
+     */
+    private async fetchTokenBalances(addresses: Address[]): Promise<bigint[]> {
+        const returnAbiParams = parseAbiParameters("uint256[]");
+        const args: ContractConstructorArgs<typeof tokenBalancesAbi> = [
+            L1_CONTRACTS.SHARED_BRIDGE,
+            addresses,
+        ];
+
+        const [balances] = await this.evmProviderService.batchRequest(
+            tokenBalancesAbi,
+            tokenBalancesBytecode,
+            args,
+            returnAbiParams,
+        );
+
+        return balances as bigint[];
+    }
+
     //TODO: Implement getBatchesInfo.
     async getBatchesInfo(
         _chainId: number,

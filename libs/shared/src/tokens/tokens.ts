@@ -1,9 +1,11 @@
+import { Address } from "abitype";
+
 export type TokenType = {
     name: string;
     symbol: string;
     coingeckoId: string;
     type: "erc20" | "native";
-    contractAddress: string | null;
+    contractAddress: Address | null;
     decimals: number;
     imageUrl?: string;
 };
