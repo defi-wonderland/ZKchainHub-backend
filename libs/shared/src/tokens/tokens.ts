@@ -1,11 +1,34 @@
+import { Address } from "abitype";
+
 export type TokenType = {
     name: string;
     symbol: string;
     coingeckoId: string;
     type: "erc20" | "native";
-    contractAddress: string | null;
+    contractAddress: Address | null;
     decimals: number;
     imageUrl?: string;
+};
+
+export const WETH: TokenType = {
+    name: "Wrapped BTC",
+    symbol: "WBTC",
+    contractAddress: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+    coingeckoId: "wrapped-bitcoin",
+    imageUrl:
+        "https://coin-images.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1696507857",
+    type: "erc20",
+    decimals: 8,
+};
+
+export const ETH: TokenType = {
+    name: "Ethereum",
+    symbol: "ETH",
+    contractAddress: null,
+    coingeckoId: "ethereum",
+    type: "native",
+    imageUrl: "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+    decimals: 18,
 };
 
 export const tokens: TokenType[] = [

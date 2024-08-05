@@ -1,10 +1,25 @@
+import { isNativeError } from "util/types";
 import { Inject, Injectable, LoggerService } from "@nestjs/common";
 import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
+import {
+    encodeFunctionData,
+    erc20Abi,
+    formatGwei,
+    formatUnits,
+    parseEther,
+    zeroAddress,
+} from "viem";
 
+import { L1ProviderException } from "@zkchainhub/metrics/exceptions/provider.exception";
 import { bridgeHubAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
+import { GasInfo } from "@zkchainhub/metrics/types";
 import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
-import { AbiWithAddress, ChainId, L1_CONTRACTS } from "@zkchainhub/shared";
+import { AbiWithAddress, ChainId, L1_CONTRACTS, vitalikAddress } from "@zkchainhub/shared";
+import { ETH, WETH } from "@zkchainhub/shared/tokens/tokens";
+
+const ONE_ETHER = parseEther("1");
+const ETHER_DECIMALS = 18;
 
 /**
  * Acts as a wrapper around Viem library to provide methods to interact with an EVM-based blockchain.
@@ -47,10 +62,69 @@ export class L1MetricsService {
     async chainType(_chainId: number): Promise<"validium" | "rollup"> {
         return "rollup";
     }
-    //TODO: Implement ethGasInfo.
-    async ethGasInfo(): Promise<{ gasPrice: number; ethTransfer: number; erc20Transfer: number }> {
-        return { gasPrice: 50, ethTransfer: 21000, erc20Transfer: 65000 };
+
+    /**
+     * Retrieves gas information for Ethereum transfers and ERC20 token transfers.
+     * @returns {GasInfo} A promise that resolves to an object containing gas-related information.
+     */
+    async ethGasInfo(): Promise<GasInfo> {
+        try {
+            const [ethTransferGasCost, erc20TransferGasCost, gasPrice] = await Promise.all([
+                // Estimate gas for an ETH transfer.
+                this.evmProviderService.estimateGas({
+                    account: vitalikAddress,
+                    to: zeroAddress,
+                    value: ONE_ETHER,
+                }),
+                // Estimate gas for an ERC20 transfer.
+                this.evmProviderService.estimateGas({
+                    account: vitalikAddress,
+                    to: WETH.contractAddress,
+                    data: encodeFunctionData({
+                        abi: erc20Abi,
+                        functionName: "transfer",
+                        args: [L1_CONTRACTS.SHARED_BRIDGE, ONE_ETHER],
+                    }),
+                }),
+                // Get the current gas price.
+                this.evmProviderService.getGasPrice(),
+            ]);
+
+            // Get the current price of ether.
+            let ethPriceInUsd: number | undefined = undefined;
+            try {
+                const priceResult = await this.pricingService.getTokenPrices([ETH.coingeckoId]);
+                ethPriceInUsd = priceResult[ETH.coingeckoId];
+            } catch (e) {
+                this.logger.error("Failed to get the price of ether.");
+            }
+
+            return {
+                gasPriceInGwei: Number(formatGwei(gasPrice)),
+                ethPrice: ethPriceInUsd,
+                ethTransferGas: Number(ethTransferGasCost),
+                erc20TransferGas: Number(erc20TransferGasCost),
+            };
+        } catch (e: unknown) {
+            if (isNativeError(e)) {
+                this.logger.error(`Failed to get gas information: ${e.message}`);
+            }
+            throw new L1ProviderException("Failed to get gas information from L1.");
+        }
     }
+
+    /**
+     * Calculates the transaction value in USD based on the gas used, gas price, and ether price.
+     * Formula: (txGas * gasPriceInWei/1e18) * etherPrice
+     * @param txGas - The amount of gas used for the transaction.
+     * @param gasPrice - The price of gas in wei.
+     * @param etherPrice - The current price of ether in USD.
+     * @returns The transaction value in USD.
+     */
+    private transactionInUsd(txGas: bigint, gasPriceInWei: bigint, etherPrice: number): number {
+        return Number(formatUnits(txGas * gasPriceInWei, ETHER_DECIMALS)) * etherPrice;
+    }
+
     //TODO: Implement feeParams.
     async feeParams(_chainId: number): Promise<{
         batchOverheadL1Gas: number;
