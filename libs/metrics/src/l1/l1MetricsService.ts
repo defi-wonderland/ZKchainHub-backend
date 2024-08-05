@@ -1,7 +1,7 @@
 import assert from "assert";
 import { Inject, Injectable, LoggerService } from "@nestjs/common";
 import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
-import { Address, ContractConstructorArgs, parseAbiParameters } from "viem";
+import { Address, ContractConstructorArgs, formatUnits, parseAbiParameters } from "viem";
 
 import { bridgeHubAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
 import { tokenBalancesAbi } from "@zkchainhub/metrics/l1/abis/tokenBalances.abi";
@@ -11,7 +11,6 @@ import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
 import { AbiWithAddress, ChainId, L1_CONTRACTS } from "@zkchainhub/shared";
 import { tokens } from "@zkchainhub/shared/tokens/tokens";
-import { parseUnits } from "@zkchainhub/shared/utils";
 
 /**
  * Acts as a wrapper around Viem library to provide methods to interact with an EVM-based blockchain.
@@ -70,7 +69,7 @@ export class L1MetricsService {
             assert(balance !== undefined, `Balance for ${token.symbol} not found`);
 
             const price = prices[token.coingeckoId] as number;
-            const parsedBalance = parseUnits(balance, token.decimals);
+            const parsedBalance = Number(formatUnits(balance, token.decimals));
             const tvlValue = parsedBalance * price;
 
             tvl[token.symbol] = {

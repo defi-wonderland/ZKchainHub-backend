@@ -119,7 +119,7 @@ describe("L1MetricsService", () => {
 
     describe("l1Tvl", () => {
         it("return the TVL on L1 Shared Bridge", async () => {
-            const mockBalances = [60_841_657_140641n, 135_63005559n, 12_3803_824374847279970609n]; // Mocked balances
+            const mockBalances = [60_841_657_140641n, 135_63005559n, 123_803_824374847279970609n]; // Mocked balances
             const mockPrices = { "wrapped-bitcoin": 66_129, "usd-coin": 0.999, ethereum: 3_181.09 }; // Mocked prices
 
             jest.spyOn(mockEvmProviderService, "batchRequest").mockResolvedValue([mockBalances]);
@@ -129,7 +129,7 @@ describe("L1MetricsService", () => {
 
             expect(result).toMatchObject({
                 ETH: {
-                    amount: expect.closeTo(12_3803.824),
+                    amount: expect.closeTo(123_803.824),
                     amountUsd: expect.closeTo(393_831_107.68),
                     name: "Ethereum",
                     imageUrl:
@@ -181,7 +181,7 @@ describe("L1MetricsService", () => {
 
         it("throws an error if the prices length is invalid", async () => {
             jest.spyOn(mockEvmProviderService, "batchRequest").mockResolvedValue([
-                [60_841_657_140641n, 135_63005559n, 12_3803_824374847279970609n],
+                [60_841_657_140641n, 135_63005559n, 123_803_824374847279970609n],
             ]);
             jest.spyOn(mockPricingService, "getTokenPrices").mockResolvedValue({
                 ethereum: 3_181.09,

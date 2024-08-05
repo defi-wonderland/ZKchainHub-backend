@@ -39,7 +39,6 @@
         "abitype": "1.0.5",
         "axios": "1.7.2",
         "axios-mock-adapter": "1.22.0",
-        "bignumber.js": "9.1.2",
         "cache-manager": "5.7.4",
         "nest-winston": "1.9.7",
         "reflect-metadata": "0.1.13",
