@@ -1,27 +1,28 @@
+/**
+ * The token list in this file was manually crafted and represents the top 50
+ * tokens by market cap, held by L1 Shared Bridge contract and with data
+ * present in Coingecko.
+ * Last updated: 2024-08-03
+ *
+ * This list is not exhaustive and can be updated with more tokens as needed.
+ * Link to the token list: https://etherscan.io/tokenholdings?a=0xD7f9f54194C633F36CCD5F3da84ad4a1c38cB2cB
+ */
+
 import { Address } from "abitype";
 
-export type TokenType = {
+export type Token<TokenType extends "erc20" | "native"> = {
     name: string;
     symbol: string;
     coingeckoId: string;
-    type: "erc20" | "native";
-    contractAddress: Address | null;
+    type: TokenType;
+    contractAddress: TokenType extends "erc20" ? Address : null;
     decimals: number;
     imageUrl?: string;
 };
 
-export const WETH: TokenType = {
-    name: "Wrapped BTC",
-    symbol: "WBTC",
-    contractAddress: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-    coingeckoId: "wrapped-bitcoin",
-    imageUrl:
-        "https://coin-images.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1696507857",
-    type: "erc20",
-    decimals: 8,
-};
+export type TokenUnion = Token<"erc20"> | Token<"native">;
 
-export const ETH: TokenType = {
+export const nativeToken: Readonly<Token<"native">> = {
     name: "Ethereum",
     symbol: "ETH",
     contractAddress: null,
@@ -31,17 +32,17 @@ export const ETH: TokenType = {
     decimals: 18,
 };
 
-export const tokens: TokenType[] = [
-    {
-        name: "Ethereum",
-        symbol: "ETH",
-        contractAddress: null,
-        coingeckoId: "ethereum",
-        type: "native",
-        imageUrl:
-            "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
-        decimals: 18,
-    },
+export const WETH: Readonly<Token<"erc20">> = {
+    name: "Wrapped Ether",
+    symbol: "WETH",
+    contractAddress: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    coingeckoId: "weth",
+    imageUrl: "https://coin-images.coingecko.com/coins/images/2518/large/weth.png?1696503332",
+    type: "erc20",
+    decimals: 18,
+};
+
+export const erc20Tokens: Readonly<Token<"erc20">[]> = [
     {
         name: "USDC",
         symbol: "USDC",
@@ -510,3 +511,8 @@ export const tokens: TokenType[] = [
         decimals: 18,
     },
 ];
+
+export const tokens: Readonly<TokenUnion[]> = [nativeToken, ...erc20Tokens];
+
+export const isNativeToken = (token: TokenUnion): token is Token<"native"> =>
+    token.type === "native";
