@@ -1,14 +1,7 @@
 import { isNativeError } from "util/types";
 import { Inject, Injectable, LoggerService } from "@nestjs/common";
 import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
-import {
-    encodeFunctionData,
-    erc20Abi,
-    formatGwei,
-    formatUnits,
-    parseEther,
-    zeroAddress,
-} from "viem";
+import { encodeFunctionData, erc20Abi, formatGwei, parseEther, zeroAddress } from "viem";
 
 import { L1ProviderException } from "@zkchainhub/metrics/exceptions/provider.exception";
 import { bridgeHubAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
@@ -19,7 +12,6 @@ import { AbiWithAddress, ChainId, L1_CONTRACTS, vitalikAddress } from "@zkchainh
 import { ETH, WETH } from "@zkchainhub/shared/tokens/tokens";
 
 const ONE_ETHER = parseEther("1");
-const ETHER_DECIMALS = 18;
 
 /**
  * Acts as a wrapper around Viem library to provide methods to interact with an EVM-based blockchain.
@@ -100,10 +92,10 @@ export class L1MetricsService {
             }
 
             return {
-                gasPriceInGwei: Number(formatGwei(gasPrice)),
-                ethPrice: ethPriceInUsd,
-                ethTransferGas: Number(ethTransferGasCost),
-                erc20TransferGas: Number(erc20TransferGasCost),
+                gasPriceInGwei: formatGwei(gasPrice),
+                ethPrice: ethPriceInUsd?.toString(),
+                ethTransferGas: ethTransferGasCost.toString(),
+                erc20TransferGas: erc20TransferGasCost.toString(),
             };
         } catch (e: unknown) {
             if (isNativeError(e)) {
@@ -111,18 +103,6 @@ export class L1MetricsService {
             }
             throw new L1ProviderException("Failed to get gas information from L1.");
         }
-    }
-
-    /**
-     * Calculates the transaction value in USD based on the gas used, gas price, and ether price.
-     * Formula: (txGas * gasPriceInWei/1e18) * etherPrice
-     * @param txGas - The amount of gas used for the transaction.
-     * @param gasPrice - The price of gas in wei.
-     * @param etherPrice - The current price of ether in USD.
-     * @returns The transaction value in USD.
-     */
-    private transactionInUsd(txGas: bigint, gasPriceInWei: bigint, etherPrice: number): number {
-        return Number(formatUnits(txGas * gasPriceInWei, ETHER_DECIMALS)) * etherPrice;
     }
 
     //TODO: Implement feeParams.

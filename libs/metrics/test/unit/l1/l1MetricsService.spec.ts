@@ -153,10 +153,10 @@ describe("L1MetricsService", () => {
             expect(mockGetTokenPrices).toHaveBeenCalledWith([ETH.coingeckoId]);
 
             expect(result).toEqual({
-                gasPriceInGwei: 50,
-                ethPrice: 2000,
-                ethTransferGas: 21000,
-                erc20TransferGas: 65000,
+                gasPriceInGwei: "50",
+                ethPrice: "2000",
+                ethTransferGas: "21000",
+                erc20TransferGas: "65000",
             });
         });
 
@@ -175,10 +175,10 @@ describe("L1MetricsService", () => {
 
             // Assertions
             expect(result).toEqual({
-                gasPriceInGwei: 50,
+                gasPriceInGwei: "50",
                 ethPrice: undefined,
-                ethTransferGas: 21000,
-                erc20TransferGas: 65000,
+                ethTransferGas: "21000",
+                erc20TransferGas: "65000",
             });
             expect(mockEstimateGas).toHaveBeenCalledTimes(2);
             expect(mockEstimateGas).toHaveBeenNthCalledWith(1, {
