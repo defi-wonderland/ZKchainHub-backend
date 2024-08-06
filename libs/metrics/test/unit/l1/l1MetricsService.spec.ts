@@ -17,6 +17,43 @@ const mockEvmProviderService = createMock<EvmProviderService>();
 const mockPricingService = createMock<IPricingService>();
 
 jest.mock("@zkchainhub/shared/tokens/tokens", () => ({
+    ...jest.requireActual("@zkchainhub/shared/tokens/tokens"),
+    get nativeToken() {
+        return {
+            name: "Ethereum",
+            symbol: "ETH",
+            contractAddress: null,
+            coingeckoId: "ethereum",
+            type: "native",
+            imageUrl:
+                "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+            decimals: 18,
+        };
+    },
+    get erc20Tokens() {
+        return [
+            {
+                name: "USDC",
+                symbol: "USDC",
+                contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                coingeckoId: "usd-coin",
+                imageUrl:
+                    "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
+                type: "erc20",
+                decimals: 6,
+            },
+            {
+                name: "Wrapped BTC",
+                symbol: "WBTC",
+                contractAddress: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+                coingeckoId: "wrapped-bitcoin",
+                imageUrl:
+                    "https://coin-images.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1696507857",
+                type: "erc20",
+                decimals: 8,
+            },
+        ];
+    },
     get tokens() {
         return [
             {
@@ -127,29 +164,45 @@ describe("L1MetricsService", () => {
 
             const result = await l1MetricsService.l1Tvl();
 
-            expect(result).toMatchObject({
-                ETH: {
-                    amount: expect.closeTo(123_803.824),
-                    amountUsd: expect.closeTo(393_831_107.68),
+            expect(result).toHaveLength(3);
+            expect(result).toEqual([
+                {
+                    amount: "123803.824374847279970609",
+                    amountUsd: expect.stringContaining("393831107.68"),
+                    price: "3181.09",
                     name: "Ethereum",
+                    symbol: "ETH",
+                    contractAddress: null,
+                    type: "native",
                     imageUrl:
                         "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+                    decimals: 18,
                 },
-                WBTC: {
-                    amount: expect.closeTo(135.631),
-                    amountUsd: expect.closeTo(8_969_079.95),
-                    name: "Wrapped BTC",
-                    imageUrl:
-                        "https://coin-images.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1696507857",
-                },
-                USDC: {
-                    amount: expect.closeTo(60_841_657.141),
-                    amountUsd: expect.closeTo(60_780_815.48),
+                {
+                    amount: "60841657.140641",
+                    amountUsd: expect.stringContaining("60780815.48"),
+                    price: "0.999",
                     name: "USDC",
+                    symbol: "USDC",
+                    contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
                     imageUrl:
                         "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
+                    type: "erc20",
+                    decimals: 6,
                 },
-            });
+                {
+                    amount: "135.63005559",
+                    amountUsd: expect.stringContaining("8969079.94"),
+                    price: "66129",
+                    name: "Wrapped BTC",
+                    symbol: "WBTC",
+                    contractAddress: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+                    imageUrl:
+                        "https://coin-images.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1696507857",
+                    type: "erc20",
+                    decimals: 8,
+                },
+            ]);
             expect(mockEvmProviderService.batchRequest).toHaveBeenCalledWith(
                 tokenBalancesAbi,
                 tokenBalancesBytecode,

@@ -1,16 +1,22 @@
 import assert from "assert";
 import { Inject, Injectable, LoggerService } from "@nestjs/common";
 import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
-import { Address, ContractConstructorArgs, formatUnits, parseAbiParameters } from "viem";
+import {
+    Address,
+    ContractConstructorArgs,
+    formatUnits,
+    parseAbiParameters,
+    parseUnits,
+} from "viem";
 
 import { bridgeHubAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
 import { tokenBalancesAbi } from "@zkchainhub/metrics/l1/abis/tokenBalances.abi";
 import { tokenBalancesBytecode } from "@zkchainhub/metrics/l1/bytecode";
-import { Tvl } from "@zkchainhub/metrics/types";
+import { AssetTvl } from "@zkchainhub/metrics/types";
 import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
 import { AbiWithAddress, ChainId, L1_CONTRACTS } from "@zkchainhub/shared";
-import { tokens } from "@zkchainhub/shared/tokens/tokens";
+import { erc20Tokens, isNativeToken, tokens } from "@zkchainhub/shared/tokens/tokens";
 
 /**
  * Acts as a wrapper around Viem library to provide methods to interact with an EVM-based blockchain.
@@ -35,61 +41,78 @@ export class L1MetricsService {
 
     /**
      * Retrieves the Total Value Locked by token on L1 Shared Bridge contract
-     * @returns A Promise that resolves to an object representing the TVL.
+     * @returns A Promise that resolves to an array of AssetTvl objects representing the TVL for each asset.
      */
-    async l1Tvl(): Promise<Tvl> {
-        const addresses = tokens
-            .filter((token) => !!token.contractAddress)
-            .map((token) => token.contractAddress) as Address[];
+    async l1Tvl(): Promise<AssetTvl[]> {
+        const erc20Addresses = erc20Tokens.map((token) => token.contractAddress);
 
-        const balances = await this.fetchTokenBalances(addresses);
+        const balances = await this.fetchTokenBalances(erc20Addresses);
         const pricesRecord = await this.pricingService.getTokenPrices(
             tokens.map((token) => token.coingeckoId),
         );
 
-        assert(balances.length === addresses.length + 1, "Invalid balances length");
         assert(Object.keys(pricesRecord).length === tokens.length, "Invalid prices length");
 
-        return this.calculateTvl(balances, addresses, pricesRecord);
+        return this.calculateTvl(balances, erc20Addresses, pricesRecord);
     }
 
+    /**
+     * Calculates the Total Value Locked (TVL) for each token based on the provided balances, addresses, and prices.
+     * @param balances - The balances object containing the ETH balance and an array of erc20 token addresses balance.
+     * @param addresses - The array of erc20 addresses.
+     * @param prices - The object containing the prices of tokens.
+     * @returns An array of AssetTvl objects representing the TVL for each token in descending order.
+     */
     private calculateTvl(
-        balances: bigint[],
+        balances: { ethBalance: bigint; addressesBalance: bigint[] },
         addresses: Address[],
         prices: Record<string, number>,
-    ): Tvl {
-        const tvl: Tvl = {};
+    ): AssetTvl[] {
+        const tvl: AssetTvl[] = [];
 
         for (const token of tokens) {
-            const balance =
-                token.type === "native"
-                    ? balances[addresses.length]
-                    : balances[addresses.indexOf(token.contractAddress as Address)];
+            const { coingeckoId, ...tokenInfo } = token;
 
-            assert(balance !== undefined, `Balance for ${token.symbol} not found`);
+            const balance = isNativeToken(token)
+                ? balances.ethBalance
+                : balances.addressesBalance[
+                      addresses.indexOf(tokenInfo.contractAddress as Address)
+                  ];
 
-            const price = prices[token.coingeckoId] as number;
-            const parsedBalance = Number(formatUnits(balance, token.decimals));
-            const tvlValue = parsedBalance * price;
+            assert(balance !== undefined, `Balance for ${tokenInfo.symbol} not found`);
 
-            tvl[token.symbol] = {
-                amount: parsedBalance,
+            const price = prices[coingeckoId] as number;
+            // math is done with bigints for better precision
+            const tvlValue = formatUnits(
+                balance * parseUnits(price.toString(), tokenInfo.decimals),
+                tokenInfo.decimals * 2,
+            );
+
+            const assetTvl: AssetTvl = {
+                amount: formatUnits(balance, tokenInfo.decimals),
                 amountUsd: tvlValue,
-                name: token.name,
-                imageUrl: token.imageUrl,
+                price: price.toString(),
+                ...tokenInfo,
             };
+
+            tvl.push(assetTvl);
         }
+
+        // we assume the rounding error is negligible for sorting purposes
+        tvl.sort((a, b) => Number(b.amountUsd) - Number(a.amountUsd));
 
         return tvl;
     }
 
     /**
-     * Fetches the token balances of Shared Bridgefor the given addresses.
-     * Note: The last balance in the returned array is the ETH balance.
-     * @param addresses The addresses for which to fetch the token balances.
-     * @returns A promise that resolves to an array of token balances as bigints.
+     * Fetches the token balances for the given addresses and ETH balance.
+     * Note: The last balance in the returned array is the ETH balance, so the fetch length should be addresses.length + 1.
+     * @param addresses - An array of addresses for which to fetch the token balances.
+     * @returns A promise that resolves to an object containing the ETH balance and an array of address balances.
      */
-    private async fetchTokenBalances(addresses: Address[]): Promise<bigint[]> {
+    private async fetchTokenBalances(
+        addresses: Address[],
+    ): Promise<{ ethBalance: bigint; addressesBalance: bigint[] }> {
         const returnAbiParams = parseAbiParameters("uint256[]");
         const args: ContractConstructorArgs<typeof tokenBalancesAbi> = [
             L1_CONTRACTS.SHARED_BRIDGE,
@@ -103,7 +126,9 @@ export class L1MetricsService {
             returnAbiParams,
         );
 
-        return balances as bigint[];
+        assert(balances.length === addresses.length + 1, "Invalid balances length");
+
+        return { ethBalance: balances[addresses.length]!, addressesBalance: balances.slice(0, -1) };
     }
 
     //TODO: Implement getBatchesInfo.
