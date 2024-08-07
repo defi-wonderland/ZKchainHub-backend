@@ -35,8 +35,10 @@ const testAbi = parseAbi([
 
 describe("EvmProviderService", () => {
     let viemProvider: EvmProviderService;
+    let mockChain: viem.Chain;
 
     beforeEach(async () => {
+        mockChain = jest.mocked<viem.Chain>({ ...localhost, contracts: { multicall3: undefined } });
         const app: TestingModule = await Test.createTestingModule({
             providers: [
                 {
@@ -47,8 +49,7 @@ describe("EvmProviderService", () => {
                     provide: EvmProviderService,
                     useFactory: () => {
                         const rpcUrl = "http://localhost:8545";
-                        const chain = localhost;
-                        return new EvmProviderService(rpcUrl, chain, mockLogger as Logger);
+                        return new EvmProviderService(rpcUrl, mockChain, mockLogger as Logger);
                     },
                 },
             ],
@@ -270,55 +271,6 @@ describe("EvmProviderService", () => {
         });
     });
     describe("multicall", () => {
-        it("throws a MulticallNotFound error if the Multicall contract is not found", async () => {
-            const contracts = [
-                {
-                    address: "0x123456789",
-                    abi: testAbi,
-                    functionName: "balanceOf",
-                    args: ["0x987654321"],
-                } as const,
-            ];
-
-            await expect(viemProvider.multicall({ contracts })).rejects.toThrowError(
-                MulticallNotFound,
-            );
-        });
-    });
-});
-
-describe("EvmProviderService (with mocked chain)", () => {
-    let viemProvider: EvmProviderService;
-
-    beforeEach(async () => {
-        const app: TestingModule = await Test.createTestingModule({
-            providers: [
-                {
-                    provide: WINSTON_MODULE_PROVIDER,
-                    useValue: mockLogger,
-                },
-                {
-                    provide: EvmProviderService,
-                    useFactory: () => {
-                        const rpcUrl = "http://localhost:8545";
-                        const chain = {
-                            ...localhost,
-                            contracts: { multicall3: { address: "0x123456789" as viem.Address } },
-                        };
-                        return new EvmProviderService(rpcUrl, chain, mockLogger as Logger);
-                    },
-                },
-            ],
-        }).compile();
-
-        viemProvider = app.get<EvmProviderService>(EvmProviderService);
-    });
-
-    afterEach(() => {
-        jest.clearAllMocks();
-        jest.resetModules();
-    });
-    describe("multicall", () => {
         it("calls the multicall method of the Viem client with the correct arguments", async () => {
             const contracts = [
                 {
@@ -346,14 +298,28 @@ describe("EvmProviderService (with mocked chain)", () => {
                 { result: "tokenUri", status: true },
                 { result: 1000n, status: true },
             ];
-
-            // Mock the multicall method of the Viem client
+            mockChain.contracts = { multicall3: { address: "0x123456789" } };
             jest.spyOn(mockClient, "multicall").mockResolvedValue(expectedReturnValue);
 
             const returnValue = await viemProvider.multicall({ contracts });
 
             expect(returnValue).toEqual(expectedReturnValue);
             expect(mockClient.multicall).toHaveBeenCalledWith({ contracts });
+        });
+
+        it("throws a MulticallNotFound error if the Multicall contract is not found for the chain", async () => {
+            const contracts = [
+                {
+                    address: "0x123456789",
+                    abi: testAbi,
+                    functionName: "balanceOf",
+                    args: ["0x987654321"],
+                } as const,
+            ];
+
+            await expect(viemProvider.multicall({ contracts })).rejects.toThrowError(
+                MulticallNotFound,
+            );
         });
     });
 });
