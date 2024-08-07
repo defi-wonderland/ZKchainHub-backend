@@ -7,7 +7,7 @@ import { localhost } from "viem/chains";
 import { Logger } from "winston";
 
 import { EvmProviderService } from "@zkchainhub/providers";
-import { DataDecodeException } from "@zkchainhub/providers/exceptions";
+import { DataDecodeException, MulticallNotFound } from "@zkchainhub/providers/exceptions";
 import {
     arrayAbiFixture,
     structAbiFixture,
@@ -27,14 +27,14 @@ export const mockLogger: Partial<Logger> = {
     error: jest.fn(),
     debug: jest.fn(),
 };
+const testAbi = parseAbi([
+    "constructor(uint256 totalSupply)",
+    "function balanceOf(address owner) view returns (uint256)",
+    "function tokenURI(uint256 tokenId) pure returns (string)",
+]);
 
 describe("EvmProviderService", () => {
     let viemProvider: EvmProviderService;
-    const testAbi = parseAbi([
-        "constructor(uint256 totalSupply)",
-        "function balanceOf(address owner) view returns (uint256)",
-        "function tokenURI(uint256 tokenId) pure returns (string)",
-    ]);
 
     beforeEach(async () => {
         const app: TestingModule = await Test.createTestingModule({
@@ -267,6 +267,93 @@ describe("EvmProviderService", () => {
             );
 
             expect(returnValue).toEqual(arrayAbiFixture.args[0]);
+        });
+    });
+    describe("multicall", () => {
+        it("throws a MulticallNotFound error if the Multicall contract is not found", async () => {
+            const contracts = [
+                {
+                    address: "0x123456789",
+                    abi: testAbi,
+                    functionName: "balanceOf",
+                    args: ["0x987654321"],
+                } as const,
+            ];
+
+            await expect(viemProvider.multicall({ contracts })).rejects.toThrowError(
+                MulticallNotFound,
+            );
+        });
+    });
+});
+
+describe("EvmProviderService (with mocked chain)", () => {
+    let viemProvider: EvmProviderService;
+
+    beforeEach(async () => {
+        const app: TestingModule = await Test.createTestingModule({
+            providers: [
+                {
+                    provide: WINSTON_MODULE_PROVIDER,
+                    useValue: mockLogger,
+                },
+                {
+                    provide: EvmProviderService,
+                    useFactory: () => {
+                        const rpcUrl = "http://localhost:8545";
+                        const chain = {
+                            ...localhost,
+                            contracts: { multicall3: { address: "0x123456789" as viem.Address } },
+                        };
+                        return new EvmProviderService(rpcUrl, chain, mockLogger as Logger);
+                    },
+                },
+            ],
+        }).compile();
+
+        viemProvider = app.get<EvmProviderService>(EvmProviderService);
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+        jest.resetModules();
+    });
+    describe("multicall", () => {
+        it("calls the multicall method of the Viem client with the correct arguments", async () => {
+            const contracts = [
+                {
+                    address: "0x123456789",
+                    abi: testAbi,
+                    functionName: "balanceOf",
+                    args: ["0x987654321"],
+                } as const,
+                {
+                    address: "0x123456789",
+                    abi: testAbi,
+                    functionName: "tokenURI",
+                    args: [1n],
+                } as const,
+                {
+                    address: "0x987654321",
+                    abi: testAbi,
+                    functionName: "totalSupply",
+                    args: [],
+                } as const,
+            ];
+
+            const expectedReturnValue = [
+                { result: 100n, status: true },
+                { result: "tokenUri", status: true },
+                { result: 1000n, status: true },
+            ];
+
+            // Mock the multicall method of the Viem client
+            jest.spyOn(mockClient, "multicall").mockResolvedValue(expectedReturnValue);
+
+            const returnValue = await viemProvider.multicall({ contracts });
+
+            expect(returnValue).toEqual(expectedReturnValue);
+            expect(mockClient.multicall).toHaveBeenCalledWith({ contracts });
         });
     });
 });
