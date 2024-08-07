@@ -14,6 +14,7 @@ import {
     decodeAbiParameters,
     DecodeAbiParametersReturnType,
     encodeDeployData,
+    EstimateGasParameters,
     GetBlockReturnType,
     Hex,
     http,
@@ -79,6 +80,10 @@ export class EvmProviderService {
      */
     async getGasPrice(): Promise<bigint> {
         return this.client.getGasPrice();
+    }
+
+    async estimateGas(args: EstimateGasParameters<typeof this.chain>): Promise<bigint> {
+        return this.client.estimateGas(args);
     }
 
     /**
