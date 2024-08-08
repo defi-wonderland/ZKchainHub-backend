@@ -350,14 +350,11 @@ export class L1MetricsService {
         const values: string[] = [];
 
         for (const value of Object.values(feeParamsFieldLengths)) {
-            values.push(strippedParamsData.slice(cursor - value, cursor));
+            const hexValue = strippedParamsData.slice(cursor - value, cursor);
+            assert(hexValue, "Error parsing fee params");
+            values.push(hexValue);
             cursor -= value;
         }
-
-        assert(
-            values.length === Object.keys(feeParamsFieldLengths).length,
-            "Error parsing fee params",
-        );
 
         const [
             pubdataPricingMode,
