@@ -2,7 +2,7 @@ import { createMock } from "@golevelup/ts-jest";
 import { Logger } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
-import { encodeFunctionData, erc20Abi, parseEther, zeroAddress } from "viem";
+import { Address, encodeFunctionData, erc20Abi, parseEther, zeroAddress } from "viem";
 
 import {
     InvalidChainId,
@@ -15,9 +15,9 @@ import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
 import {
     BatchesInfo,
+    ChainId,
     ChainType,
     ETH_TOKEN_ADDRESS,
-    L1_CONTRACTS,
     vitalikAddress,
 } from "@zkchainhub/shared";
 import { nativeToken, WETH } from "@zkchainhub/shared/tokens/tokens";
@@ -97,44 +97,64 @@ export const mockLogger: Partial<Logger> = {
     debug: jest.fn(),
 };
 
+const mockMetricsModule = async (
+    mockedBridgeHubAddress: Address,
+    mockedSharedBridgeAddress: Address,
+    mockedSTMAddresses: Address[],
+) => {
+    const module: TestingModule = await Test.createTestingModule({
+        providers: [
+            L1MetricsService,
+            {
+                provide: L1MetricsService,
+                useFactory: (
+                    mockEvmProviderService: EvmProviderService,
+                    mockPricingService: IPricingService,
+                    logger: Logger,
+                ) => {
+                    return new L1MetricsService(
+                        mockedBridgeHubAddress,
+                        mockedSharedBridgeAddress,
+                        mockedSTMAddresses,
+                        mockEvmProviderService,
+                        mockPricingService,
+                        logger,
+                    );
+                },
+                inject: [EvmProviderService, PRICING_PROVIDER, WINSTON_MODULE_PROVIDER],
+            },
+            {
+                provide: EvmProviderService,
+                useValue: mockEvmProviderService,
+            },
+            {
+                provide: PRICING_PROVIDER,
+                useValue: mockPricingService,
+            },
+            {
+                provide: WINSTON_MODULE_PROVIDER,
+                useValue: mockLogger,
+            },
+        ],
+    }).compile();
+
+    return module.get<L1MetricsService>(L1MetricsService);
+};
+
 describe("L1MetricsService", () => {
     let l1MetricsService: L1MetricsService;
-
+    const mockedBridgeHubAddress = "0x1234567890123456789012345678901234567890";
+    const mockedSharedBridgeAddress = "0x1234567890123456789012345678901234567891";
+    const mockedSTMAddresses: Address[] = [
+        "0x1234567890123456789012345678901234567892",
+        "0x1234567890123456789012345678901234567893",
+    ];
     beforeEach(async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            providers: [
-                L1MetricsService,
-                {
-                    provide: L1MetricsService,
-                    useFactory: (
-                        mockEvmProviderService: EvmProviderService,
-                        mockPricingService: IPricingService,
-                        logger: Logger,
-                    ) => {
-                        return new L1MetricsService(
-                            mockEvmProviderService,
-                            mockPricingService,
-                            logger,
-                        );
-                    },
-                    inject: [EvmProviderService, PRICING_PROVIDER, WINSTON_MODULE_PROVIDER],
-                },
-                {
-                    provide: EvmProviderService,
-                    useValue: mockEvmProviderService,
-                },
-                {
-                    provide: PRICING_PROVIDER,
-                    useValue: mockPricingService,
-                },
-                {
-                    provide: WINSTON_MODULE_PROVIDER,
-                    useValue: mockLogger,
-                },
-            ],
-        }).compile();
-
-        l1MetricsService = module.get<L1MetricsService>(L1MetricsService);
+        l1MetricsService = await mockMetricsModule(
+            mockedBridgeHubAddress,
+            mockedSharedBridgeAddress,
+            mockedSTMAddresses,
+        );
     });
 
     afterEach(() => {
@@ -143,14 +163,9 @@ describe("L1MetricsService", () => {
 
     describe("constructor", () => {
         it("initialize bridgeHub and sharedBridge", () => {
-            expect(l1MetricsService["bridgeHub"]).toEqual({
-                abi: bridgeHubAbi,
-                address: L1_CONTRACTS.BRIDGE_HUB,
-            });
-            expect(l1MetricsService["sharedBridge"]).toEqual({
-                abi: sharedBridgeAbi,
-                address: L1_CONTRACTS.SHARED_BRIDGE,
-            });
+            expect(l1MetricsService["bridgeHubAddress"]).toEqual(mockedBridgeHubAddress);
+            expect(l1MetricsService["sharedBridgeAddress"]).toEqual(mockedSharedBridgeAddress);
+            expect(l1MetricsService["stateTransitionManagerAddresses"]).toEqual(mockedSTMAddresses);
         });
 
         it("initialize diamondContracts map as empty", () => {
@@ -217,19 +232,19 @@ describe("L1MetricsService", () => {
                         address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
                         abi: erc20Abi,
                         functionName: "balanceOf",
-                        args: [L1_CONTRACTS.SHARED_BRIDGE],
+                        args: [l1MetricsService["sharedBridgeAddress"]],
                     },
                     {
                         address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
                         abi: erc20Abi,
                         functionName: "balanceOf",
-                        args: [L1_CONTRACTS.SHARED_BRIDGE],
+                        args: [l1MetricsService["sharedBridgeAddress"]],
                     },
                 ],
                 allowFailure: false,
             });
             expect(mockEvmProviderService.getBalance).toHaveBeenCalledWith(
-                L1_CONTRACTS.SHARED_BRIDGE,
+                l1MetricsService["sharedBridgeAddress"],
             );
             expect(mockPricingService.getTokenPrices).toHaveBeenCalledWith([
                 "ethereum",
@@ -340,10 +355,10 @@ describe("L1MetricsService", () => {
                 mockedDiamondProxyAddress,
             );
             expect(mockEvmProviderService.readContract).toHaveBeenCalledWith(
-                l1MetricsService["bridgeHub"].address,
-                l1MetricsService["bridgeHub"].abi,
+                l1MetricsService["bridgeHubAddress"],
+                bridgeHubAbi,
                 "getHyperchain",
-                [BigInt(chainId)],
+                [chainId],
             );
             expect(mockEvmProviderService.multicall).toHaveBeenCalledWith({
                 contracts: [
@@ -404,10 +419,10 @@ describe("L1MetricsService", () => {
                 mockedDiamondProxyAddress,
             );
             expect(mockEvmProviderService.readContract).toHaveBeenCalledWith(
-                l1MetricsService["bridgeHub"].address,
-                l1MetricsService["bridgeHub"].abi,
+                l1MetricsService["bridgeHubAddress"],
+                bridgeHubAbi,
                 "getHyperchain",
-                [BigInt(chainId)],
+                [chainId],
             );
         });
     });
@@ -465,22 +480,22 @@ describe("L1MetricsService", () => {
             expect(mockEvmProviderService.multicall).toHaveBeenCalledWith({
                 contracts: [
                     {
-                        address: L1_CONTRACTS.SHARED_BRIDGE,
+                        address: l1MetricsService["sharedBridgeAddress"],
                         abi: sharedBridgeAbi,
                         functionName: "chainBalance",
-                        args: [BigInt(chainId), "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
+                        args: [chainId, "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
                     },
                     {
-                        address: L1_CONTRACTS.SHARED_BRIDGE,
+                        address: l1MetricsService["sharedBridgeAddress"],
                         abi: sharedBridgeAbi,
                         functionName: "chainBalance",
-                        args: [BigInt(chainId), "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"],
+                        args: [chainId, "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"],
                     },
                     {
-                        address: L1_CONTRACTS.SHARED_BRIDGE,
+                        address: l1MetricsService["sharedBridgeAddress"],
                         abi: sharedBridgeAbi,
                         functionName: "chainBalance",
-                        args: [BigInt(chainId), ETH_TOKEN_ADDRESS],
+                        args: [chainId, ETH_TOKEN_ADDRESS],
                     },
                 ],
                 allowFailure: false,
@@ -595,7 +610,7 @@ describe("L1MetricsService", () => {
                 data: encodeFunctionData({
                     abi: erc20Abi,
                     functionName: "transfer",
-                    args: [L1_CONTRACTS.SHARED_BRIDGE, ONE_ETHER],
+                    args: [l1MetricsService["sharedBridgeAddress"], ONE_ETHER],
                 }),
             });
 
@@ -644,7 +659,7 @@ describe("L1MetricsService", () => {
                 data: encodeFunctionData({
                     abi: erc20Abi,
                     functionName: "transfer",
-                    args: [L1_CONTRACTS.SHARED_BRIDGE, ONE_ETHER],
+                    args: [l1MetricsService["sharedBridgeAddress"], ONE_ETHER],
                 }),
             });
 
@@ -706,13 +721,93 @@ describe("L1MetricsService", () => {
                 data: encodeFunctionData({
                     abi: erc20Abi,
                     functionName: "transfer",
-                    args: [L1_CONTRACTS.SHARED_BRIDGE, ONE_ETHER],
+                    args: [l1MetricsService["sharedBridgeAddress"], ONE_ETHER],
                 }),
             });
 
             expect(mockGetGasPrice).toHaveBeenCalledTimes(1);
 
             expect(mockGetTokenPrices).not.toHaveBeenCalled();
+        });
+    });
+
+    describe("getChainIds", () => {
+        it("returns chainIds", async () => {
+            true && true;
+            l1MetricsService = await mockMetricsModule(
+                mockedBridgeHubAddress,
+                mockedSharedBridgeAddress,
+                mockedSTMAddresses,
+            );
+            const mockedMulticallReturnValue = [
+                [1n, 2n, 3n],
+                [4n, 5n, 6n],
+            ];
+            jest.spyOn(mockEvmProviderService, "multicall").mockResolvedValue(
+                mockedMulticallReturnValue,
+            );
+
+            const result = await l1MetricsService.getChainIds();
+
+            expect(result).toEqual(mockedMulticallReturnValue.flat());
+            expect(l1MetricsService["chainIds"]).toEqual(mockedMulticallReturnValue.flat());
+        });
+        it("returns chainIds previously setted up", async () => {
+            const mockedChainIds = [1n, 2n, 3n, 4n, 5n];
+            l1MetricsService = await mockMetricsModule(
+                mockedBridgeHubAddress,
+                mockedSharedBridgeAddress,
+                mockedSTMAddresses,
+            );
+            l1MetricsService["chainIds"] = mockedChainIds;
+
+            const result = await l1MetricsService.getChainIds();
+
+            expect(result).toEqual(mockedChainIds);
+        });
+        it("returns empty array if chainIds are empty", async () => {
+            const mockedChainIds: bigint[] = [];
+            l1MetricsService = await mockMetricsModule(
+                mockedBridgeHubAddress,
+                mockedSharedBridgeAddress,
+                mockedSTMAddresses,
+            );
+            l1MetricsService["chainIds"] = mockedChainIds;
+
+            const result = await l1MetricsService.getChainIds();
+
+            expect(result).toEqual(mockedChainIds);
+        });
+        it("throws if multicall throws", async () => {
+            jest.spyOn(mockEvmProviderService, "multicall").mockRejectedValue(new Error());
+            await expect(l1MetricsService.getChainIds()).rejects.toThrow(Error);
+        });
+    });
+
+    describe("getBaseTokens", () => {
+        it("returns baseTokens", async () => {
+            const mockedChainIds = [1n, 2n];
+            const mockedMulticallReturnValue = [
+                "0x1234567890123456789012345678901234567123",
+                "0x1234567890123456789012345678901234567345",
+            ];
+            jest.spyOn(mockEvmProviderService, "multicall").mockResolvedValue(
+                mockedMulticallReturnValue,
+            );
+
+            const result = await l1MetricsService.getBaseTokens(mockedChainIds);
+
+            expect(result).toEqual(mockedMulticallReturnValue);
+        });
+        it("returns baseTokens", async () => {
+            const mockedChainIds: ChainId[] = [];
+            const result = await l1MetricsService.getBaseTokens(mockedChainIds);
+            expect(result).toEqual([]);
+        });
+        it("throws if multicall fails", async () => {
+            const mockedChainIds: ChainId[] = [1n, 2n];
+            jest.spyOn(mockEvmProviderService, "multicall").mockRejectedValue(new Error());
+            await expect(l1MetricsService.getBaseTokens(mockedChainIds)).rejects.toThrow(Error);
         });
     });
 

@@ -17,18 +17,16 @@ import {
     InvalidChainType,
     L1MetricsServiceException,
 } from "@zkchainhub/metrics/exceptions";
-import { bridgeHubAbi, diamondProxyAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
+import {
+    bridgeHubAbi,
+    diamondProxyAbi,
+    sharedBridgeAbi,
+    stateTransitionManagerAbi,
+} from "@zkchainhub/metrics/l1/abis";
 import { AssetTvl, GasInfo } from "@zkchainhub/metrics/types";
 import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
-import {
-    BatchesInfo,
-    ChainId,
-    Chains,
-    ChainType,
-    L1_CONTRACTS,
-    vitalikAddress,
-} from "@zkchainhub/shared";
+import { BatchesInfo, ChainId, Chains, ChainType, vitalikAddress } from "@zkchainhub/shared";
 import { ETH_TOKEN_ADDRESS } from "@zkchainhub/shared/constants";
 import {
     erc20Tokens,
@@ -45,17 +43,12 @@ const ONE_ETHER = parseEther("1");
  */
 @Injectable()
 export class L1MetricsService {
-    private readonly bridgeHub = {
-        abi: bridgeHubAbi,
-        address: L1_CONTRACTS.BRIDGE_HUB,
-    };
-    private readonly sharedBridge = {
-        abi: sharedBridgeAbi,
-        address: L1_CONTRACTS.SHARED_BRIDGE,
-    };
     private readonly diamondContracts: Map<ChainId, Address> = new Map();
-
+    private chainIds?: ChainId[];
     constructor(
+        private readonly bridgeHubAddress: Address,
+        private readonly sharedBridgeAddress: Address,
+        private readonly stateTransitionManagerAddresses: Address[],
         private readonly evmProviderService: EvmProviderService,
         @Inject(PRICING_PROVIDER) private readonly pricingService: IPricingService,
         @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService,
@@ -141,13 +134,13 @@ export class L1MetricsService {
                         address: tokenAddress,
                         abi: erc20Abi,
                         functionName: "balanceOf",
-                        args: [this.sharedBridge.address],
+                        args: [this.sharedBridgeAddress],
                     } as const;
                 }),
             ],
             allowFailure: false,
         });
-        const ethBalance = await this.evmProviderService.getBalance(this.sharedBridge.address);
+        const ethBalance = await this.evmProviderService.getBalance(this.sharedBridgeAddress);
 
         assert(balances.length === addresses.length, "Invalid balances length");
 
@@ -215,15 +208,15 @@ export class L1MetricsService {
             contracts: [
                 ...addresses.map((tokenAddress) => {
                     return {
-                        address: this.sharedBridge.address,
-                        abi: this.sharedBridge.abi,
+                        address: this.sharedBridgeAddress,
+                        abi: sharedBridgeAbi,
                         functionName: "chainBalance",
                         args: [chainId, tokenAddress],
                     } as const;
                 }),
                 {
-                    address: this.sharedBridge.address,
-                    abi: this.sharedBridge.abi,
+                    address: this.sharedBridgeAddress,
+                    abi: sharedBridgeAbi,
                     functionName: "chainBalance",
                     args: [chainId, ETH_TOKEN_ADDRESS],
                 } as const,
@@ -259,8 +252,8 @@ export class L1MetricsService {
 
         if (!diamondProxyAddress) {
             diamondProxyAddress = await this.evmProviderService.readContract(
-                this.bridgeHub.address,
-                this.bridgeHub.abi,
+                this.bridgeHubAddress,
+                bridgeHubAbi,
                 "getHyperchain",
                 [chainId],
             );
@@ -292,7 +285,7 @@ export class L1MetricsService {
                     data: encodeFunctionData({
                         abi: erc20Abi,
                         functionName: "transfer",
-                        args: [L1_CONTRACTS.SHARED_BRIDGE, ONE_ETHER],
+                        args: [this.sharedBridgeAddress, ONE_ETHER],
                     }),
                 }),
                 // Get the current gas price.
@@ -322,6 +315,47 @@ export class L1MetricsService {
             }
             throw new L1MetricsServiceException("Failed to get gas information from L1.");
         }
+    }
+
+    /**
+     * Get the chainIds for the ecosystem
+     * @returns A list of chainIds
+     */
+    async getChainIds(): Promise<ChainId[]> {
+        if (!this.chainIds) {
+            const chainIds = await this.evmProviderService.multicall({
+                contracts: this.stateTransitionManagerAddresses.map((address) => {
+                    return {
+                        address,
+                        abi: stateTransitionManagerAbi,
+                        functionName: "getAllHyperchainChainIDs",
+                        args: [],
+                    } as const;
+                }),
+                allowFailure: false,
+            });
+            this.chainIds = chainIds.flat();
+        }
+        return this.chainIds;
+    }
+    /**
+     * Get the base token for each chain
+     * @returns A map of chainId to base token address
+     */
+    async getBaseTokens(chainIds: ChainId[]): Promise<Address[]> {
+        if (chainIds.length === 0) return [];
+        const baseTokens = await this.evmProviderService.multicall({
+            contracts: chainIds.map((chainId) => {
+                return {
+                    address: this.bridgeHubAddress,
+                    abi: bridgeHubAbi,
+                    functionName: "baseToken",
+                    args: [chainId],
+                } as const;
+            }),
+            allowFailure: false,
+        });
+        return baseTokens;
     }
 
     //TODO: Implement feeParams.
