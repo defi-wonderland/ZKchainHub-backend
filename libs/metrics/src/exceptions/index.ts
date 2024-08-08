@@ -1,3 +1,3 @@
 export * from "./invalidChainId.exception";
-export * from "./metricsService.exception";
+export * from "./l1MetricsService.exception";
 export * from "./invalidChainType.exception";
