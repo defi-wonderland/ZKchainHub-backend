@@ -7,6 +7,7 @@ import {
     encodeFunctionData,
     erc20Abi,
     formatUnits,
+    Hex,
     parseEther,
     parseUnits,
     zeroAddress,
@@ -18,7 +19,7 @@ import {
     L1MetricsServiceException,
 } from "@zkchainhub/metrics/exceptions";
 import { bridgeHubAbi, diamondProxyAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
-import { AssetTvl, GasInfo } from "@zkchainhub/metrics/types";
+import { AssetTvl, FeeParams, feeParamsFieldLengths, GasInfo } from "@zkchainhub/metrics/types";
 import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
 import {
@@ -39,6 +40,7 @@ import {
 } from "@zkchainhub/shared/tokens/tokens";
 
 const ONE_ETHER = parseEther("1");
+const FEE_PARAMS_SLOT: Hex = `0x26`;
 
 /**
  * Acts as a wrapper around Viem library to provide methods to interact with an EVM-based blockchain.
@@ -324,20 +326,56 @@ export class L1MetricsService {
         }
     }
 
-    //TODO: Implement feeParams.
-    async feeParams(_chainId: ChainId): Promise<{
-        batchOverheadL1Gas: number;
-        maxPubdataPerBatch: number;
-        maxL2GasPerBatch: number;
-        priorityTxMaxPubdata: number;
-        minimalL2GasPrice: number;
-    }> {
+    /**
+     * Retrieves the fee parameters for a specific chain.
+     *
+     * @param chainId - The ID of the chain.
+     * @returns A Promise that resolves to a FeeParams object containing the fee parameters.
+     * @throws {L1MetricsServiceException} If the fee parameters cannot be retrieved from L1.
+     */
+    async feeParams(chainId: ChainId): Promise<FeeParams> {
+        const diamondProxyAddress = await this.fetchDiamondProxyAddress(chainId);
+
+        // Read the storage at the target slot;
+        const feeParamsData = await this.evmProviderService.getStorageAt(
+            diamondProxyAddress,
+            FEE_PARAMS_SLOT,
+        );
+        if (!feeParamsData) {
+            throw new L1MetricsServiceException("Failed to get fee params from L1.");
+        }
+
+        const strippedParamsData = feeParamsData.slice(2); // Remove the 0x prefix
+        let cursor = strippedParamsData.length;
+        const values: string[] = [];
+
+        for (const value of Object.values(feeParamsFieldLengths)) {
+            values.push(strippedParamsData.slice(cursor - value, cursor));
+            cursor -= value;
+        }
+
+        assert(
+            values.length === Object.keys(feeParamsFieldLengths).length,
+            "Error parsing fee params",
+        );
+
+        const [
+            pubdataPricingMode,
+            batchOverheadL1Gas,
+            maxPubdataPerBatch,
+            maxL2GasPerBatch,
+            priorityTxMaxPubdata,
+            minimalL2GasPrice,
+        ] = values as [string, string, string, string, string, string];
+
+        // Convert hex to decimal
         return {
-            batchOverheadL1Gas: 50000,
-            maxPubdataPerBatch: 120000,
-            maxL2GasPerBatch: 10000000,
-            priorityTxMaxPubdata: 15000,
-            minimalL2GasPrice: 10000000,
+            pubdataPricingMode: parseInt(pubdataPricingMode, 16),
+            batchOverheadL1Gas: parseInt(batchOverheadL1Gas, 16),
+            maxPubdataPerBatch: parseInt(maxPubdataPerBatch, 16),
+            maxL2GasPerBatch: parseInt(maxL2GasPerBatch, 16),
+            priorityTxMaxPubdata: parseInt(priorityTxMaxPubdata, 16),
+            minimalL2GasPrice: BigInt(`0x${minimalL2GasPrice}`),
         };
     }
 }
