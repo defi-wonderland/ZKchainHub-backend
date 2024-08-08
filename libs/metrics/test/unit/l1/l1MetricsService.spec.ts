@@ -247,7 +247,7 @@ describe("L1MetricsService", () => {
 
     describe("getBatchesInfo", () => {
         it("returns batches info for chain id", async () => {
-            const chainId = 324; // this is ZKsyncEra chain id
+            const chainId = 324n; // this is ZKsyncEra chain id
             const mockedDiamondProxyAddress = "0x1234567890123456789012345678901234567890";
 
             l1MetricsService["diamondContracts"].set(chainId, mockedDiamondProxyAddress);
@@ -289,15 +289,16 @@ describe("L1MetricsService", () => {
                 allowFailure: false,
             });
         });
-        it("throws if invalid chainId ", async () => {
-            const chainId = 324.123123; // this is ZKsyncEra chain id
 
-            await expect(l1MetricsService.getBatchesInfo(chainId)).rejects.toThrowError(
-                InvalidChainId,
-            );
+        it("throws if chainId doesn't exist on the ecosystem", async () => {
+            const chainId = 324n; // this is ZKsyncEra chain id
+            l1MetricsService["diamondContracts"].clear();
+            jest.spyOn(mockEvmProviderService, "readContract").mockResolvedValue(zeroAddress);
+            await expect(l1MetricsService.getBatchesInfo(chainId)).rejects.toThrow(InvalidChainId);
         });
+
         it("fetches and sets diamond proxy if chainId doesn't exists on map", async () => {
-            const chainId = 324; // this is ZKsyncEra chain id
+            const chainId = 324n; // this is ZKsyncEra chain id
             const mockedDiamondProxyAddress = "0x1234567890123456789012345678901234567890";
 
             l1MetricsService["diamondContracts"].clear();
@@ -358,7 +359,7 @@ describe("L1MetricsService", () => {
         it("return the TVL for chain id", async () => {
             const mockBalances = [60_841_657_140641n, 135_63005559n, 123_803_824374847279970609n]; // Mocked balances
             const mockPrices = { "wrapped-bitcoin": 66_129, "usd-coin": 0.999, ethereum: 3_181.09 }; // Mocked prices
-            const chainId = 324; // this is ZKsyncEra chain id
+            const chainId = 324n; // this is ZKsyncEra chain id
 
             jest.spyOn(mockEvmProviderService, "multicall").mockResolvedValue(mockBalances);
             jest.spyOn(mockPricingService, "getTokenPrices").mockResolvedValue(mockPrices);
@@ -435,7 +436,7 @@ describe("L1MetricsService", () => {
         });
 
         it("throws an error if the prices length is invalid", async () => {
-            const chainId = 324;
+            const chainId = 324n;
             jest.spyOn(mockEvmProviderService, "multicall").mockResolvedValue([
                 60_841_657_140641n,
                 135_63005559n,
@@ -454,7 +455,7 @@ describe("L1MetricsService", () => {
 
     describe("chainType", () => {
         it("return chainType", async () => {
-            const result = await l1MetricsService.chainType(1);
+            const result = await l1MetricsService.chainType(1n);
             expect(result).toBe("rollup");
         });
     });
@@ -610,7 +611,7 @@ describe("L1MetricsService", () => {
 
     describe("feeParams", () => {
         it("return feeParams", async () => {
-            const result = await l1MetricsService.feeParams(1);
+            const result = await l1MetricsService.feeParams(1n);
             expect(result).toEqual({
                 batchOverheadL1Gas: 50000,
                 maxPubdataPerBatch: 120000,

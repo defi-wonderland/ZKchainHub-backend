@@ -3,4 +3,4 @@ import { AbiItem } from "viem";
 
 export type AbiWithAddress<T extends AbiItem[]> = { abi: T; address: Address };
 
-export type ChainId = number;
+export type ChainId = bigint;
