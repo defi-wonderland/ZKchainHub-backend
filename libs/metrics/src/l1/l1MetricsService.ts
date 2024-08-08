@@ -14,7 +14,11 @@ import {
     zeroAddress,
 } from "viem";
 
-import { InvalidChainId, L1MetricsServiceException } from "@zkchainhub/metrics/exceptions";
+import {
+    InvalidChainId,
+    InvalidChainType,
+    L1MetricsServiceException,
+} from "@zkchainhub/metrics/exceptions";
 import {
     bridgeHubAbi,
     diamondProxyAbi,
@@ -25,7 +29,14 @@ import { tokenBalancesBytecode } from "@zkchainhub/metrics/l1/bytecode";
 import { AssetTvl, GasInfo } from "@zkchainhub/metrics/types";
 import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
-import { BatchesInfo, ChainId, L1_CONTRACTS, vitalikAddress } from "@zkchainhub/shared";
+import {
+    BatchesInfo,
+    ChainId,
+    Chains,
+    ChainType,
+    L1_CONTRACTS,
+    vitalikAddress,
+} from "@zkchainhub/shared";
 import { ETH_TOKEN_ADDRESS } from "@zkchainhub/shared/constants";
 import {
     erc20Tokens,
@@ -156,22 +167,7 @@ export class L1MetricsService {
      * @returns commits, verified and executed batches
      */
     async getBatchesInfo(chainId: number): Promise<BatchesInfo> {
-        if (!Number.isInteger(chainId)) {
-            throw new InvalidChainId("chain id must be an integer");
-        }
-        const chainIdBn = BigInt(chainId);
-        let diamondProxyAddress: Address | undefined = this.diamondContracts.get(chainId);
-
-        if (!diamondProxyAddress) {
-            diamondProxyAddress = await this.evmProviderService.readContract(
-                this.bridgeHub.address,
-                this.bridgeHub.abi,
-                "getHyperchain",
-                [chainIdBn],
-            );
-            this.diamondContracts.set(chainId, diamondProxyAddress);
-        }
-
+        const diamondProxyAddress = await this.fetchDiamondProxyAddress(chainId);
         const [commited, verified, executed] = await this.evmProviderService.multicall({
             contracts: [
                 {
@@ -246,9 +242,43 @@ export class L1MetricsService {
         return { ethBalance: balances[addresses.length]!, addressesBalance: balances.slice(0, -1) };
     }
 
-    //TODO: Implement chainType.
-    async chainType(_chainId: number): Promise<"validium" | "rollup"> {
-        return "rollup";
+    async chainType(chainId: number): Promise<ChainType> {
+        const diamondProxyAddress = await this.fetchDiamondProxyAddress(chainId);
+        const chainTypeIndex = await this.evmProviderService.readContract(
+            diamondProxyAddress,
+            diamondProxyAbi,
+            "getPubdataPricingMode",
+            [],
+        );
+        const chainType = Chains[chainTypeIndex];
+        if (!chainType) {
+            throw new InvalidChainType(chainTypeIndex);
+        }
+        return chainType;
+    }
+
+    /**
+     * Fetches the diamond proxy address for the given chain id and caches it for future use.
+     * @param chainId - The chain id for which to fetch the diamond proxy address.
+     * @returns Diamond proxy address.
+     */
+    async fetchDiamondProxyAddress(chainId: number): Promise<Address> {
+        if (!Number.isInteger(chainId)) {
+            throw new InvalidChainId("chain id must be an integer");
+        }
+        const chainIdBn = BigInt(chainId);
+        let diamondProxyAddress: Address | undefined = this.diamondContracts.get(chainId);
+
+        if (!diamondProxyAddress) {
+            diamondProxyAddress = await this.evmProviderService.readContract(
+                this.bridgeHub.address,
+                this.bridgeHub.abi,
+                "getHyperchain",
+                [chainIdBn],
+            );
+            this.diamondContracts.set(chainId, diamondProxyAddress);
+        }
+        return diamondProxyAddress;
     }
 
     /**
