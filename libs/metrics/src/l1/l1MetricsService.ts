@@ -17,7 +17,12 @@ import {
     InvalidChainType,
     L1MetricsServiceException,
 } from "@zkchainhub/metrics/exceptions";
-import { bridgeHubAbi, diamondProxyAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
+import {
+    bridgeHubAbi,
+    diamondProxyAbi,
+    multicall3Abi,
+    sharedBridgeAbi,
+} from "@zkchainhub/metrics/l1/abis";
 import { AssetTvl, GasInfo } from "@zkchainhub/metrics/types";
 import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
@@ -29,7 +34,7 @@ import {
     L1_CONTRACTS,
     vitalikAddress,
 } from "@zkchainhub/shared";
-import { ETH_TOKEN_ADDRESS } from "@zkchainhub/shared/constants";
+import { ETH_TOKEN_ADDRESS, multicall3EthereumAddress } from "@zkchainhub/shared/constants";
 import {
     erc20Tokens,
     isNativeToken,
@@ -144,14 +149,19 @@ export class L1MetricsService {
                         args: [this.sharedBridge.address],
                     } as const;
                 }),
+                {
+                    address: multicall3EthereumAddress,
+                    abi: multicall3Abi,
+                    functionName: "getEthBalance",
+                    args: [this.sharedBridge.address],
+                } as const,
             ],
             allowFailure: false,
         });
-        const ethBalance = await this.evmProviderService.getBalance(this.sharedBridge.address);
 
-        assert(balances.length === addresses.length, "Invalid balances length");
+        assert(balances.length === addresses.length + 1, "Invalid balances length");
 
-        return { ethBalance: ethBalance, addressesBalance: balances };
+        return { ethBalance: balances[addresses.length]!, addressesBalance: balances };
     }
 
     /**

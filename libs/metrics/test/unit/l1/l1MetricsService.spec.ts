@@ -10,7 +10,12 @@ import {
     L1MetricsServiceException,
 } from "@zkchainhub/metrics/exceptions";
 import { L1MetricsService } from "@zkchainhub/metrics/l1/";
-import { bridgeHubAbi, diamondProxyAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
+import {
+    bridgeHubAbi,
+    diamondProxyAbi,
+    multicall3Abi,
+    sharedBridgeAbi,
+} from "@zkchainhub/metrics/l1/abis";
 import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
 import {
@@ -18,6 +23,7 @@ import {
     ChainType,
     ETH_TOKEN_ADDRESS,
     L1_CONTRACTS,
+    multicall3EthereumAddress,
     vitalikAddress,
 } from "@zkchainhub/shared";
 import { nativeToken, WETH } from "@zkchainhub/shared/tokens/tokens";
@@ -160,14 +166,16 @@ describe("L1MetricsService", () => {
 
     describe("l1Tvl", () => {
         it("return the TVL on L1 Shared Bridge", async () => {
-            const mockMulticallBalances = [60_841_657_140641n, 135_63005559n]; // Mocked balances
-            const mockEtherBalance = 123_803_824374847279970609n;
+            const mockMulticallBalances = [
+                60_841_657_140641n,
+                135_63005559n,
+                123_803_824374847279970609n,
+            ]; // Mocked balances
             const mockPrices = { "wrapped-bitcoin": 66_129, "usd-coin": 0.999, ethereum: 3_181.09 }; // Mocked prices
 
             jest.spyOn(mockEvmProviderService, "multicall").mockResolvedValue(
                 mockMulticallBalances,
             );
-            jest.spyOn(mockEvmProviderService, "getBalance").mockResolvedValue(mockEtherBalance);
             jest.spyOn(mockPricingService, "getTokenPrices").mockResolvedValue(mockPrices);
 
             const result = await l1MetricsService.l1Tvl();
@@ -225,12 +233,15 @@ describe("L1MetricsService", () => {
                         functionName: "balanceOf",
                         args: [L1_CONTRACTS.SHARED_BRIDGE],
                     },
+                    {
+                        address: multicall3EthereumAddress,
+                        abi: multicall3Abi,
+                        functionName: "getEthBalance",
+                        args: [L1_CONTRACTS.SHARED_BRIDGE],
+                    },
                 ],
                 allowFailure: false,
             });
-            expect(mockEvmProviderService.getBalance).toHaveBeenCalledWith(
-                L1_CONTRACTS.SHARED_BRIDGE,
-            );
             expect(mockPricingService.getTokenPrices).toHaveBeenCalledWith([
                 "ethereum",
                 "usd-coin",
@@ -248,10 +259,8 @@ describe("L1MetricsService", () => {
             jest.spyOn(mockEvmProviderService, "multicall").mockResolvedValue([
                 60_841_657_140641n,
                 135_63005559n,
-            ]);
-            jest.spyOn(mockEvmProviderService, "getBalance").mockResolvedValue(
                 123_803_824374847279970609n,
-            );
+            ]);
             jest.spyOn(mockPricingService, "getTokenPrices").mockResolvedValue({
                 ethereum: 3_181.09,
                 "usd-coin": 0.999,
