@@ -9,11 +9,14 @@ export type FeeParams = {
 };
 
 // Define the lengths for each field (in hex digits, each byte is 2 hex digits)
-export const feeParamsFieldLengths = {
-    pubdataPricingMode: 2, // uint8 -> 1 byte -> 2 hex digits
-    batchOverheadL1Gas: 8, // uint32 -> 4 bytes -> 8 hex digits
-    maxPubdataPerBatch: 8, // uint32 -> 4 bytes -> 8 hex digits
-    maxL2GasPerBatch: 8, // uint32 -> 4 bytes -> 8 hex digits
-    priorityTxMaxPubdata: 8, // uint32 -> 4 bytes -> 8 hex digits
-    minimalL2GasPrice: 16, // uint64 -> 8 bytes -> 16 hex digits
-} as const;
+/* 
+{
+     pubdataPricingMode: uint8 -> 1 byte -> 2 hex digits
+     batchOverheadL1Gas: uint32 -> 4 bytes -> 8 hex digits
+     maxPubdataPerBatch: uint32 -> 4 bytes -> 8 hex digits
+     maxL2GasPerBatch: uint32 -> 4 bytes -> 8 hex digits
+     priorityTxMaxPubdata: uint32 -> 4 bytes -> 8 hex digits
+     minimalL2GasPrice: uint64 -> 8 bytes -> 16 hex digits
+ }
+*/
+export const feeParamsFieldHexDigits = [2, 8, 8, 8, 8, 16] as const;

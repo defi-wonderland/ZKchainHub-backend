@@ -19,7 +19,7 @@ import {
     L1MetricsServiceException,
 } from "@zkchainhub/metrics/exceptions";
 import { bridgeHubAbi, diamondProxyAbi, sharedBridgeAbi } from "@zkchainhub/metrics/l1/abis";
-import { AssetTvl, FeeParams, feeParamsFieldLengths, GasInfo } from "@zkchainhub/metrics/types";
+import { AssetTvl, FeeParams, feeParamsFieldHexDigits, GasInfo } from "@zkchainhub/metrics/types";
 import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
 import {
@@ -345,15 +345,16 @@ export class L1MetricsService {
             throw new L1MetricsServiceException("Failed to get fee params from L1.");
         }
 
-        const strippedParamsData = feeParamsData.slice(2); // Remove the 0x prefix
+        const strippedParamsData = feeParamsData.replace(/^0x/, "");
         let cursor = strippedParamsData.length;
         const values: string[] = [];
 
-        for (const value of Object.values(feeParamsFieldLengths)) {
-            const hexValue = strippedParamsData.slice(cursor - value, cursor);
+        //read fields from Right to Left
+        for (const digits of feeParamsFieldHexDigits) {
+            const hexValue = strippedParamsData.slice(cursor - digits, cursor);
             assert(hexValue, "Error parsing fee params");
             values.push(hexValue);
-            cursor -= value;
+            cursor -= digits;
         }
 
         const [
