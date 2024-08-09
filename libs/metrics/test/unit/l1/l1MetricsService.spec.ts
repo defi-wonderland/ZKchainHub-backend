@@ -17,10 +17,14 @@ import {
     BatchesInfo,
     ChainId,
     ChainType,
+    erc20Tokens,
     ETH_TOKEN_ADDRESS,
+    nativeToken,
+    Token,
+    TokenType,
     vitalikAddress,
+    WETH,
 } from "@zkchainhub/shared";
-import { nativeToken, WETH } from "@zkchainhub/shared/tokens/tokens";
 
 // Mock implementations of the dependencies
 const mockEvmProviderService = createMock<EvmProviderService>();
@@ -28,31 +32,29 @@ const mockEvmProviderService = createMock<EvmProviderService>();
 const mockPricingService = createMock<IPricingService>();
 
 const ONE_ETHER = parseEther("1");
-jest.mock("@zkchainhub/shared/tokens/tokens", () => ({
-    ...jest.requireActual("@zkchainhub/shared/tokens/tokens"),
-    get erc20Tokens() {
-        return [
-            {
-                name: "USDC",
-                symbol: "USDC",
-                contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                coingeckoId: "usd-coin",
-                imageUrl:
-                    "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
-                type: "erc20",
-                decimals: 6,
-            },
-            {
-                name: "Wrapped BTC",
-                symbol: "WBTC",
-                contractAddress: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-                coingeckoId: "wrapped-bitcoin",
-                imageUrl:
-                    "https://coin-images.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1696507857",
-                type: "erc20",
-                decimals: 8,
-            },
-        ];
+jest.mock("@zkchainhub/shared/constants/token", () => ({
+    ...jest.requireActual("@zkchainhub/shared/constants/token"),
+    erc20Tokens: {
+        "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": {
+            name: "USDC",
+            symbol: "USDC",
+            contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            coingeckoId: "usd-coin",
+            imageUrl:
+                "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
+            type: "erc20",
+            decimals: 6,
+        },
+        "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599": {
+            name: "Wrapped BTC",
+            symbol: "WBTC",
+            contractAddress: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+            coingeckoId: "wrapped-bitcoin",
+            imageUrl:
+                "https://coin-images.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1696507857",
+            type: "erc20",
+            decimals: 8,
+        },
     },
     get tokens() {
         return [
@@ -785,7 +787,29 @@ describe("L1MetricsService", () => {
     });
 
     describe("getBaseTokens", () => {
-        it("returns baseTokens", async () => {
+        it("returns known tokens", async () => {
+            const mockedChainIds = [1n, 2n];
+            const knownTokenAddress1 = Object.keys(erc20Tokens)[0];
+            const knownTokenAddress2 = Object.keys(erc20Tokens)[0];
+
+            if (!knownTokenAddress1 || !knownTokenAddress2) {
+                throw new Error("ERC20 tokens are not defined");
+            }
+            const mockedMulticallReturnValue = [knownTokenAddress1, knownTokenAddress2];
+            jest.spyOn(mockEvmProviderService, "multicall").mockResolvedValue(
+                mockedMulticallReturnValue,
+            );
+            const mockedReturnData: Token<TokenType>[] = [
+                erc20Tokens[knownTokenAddress1 as Address] as Token<"erc20">,
+                erc20Tokens[knownTokenAddress2 as Address] as Token<"erc20">,
+            ];
+
+            const result = await l1MetricsService.getBaseTokens(mockedChainIds);
+
+            expect(result).toEqual(mockedReturnData);
+        });
+
+        it("returns unknown tokens", async () => {
             const mockedChainIds = [1n, 2n];
             const mockedMulticallReturnValue = [
                 "0x1234567890123456789012345678901234567123",
@@ -794,17 +818,40 @@ describe("L1MetricsService", () => {
             jest.spyOn(mockEvmProviderService, "multicall").mockResolvedValue(
                 mockedMulticallReturnValue,
             );
+            const mockedReturnData: Token<TokenType>[] = [
+                {
+                    contractAddress: "0x1234567890123456789012345678901234567123",
+                    symbol: "unknown",
+                    name: "unknown",
+                    decimals: 18,
+                    type: "erc20",
+                    coingeckoId: "unknown",
+                },
+                {
+                    contractAddress: "0x1234567890123456789012345678901234567345",
+                    symbol: "unknown",
+                    name: "unknown",
+                    decimals: 18,
+                    type: "erc20",
+                    coingeckoId: "unknown",
+                },
+            ];
 
             const result = await l1MetricsService.getBaseTokens(mockedChainIds);
 
-            expect(result).toEqual(mockedMulticallReturnValue);
+            expect(result).toEqual(mockedReturnData);
         });
-        it("returns baseTokens", async () => {
+        it("returns empty array if chainIds is empty", async () => {
             const mockedChainIds: ChainId[] = [];
             const result = await l1MetricsService.getBaseTokens(mockedChainIds);
             expect(result).toEqual([]);
         });
         it("throws if multicall fails", async () => {
+            const mockedChainIds: ChainId[] = [1n, 2n];
+            jest.spyOn(mockEvmProviderService, "multicall").mockRejectedValue(new Error());
+            await expect(l1MetricsService.getBaseTokens(mockedChainIds)).rejects.toThrow(Error);
+        });
+        it("returns eth token", async () => {
             const mockedChainIds: ChainId[] = [1n, 2n];
             jest.spyOn(mockEvmProviderService, "multicall").mockRejectedValue(new Error());
             await expect(l1MetricsService.getBaseTokens(mockedChainIds)).rejects.toThrow(Error);

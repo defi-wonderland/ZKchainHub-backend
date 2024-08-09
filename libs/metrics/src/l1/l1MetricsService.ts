@@ -27,14 +27,15 @@ import { AssetTvl, GasInfo } from "@zkchainhub/metrics/types";
 import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
 import { BatchesInfo, ChainId, Chains, ChainType, vitalikAddress } from "@zkchainhub/shared";
-import { ETH_TOKEN_ADDRESS } from "@zkchainhub/shared/constants";
 import {
     erc20Tokens,
-    isNativeToken,
+    ETH_TOKEN_ADDRESS,
     nativeToken,
     tokens,
     WETH,
-} from "@zkchainhub/shared/tokens/tokens";
+} from "@zkchainhub/shared/constants";
+import { Token } from "@zkchainhub/shared/types";
+import { isNativeToken } from "@zkchainhub/shared/utils";
 
 const ONE_ETHER = parseEther("1");
 
@@ -59,7 +60,7 @@ export class L1MetricsService {
      * @returns A Promise that resolves to an array of AssetTvl objects representing the TVL for each asset.
      */
     async l1Tvl(): Promise<AssetTvl[]> {
-        const erc20Addresses = erc20Tokens.map((token) => token.contractAddress);
+        const erc20Addresses = Object.values(erc20Tokens).map((token) => token.contractAddress);
 
         const balances = await this.fetchTokenBalances(erc20Addresses);
         const pricesRecord = await this.pricingService.getTokenPrices(
@@ -185,7 +186,7 @@ export class L1MetricsService {
      * @returns A Promise that resolves to an array of AssetTvl objects representing the TVL for each asset.
      */
     async tvl(chainId: ChainId): Promise<AssetTvl[]> {
-        const erc20Addresses = erc20Tokens.map((token) => token.contractAddress);
+        const erc20Addresses = Object.values(erc20Tokens).map((token) => token.contractAddress);
 
         const balances = await this.fetchTokenBalancesByChain(chainId, erc20Addresses);
         const pricesRecord = await this.pricingService.getTokenPrices(
@@ -342,7 +343,7 @@ export class L1MetricsService {
      * Get the base token for each chain
      * @returns A map of chainId to base token address
      */
-    async getBaseTokens(chainIds: ChainId[]): Promise<Address[]> {
+    async getBaseTokens(chainIds: ChainId[]): Promise<Token<"erc20" | "native">[]> {
         if (chainIds.length === 0) return [];
         const baseTokens = await this.evmProviderService.multicall({
             contracts: chainIds.map((chainId) => {
@@ -355,7 +356,18 @@ export class L1MetricsService {
             }),
             allowFailure: false,
         });
-        return baseTokens;
+        return baseTokens.map((baseToken) => {
+            return baseToken === ETH_TOKEN_ADDRESS
+                ? nativeToken
+                : erc20Tokens[baseToken] || {
+                      contractAddress: baseToken,
+                      decimals: 18,
+                      name: "unknown",
+                      type: "erc20",
+                      symbol: "unknown",
+                      coingeckoId: "unknown",
+                  };
+        });
     }
 
     //TODO: Implement feeParams.
