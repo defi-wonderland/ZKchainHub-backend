@@ -23,7 +23,6 @@ import {
     ChainType,
     ETH_TOKEN_ADDRESS,
     L1_CONTRACTS,
-    multicall3EthereumAddress,
     vitalikAddress,
 } from "@zkchainhub/shared";
 import { nativeToken, WETH } from "@zkchainhub/shared/tokens/tokens";
@@ -172,7 +171,11 @@ describe("L1MetricsService", () => {
                 123_803_824374847279970609n,
             ]; // Mocked balances
             const mockPrices = { "wrapped-bitcoin": 66_129, "usd-coin": 0.999, ethereum: 3_181.09 }; // Mocked prices
+            const multicallAddress = "0x123452";
 
+            jest.spyOn(mockEvmProviderService, "getMulticall3Address").mockReturnValue(
+                multicallAddress,
+            );
             jest.spyOn(mockEvmProviderService, "multicall").mockResolvedValue(
                 mockMulticallBalances,
             );
@@ -234,7 +237,7 @@ describe("L1MetricsService", () => {
                         args: [L1_CONTRACTS.SHARED_BRIDGE],
                     },
                     {
-                        address: multicall3EthereumAddress,
+                        address: multicallAddress,
                         abi: multicall3Abi,
                         functionName: "getEthBalance",
                         args: [L1_CONTRACTS.SHARED_BRIDGE],
@@ -247,9 +250,92 @@ describe("L1MetricsService", () => {
                 "usd-coin",
                 "wrapped-bitcoin",
             ]);
+            expect(mockEvmProviderService.getBalance).not.toHaveBeenCalled();
+        });
+
+        it("fetch ethBalance using getBalance", async () => {
+            const mockMulticallBalances = [60_841_657_140641n, 135_63005559n]; // Mocked balances
+            const mockPrices = { "wrapped-bitcoin": 66_129, "usd-coin": 0.999, ethereum: 3_181.09 }; // Mocked prices
+
+            jest.spyOn(mockEvmProviderService, "getMulticall3Address").mockReturnValue(undefined);
+            jest.spyOn(mockEvmProviderService, "multicall").mockResolvedValue(
+                mockMulticallBalances,
+            );
+            jest.spyOn(mockEvmProviderService, "getBalance").mockResolvedValue(
+                123_803_824374847279970609n,
+            );
+            jest.spyOn(mockPricingService, "getTokenPrices").mockResolvedValue(mockPrices);
+
+            const result = await l1MetricsService.l1Tvl();
+
+            expect(result).toHaveLength(3);
+            expect(result).toEqual([
+                {
+                    amount: "123803.824374847279970609",
+                    amountUsd: expect.stringContaining("393831107.68"),
+                    price: "3181.09",
+                    name: "Ethereum",
+                    symbol: "ETH",
+                    contractAddress: null,
+                    type: "native",
+                    imageUrl:
+                        "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+                    decimals: 18,
+                },
+                {
+                    amount: "60841657.140641",
+                    amountUsd: expect.stringContaining("60780815.48"),
+                    price: "0.999",
+                    name: "USDC",
+                    symbol: "USDC",
+                    contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                    imageUrl:
+                        "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
+                    type: "erc20",
+                    decimals: 6,
+                },
+                {
+                    amount: "135.63005559",
+                    amountUsd: expect.stringContaining("8969079.94"),
+                    price: "66129",
+                    name: "Wrapped BTC",
+                    symbol: "WBTC",
+                    contractAddress: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+                    imageUrl:
+                        "https://coin-images.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1696507857",
+                    type: "erc20",
+                    decimals: 8,
+                },
+            ]);
+            expect(mockEvmProviderService.multicall).toHaveBeenCalledWith({
+                contracts: [
+                    {
+                        address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                        abi: erc20Abi,
+                        functionName: "balanceOf",
+                        args: [L1_CONTRACTS.SHARED_BRIDGE],
+                    },
+                    {
+                        address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+                        abi: erc20Abi,
+                        functionName: "balanceOf",
+                        args: [L1_CONTRACTS.SHARED_BRIDGE],
+                    },
+                ],
+                allowFailure: false,
+            });
+            expect(mockPricingService.getTokenPrices).toHaveBeenCalledWith([
+                "ethereum",
+                "usd-coin",
+                "wrapped-bitcoin",
+            ]);
+            expect(mockEvmProviderService.getBalance).toHaveBeenCalledWith(
+                L1_CONTRACTS.SHARED_BRIDGE,
+            );
         });
 
         it("throws an error if the balances length is invalid", async () => {
+            jest.spyOn(mockEvmProviderService, "getMulticall3Address").mockReturnValue("0x123452");
             jest.spyOn(mockEvmProviderService, "multicall").mockResolvedValue([]);
 
             await expect(l1MetricsService.l1Tvl()).rejects.toThrowError("Invalid balances length");
@@ -261,6 +347,7 @@ describe("L1MetricsService", () => {
                 135_63005559n,
                 123_803_824374847279970609n,
             ]);
+            jest.spyOn(mockEvmProviderService, "getMulticall3Address").mockReturnValue("0x123452");
             jest.spyOn(mockPricingService, "getTokenPrices").mockResolvedValue({
                 ethereum: 3_181.09,
                 "usd-coin": 0.999,

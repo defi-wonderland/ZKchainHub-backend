@@ -34,7 +34,7 @@ import {
     L1_CONTRACTS,
     vitalikAddress,
 } from "@zkchainhub/shared";
-import { ETH_TOKEN_ADDRESS, multicall3EthereumAddress } from "@zkchainhub/shared/constants";
+import { ETH_TOKEN_ADDRESS } from "@zkchainhub/shared/constants";
 import {
     erc20Tokens,
     isNativeToken,
@@ -139,29 +139,47 @@ export class L1MetricsService {
     private async fetchTokenBalances(
         addresses: Address[],
     ): Promise<{ ethBalance: bigint; addressesBalance: bigint[] }> {
-        const balances = await this.evmProviderService.multicall({
-            contracts: [
-                ...addresses.map((tokenAddress) => {
-                    return {
-                        address: tokenAddress,
-                        abi: erc20Abi,
-                        functionName: "balanceOf",
-                        args: [this.sharedBridge.address],
-                    } as const;
-                }),
-                {
-                    address: multicall3EthereumAddress,
-                    abi: multicall3Abi,
-                    functionName: "getEthBalance",
-                    args: [this.sharedBridge.address],
-                } as const,
-            ],
-            allowFailure: false,
+        const multicall3Address = this.evmProviderService.getMulticall3Address();
+        const contracts = addresses.map((tokenAddress) => {
+            return {
+                address: tokenAddress,
+                abi: erc20Abi,
+                functionName: "balanceOf",
+                args: [this.sharedBridge.address],
+            } as const;
         });
+        let balances: bigint[] = [];
+
+        if (multicall3Address) {
+            balances = await this.evmProviderService.multicall({
+                contracts: [
+                    ...contracts,
+                    {
+                        address: multicall3Address,
+                        abi: multicall3Abi,
+                        functionName: "getEthBalance",
+                        args: [this.sharedBridge.address],
+                    } as const,
+                ],
+                allowFailure: false,
+            } as const);
+        } else {
+            const [erc20Balances, ethBalance] = await Promise.all([
+                this.evmProviderService.multicall({
+                    contracts: contracts,
+                    allowFailure: false,
+                } as const),
+                this.evmProviderService.getBalance(this.sharedBridge.address),
+            ]);
+            balances = [...erc20Balances, ethBalance];
+        }
 
         assert(balances.length === addresses.length + 1, "Invalid balances length");
 
-        return { ethBalance: balances[addresses.length]!, addressesBalance: balances };
+        return {
+            ethBalance: balances[addresses.length]!,
+            addressesBalance: balances,
+        };
     }
 
     /**
