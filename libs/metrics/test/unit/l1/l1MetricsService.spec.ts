@@ -18,6 +18,7 @@ import {
 } from "@zkchainhub/metrics/l1/abis";
 import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
+import { MulticallNotFound } from "@zkchainhub/providers/exceptions";
 import {
     BatchesInfo,
     ChainType,
@@ -253,14 +254,14 @@ describe("L1MetricsService", () => {
             expect(mockEvmProviderService.getBalance).not.toHaveBeenCalled();
         });
 
-        it("fetch ethBalance using getBalance", async () => {
-            const mockMulticallBalances = [60_841_657_140641n, 135_63005559n]; // Mocked balances
+        it("return the TVL on L1 Shared Bridge without multicall", async () => {
             const mockPrices = { "wrapped-bitcoin": 66_129, "usd-coin": 0.999, ethereum: 3_181.09 }; // Mocked prices
 
             jest.spyOn(mockEvmProviderService, "getMulticall3Address").mockReturnValue(undefined);
-            jest.spyOn(mockEvmProviderService, "multicall").mockResolvedValue(
-                mockMulticallBalances,
-            );
+            jest.spyOn(mockEvmProviderService, "multicall").mockRejectedValue(MulticallNotFound);
+            jest.spyOn(mockEvmProviderService, "readContract")
+                .mockResolvedValueOnce(60_841_657_140641n)
+                .mockResolvedValueOnce(135_63005559n);
             jest.spyOn(mockEvmProviderService, "getBalance").mockResolvedValue(
                 123_803_824374847279970609n,
             );
@@ -307,23 +308,21 @@ describe("L1MetricsService", () => {
                     decimals: 8,
                 },
             ]);
-            expect(mockEvmProviderService.multicall).toHaveBeenCalledWith({
-                contracts: [
-                    {
-                        address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                        abi: erc20Abi,
-                        functionName: "balanceOf",
-                        args: [L1_CONTRACTS.SHARED_BRIDGE],
-                    },
-                    {
-                        address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-                        abi: erc20Abi,
-                        functionName: "balanceOf",
-                        args: [L1_CONTRACTS.SHARED_BRIDGE],
-                    },
-                ],
-                allowFailure: false,
-            });
+            expect(mockEvmProviderService.multicall).not.toHaveBeenCalled();
+            expect(mockEvmProviderService.readContract).toHaveBeenNthCalledWith(
+                1,
+                "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+                erc20Abi,
+                "balanceOf",
+                [L1_CONTRACTS.SHARED_BRIDGE],
+            );
+            expect(mockEvmProviderService.readContract).toHaveBeenNthCalledWith(
+                2,
+                "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+                erc20Abi,
+                "balanceOf",
+                [L1_CONTRACTS.SHARED_BRIDGE],
+            );
             expect(mockPricingService.getTokenPrices).toHaveBeenCalledWith([
                 "ethereum",
                 "usd-coin",

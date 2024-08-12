@@ -140,20 +140,19 @@ export class L1MetricsService {
         addresses: Address[],
     ): Promise<{ ethBalance: bigint; addressesBalance: bigint[] }> {
         const multicall3Address = this.evmProviderService.getMulticall3Address();
-        const contracts = addresses.map((tokenAddress) => {
-            return {
-                address: tokenAddress,
-                abi: erc20Abi,
-                functionName: "balanceOf",
-                args: [this.sharedBridge.address],
-            } as const;
-        });
         let balances: bigint[] = [];
 
         if (multicall3Address) {
             balances = await this.evmProviderService.multicall({
                 contracts: [
-                    ...contracts,
+                    ...addresses.map((tokenAddress) => {
+                        return {
+                            address: tokenAddress,
+                            abi: erc20Abi,
+                            functionName: "balanceOf",
+                            args: [this.sharedBridge.address],
+                        } as const;
+                    }),
                     {
                         address: multicall3Address,
                         abi: multicall3Abi,
@@ -164,14 +163,14 @@ export class L1MetricsService {
                 allowFailure: false,
             } as const);
         } else {
-            const [erc20Balances, ethBalance] = await Promise.all([
-                this.evmProviderService.multicall({
-                    contracts: contracts,
-                    allowFailure: false,
-                } as const),
+            balances = await Promise.all([
+                ...addresses.map((tokenAddress) =>
+                    this.evmProviderService.readContract(tokenAddress, erc20Abi, "balanceOf", [
+                        this.sharedBridge.address,
+                    ]),
+                ),
                 this.evmProviderService.getBalance(this.sharedBridge.address),
             ]);
-            balances = [...erc20Balances, ethBalance];
         }
 
         assert(balances.length === addresses.length + 1, "Invalid balances length");
