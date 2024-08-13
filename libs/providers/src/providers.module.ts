@@ -44,7 +44,7 @@ const zkProviderFactory = (options: ProvidersModuleOptions["l2"]) => {
  */
 @Module({})
 export class ProvidersModule {
-    static forRoot(options: ProvidersModuleOptions): DynamicModule {
+    static register(options: ProvidersModuleOptions): DynamicModule {
         if (options.l2) {
             return {
                 module: ProvidersModule,

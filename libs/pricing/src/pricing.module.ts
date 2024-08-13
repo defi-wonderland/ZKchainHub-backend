@@ -41,7 +41,7 @@ const coingeckoPricingServiceFactory = (options: CoingeckoOptions): [Provider, P
 
 @Module({})
 export class PricingModule {
-    static forRoot<T extends PricingOptions>(options: PricingModuleOptions<T>): DynamicModule {
+    static register<T extends PricingOptions>(options: PricingModuleOptions<T>): DynamicModule {
         let pricingProvider: Provider | undefined,
             additionalProviders: Provider[] = [];
         if (options.pricingOptions.provider === "coingecko") {

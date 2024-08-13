@@ -53,15 +53,15 @@ const metricsProviderFactory = <PricingConfig extends PricingOptions>(
  */
 @Module({})
 export class MetricsModule {
-    static forRoot<PricingConfig extends PricingOptions>(
+    static register<PricingConfig extends PricingOptions>(
         options: MetricsModuleOptions<PricingConfig>,
     ): DynamicModule {
         return {
             module: MetricsModule,
             imports: [
                 LoggerModule,
-                PricingModule.forRoot(options.pricingModuleOptions),
-                ProvidersModule.forRoot(options.providerModuleOptions),
+                PricingModule.register(options.pricingModuleOptions),
+                ProvidersModule.register(options.providerModuleOptions),
             ],
             providers: [metricsProviderFactory(options), Logger],
             exports: [L1MetricsService],

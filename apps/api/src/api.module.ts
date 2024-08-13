@@ -14,7 +14,7 @@ import { MetricsController } from "./metrics/metrics.controller";
 @Module({
     imports: [
         LoggerModule,
-        MetricsModule.forRoot({
+        MetricsModule.register({
             pricingModuleOptions: {
                 cacheOptions: config.cacheOptions,
                 pricingOptions: {

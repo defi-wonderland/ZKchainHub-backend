@@ -33,7 +33,7 @@ describe("CoingeckoService", () => {
                 {
                     provide: CoingeckoService,
                     useFactory: (logger: Logger, cache: Cache) => {
-                        return new CoingeckoService(apiKey, apiBaseUrl, logger, cache);
+                        return new CoingeckoService(apiKey, apiBaseUrl, cache, logger);
                     },
                     inject: [WINSTON_MODULE_PROVIDER, CACHE_MANAGER],
                 },
