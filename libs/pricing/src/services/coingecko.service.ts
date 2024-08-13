@@ -1,7 +1,6 @@
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
-import { Inject, Injectable, LoggerService } from "@nestjs/common";
+import { Inject, Injectable, Logger, LoggerService } from "@nestjs/common";
 import axios, { AxiosInstance, isAxiosError } from "axios";
-import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
 
 import { ApiNotAvailable, RateLimitExceeded } from "@zkchainhub/pricing/exceptions";
 import { IPricingService } from "@zkchainhub/pricing/interfaces";
@@ -25,10 +24,11 @@ export class CoingeckoService implements IPricingService {
      * @param apiBaseUrl - Base URL for Coingecko API. If you have a Pro account, you can use the Pro API URL.
      */
     constructor(
-        private readonly apiKey: string,
+        @Inject("COINGECKO_API_KEY") private readonly apiKey: string,
+        @Inject("COINGECKO_API_URL")
         private readonly apiBaseUrl: string = "https://api.coingecko.com/api/v3/",
-        @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService,
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+        @Inject(Logger) private readonly logger: LoggerService,
     ) {
         this.axios = axios.create({
             baseURL: apiBaseUrl,
@@ -123,7 +123,6 @@ export class CoingeckoService implements IPricingService {
      */
     private handleError(error: unknown) {
         let exception;
-
         if (isAxiosError(error)) {
             const statusCode = error.response?.status ?? 0;
             if (statusCode >= 500) {

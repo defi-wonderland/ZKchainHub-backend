@@ -1,7 +1,6 @@
 import assert from "assert";
 import { isNativeError } from "util/types";
-import { Inject, Injectable, LoggerService } from "@nestjs/common";
-import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
+import { Inject, Injectable, Logger, LoggerService } from "@nestjs/common";
 import {
     Address,
     encodeFunctionData,
@@ -50,12 +49,13 @@ export class L1MetricsService {
     private readonly diamondContracts: Map<ChainId, Address> = new Map();
     private chainIds?: ChainId[];
     constructor(
-        private readonly bridgeHubAddress: Address,
-        private readonly sharedBridgeAddress: Address,
+        @Inject("BRIDGE_HUB") private readonly bridgeHubAddress: Address,
+        @Inject("SHARED_BRIDGE") private readonly sharedBridgeAddress: Address,
+        @Inject("STATE_TRANSITION_MANAGER")
         private readonly stateTransitionManagerAddresses: Address[],
         private readonly evmProviderService: EvmProviderService,
         @Inject(PRICING_PROVIDER) private readonly pricingService: IPricingService,
-        @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: LoggerService,
+        @Inject(Logger) private readonly logger: LoggerService,
     ) {}
 
     /**
