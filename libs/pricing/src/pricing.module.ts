@@ -1,23 +1,16 @@
-import { CacheModule, CacheModuleOptions } from "@nestjs/cache-manager";
+import { CacheModule } from "@nestjs/cache-manager";
 import { DynamicModule, Logger, Module, Provider } from "@nestjs/common";
 
-import { PRICING_PROVIDER } from "@zkchainhub/pricing/interfaces";
+import {
+    CoingeckoOptions,
+    PRICING_OPTIONS,
+    PRICING_PROVIDER,
+    PricingModuleOptions,
+    PricingProvider,
+} from "@zkchainhub/pricing/configuration";
 import { LoggerModule } from "@zkchainhub/shared";
 
 import { CoingeckoService } from "./services";
-
-interface CoingeckoOptions {
-    provider: "coingecko";
-    apiKey: string;
-    apiBaseUrl?: string;
-}
-
-export type PricingOptions = CoingeckoOptions;
-
-export interface PricingModuleOptions<PricingConfig extends PricingOptions> {
-    cacheOptions: CacheModuleOptions;
-    pricingOptions: PricingConfig;
-}
 
 const coingeckoPricingServiceFactory = (options: CoingeckoOptions): [Provider, Provider[]] => {
     return [
@@ -27,12 +20,8 @@ const coingeckoPricingServiceFactory = (options: CoingeckoOptions): [Provider, P
         },
         [
             {
-                provide: "COINGECKO_API_KEY",
-                useValue: options.apiKey,
-            },
-            {
-                provide: "COINGECKO_API_URL",
-                useValue: options.apiBaseUrl,
+                provide: PRICING_OPTIONS,
+                useValue: options,
             },
             Logger,
         ],
@@ -41,7 +30,9 @@ const coingeckoPricingServiceFactory = (options: CoingeckoOptions): [Provider, P
 
 @Module({})
 export class PricingModule {
-    static register<T extends PricingOptions>(options: PricingModuleOptions<T>): DynamicModule {
+    static register<CacheConfig extends Record<string, any>, T extends PricingProvider>(
+        options: PricingModuleOptions<CacheConfig, T>,
+    ): DynamicModule {
         let pricingProvider: Provider | undefined,
             additionalProviders: Provider[] = [];
         if (options.pricingOptions.provider === "coingecko") {

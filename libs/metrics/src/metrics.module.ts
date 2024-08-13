@@ -6,15 +6,18 @@ import {
     PRICING_PROVIDER,
     PricingModule,
     PricingModuleOptions,
-    PricingOptions,
+    PricingProvider,
 } from "@zkchainhub/pricing";
 import { EvmProviderService, ProvidersModule, ProvidersModuleOptions } from "@zkchainhub/providers";
 import { LoggerModule } from "@zkchainhub/shared";
 
 import { L1MetricsService } from "./l1";
 
-interface MetricsModuleOptions<PricingConfig extends PricingOptions> {
-    pricingModuleOptions: PricingModuleOptions<PricingConfig>;
+interface MetricsModuleOptions<
+    CacheConfig extends Record<string, any>,
+    Pricing extends PricingProvider,
+> {
+    pricingModuleOptions: PricingModuleOptions<CacheConfig, Pricing>;
     providerModuleOptions: ProvidersModuleOptions;
     contracts: {
         bridgeHub: Address;
@@ -23,8 +26,11 @@ interface MetricsModuleOptions<PricingConfig extends PricingOptions> {
     };
 }
 
-const metricsProviderFactory = <PricingConfig extends PricingOptions>(
-    options: MetricsModuleOptions<PricingConfig>,
+const metricsProviderFactory = <
+    CacheConfig extends Record<string, any>,
+    Pricing extends PricingProvider,
+>(
+    options: MetricsModuleOptions<CacheConfig, Pricing>,
 ) => {
     const { bridgeHub, sharedBridge, stateTransitionManager } = options.contracts;
     return {
@@ -53,8 +59,8 @@ const metricsProviderFactory = <PricingConfig extends PricingOptions>(
  */
 @Module({})
 export class MetricsModule {
-    static register<PricingConfig extends PricingOptions>(
-        options: MetricsModuleOptions<PricingConfig>,
+    static register<CacheConfig extends Record<string, any>, Pricing extends PricingProvider>(
+        options: MetricsModuleOptions<CacheConfig, Pricing>,
     ): DynamicModule {
         return {
             module: MetricsModule,

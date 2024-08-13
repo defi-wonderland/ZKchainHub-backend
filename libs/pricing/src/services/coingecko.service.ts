@@ -2,10 +2,11 @@ import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable, Logger, LoggerService } from "@nestjs/common";
 import axios, { AxiosInstance, isAxiosError } from "axios";
 
+import { PRICING_OPTIONS, PricingProviderOptions } from "@zkchainhub/pricing/configuration";
 import { ApiNotAvailable, RateLimitExceeded } from "@zkchainhub/pricing/exceptions";
 import { IPricingService } from "@zkchainhub/pricing/interfaces";
 import { TokenPrices } from "@zkchainhub/pricing/types/tokenPrice.type";
-import { BASE_CURRENCY } from "@zkchainhub/shared";
+import { BASE_CURRENCY, Optional } from "@zkchainhub/shared";
 
 export const AUTH_HEADER = "x-cg-pro-api-key";
 export const DECIMALS_PRECISION = 3;
@@ -20,16 +21,18 @@ export class CoingeckoService implements IPricingService {
 
     /**
      *
-     * @param apiKey  * @param apiKey - Coingecko API key.
-     * @param apiBaseUrl - Base URL for Coingecko API. If you have a Pro account, you can use the Pro API URL.
+     * @param
+     * @param options.apiKey - Coingecko API key.
+     * @param options.apiBaseUrl - Base URL for Coingecko API. If you have a Pro account, you can use the Pro API URL.
      */
     constructor(
-        @Inject("COINGECKO_API_KEY") private readonly apiKey: string,
-        @Inject("COINGECKO_API_URL")
-        private readonly apiBaseUrl: string = "https://api.coingecko.com/api/v3/",
+        @Inject(PRICING_OPTIONS)
+        private readonly options: Optional<PricingProviderOptions<"coingecko">, "provider">,
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
         @Inject(Logger) private readonly logger: LoggerService,
     ) {
+        const { apiKey, apiBaseUrl } = options;
+
         this.axios = axios.create({
             baseURL: apiBaseUrl,
             headers: {
