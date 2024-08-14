@@ -21,7 +21,8 @@
         "test:e2e": "jest --config ./apps/api/test/jest-e2e.json",
         "create-lib": "echo @zkchainhub | pnpm nest g library $1 ",
         "prepare": "husky",
-        "preinstall": "npx only-allow pnpm"
+        "preinstall": "npx only-allow pnpm",
+        "check-types": "tsc --noEmit -p ./tsconfig.json"
     },
     "dependencies": {
         "@nestjs/axios": "3.0.2",

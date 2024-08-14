@@ -1,7 +1,6 @@
 import { CacheModule } from "@nestjs/cache-manager";
 import { Logger, MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { config, ConfigType, validationSchema } from "apps/api/src/config";
 
 import { MetricsModule } from "@zkchainhub/metrics";
 import { PricingModule } from "@zkchainhub/pricing";
@@ -9,6 +8,7 @@ import { ProvidersModule } from "@zkchainhub/providers";
 import { LoggerModule } from "@zkchainhub/shared";
 
 import { RequestLoggerMiddleware } from "./common/middleware/request.middleware";
+import { config, ConfigType, validationSchema } from "./config";
 import { MetricsController } from "./metrics/metrics.controller";
 
 /**
@@ -30,7 +30,7 @@ import { MetricsController } from "./metrics/metrics.controller";
                 ConfigModule,
                 ProvidersModule.registerAsync({
                     imports: [ConfigModule],
-                    useFactory: (config: ConfigService<ConfigType, true>) => {
+                    useFactory: (config: ConfigService<Pick<ConfigType, "l1" | "l2">, true>) => {
                         return {
                             l1: {
                                 rpcUrls: config.get("l1.rpcUrls", { infer: true }),
@@ -47,31 +47,45 @@ import { MetricsController } from "./metrics/metrics.controller";
                             imports: [ConfigModule],
                             inject: [ConfigService],
                             useFactory: (
-                                config: ConfigService<ConfigType["pricing"]["cacheOptions"], true>,
+                                config: ConfigService<Pick<ConfigType, "pricing">, true>,
                             ) => ({
                                 cacheOptions: {
                                     store: "memory",
-                                    ttl: config.get("ttl", { infer: true }),
+                                    ttl: config.get("pricing.cacheOptions.ttl", { infer: true }),
                                 },
                             }),
                         }),
                     ],
-                    useFactory: (
-                        config: ConfigService<Omit<ConfigType["pricing"], "cacheOptions">, true>,
-                    ) => {
+                    useFactory: (config: ConfigService<Pick<ConfigType, "pricing">, true>) => {
                         return {
                             pricingOptions: {
                                 provider: "coingecko",
-                                apiKey: config.get("apiKey", { infer: true }),
-                                apiBaseUrl: config.get("apiBaseUrl", { infer: true }),
-                                apiType: config.get("apiType", { infer: true }),
+                                apiKey: config.get("pricing.pricingOptions.apiKey", {
+                                    infer: true,
+                                }),
+                                apiBaseUrl: config.get("pricing.pricingOptions.apiBaseUrl", {
+                                    infer: true,
+                                }),
+                                apiType: config.get("pricing.pricingOptions.apiType", {
+                                    infer: true,
+                                }),
                             },
                         };
                     },
                     extraProviders: [Logger],
                 }),
             ],
-            useFactory: (config: ConfigService) => {
+            useFactory: (
+                config: ConfigService<
+                    Pick<
+                        ConfigType,
+                        | "bridgeHubAddress"
+                        | "sharedBridgeAddress"
+                        | "stateTransitionManagerAddresses"
+                    >,
+                    true
+                >,
+            ) => {
                 return {
                     contracts: {
                         bridgeHub: config.get("bridgeHubAddress")!,

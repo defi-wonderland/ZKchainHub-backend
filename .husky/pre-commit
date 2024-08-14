@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-pnpm check-types
-npx lint-staged
+npx lint-staged && pnpm check-types

@@ -18,9 +18,11 @@ export const config = () => ({
         cacheOptions: {
             ttl: process.env.CACHE_TTL ? parseInt(process.env.CACHE_TTL) : 60,
         },
-        apiKey: process.env.COINGECKO_API_KEY,
-        apiBaseUrl: process.env.COINGECKO_BASE_URL || "https://api.coingecko.com/api/v3/",
-        apiType: process.env.COINGECKO_API_TYPE || "demo",
+        pricingOptions: {
+            apiKey: process.env.COINGECKO_API_KEY,
+            apiBaseUrl: process.env.COINGECKO_BASE_URL || "https://api.coingecko.com/api/v3/",
+            apiType: process.env.COINGECKO_API_TYPE || "demo",
+        },
     },
 });
 
