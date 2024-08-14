@@ -1,4 +1,5 @@
-import { DynamicModule, Logger, Module } from "@nestjs/common";
+import { DynamicModule, Logger, Module, ModuleMetadata, Provider } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { Chain } from "viem";
 
 import { LoggerModule } from "@zkchainhub/shared";
@@ -15,6 +16,15 @@ export interface ProvidersModuleOptions {
         rpcUrls: string[];
         chain: Chain;
     };
+}
+
+interface ProvidersModuleAsyncOptions extends Pick<ModuleMetadata, "imports"> {
+    useFactory: (
+        config: ConfigService<ProvidersModuleOptions, true>,
+        ...args: any[]
+    ) => Promise<ProvidersModuleOptions> | ProvidersModuleOptions;
+    inject?: any[];
+    extraProviders?: Provider[];
 }
 
 const evmProviderFactory = (options: ProvidersModuleOptions["l1"]) => {
@@ -60,5 +70,52 @@ export class ProvidersModule {
                 exports: [EvmProviderService],
             };
         }
+    }
+
+    static registerAsync(options: ProvidersModuleAsyncOptions): DynamicModule {
+        const providers: Provider[] = [
+            {
+                provide: EvmProviderService,
+                useFactory: async (
+                    logger: Logger,
+                    config: ConfigService<ProvidersModuleOptions, true>,
+                ) => {
+                    const opts = await options.useFactory(config);
+                    return new EvmProviderService(opts.l1.rpcUrls, opts.l1.chain, logger);
+                },
+                inject: [Logger, ConfigService],
+            },
+            Logger,
+        ];
+
+        if (options.extraProviders) {
+            providers.push(...options.extraProviders);
+        }
+
+        providers.push({
+            provide: ZKChainProviderService,
+            useFactory: async (
+                logger: Logger,
+                config: ConfigService<ProvidersModuleOptions, true>,
+            ) => {
+                const opts = await options.useFactory(config);
+                if (opts.l2) {
+                    return new ZKChainProviderService(opts.l2.rpcUrls, opts.l2.chain, logger);
+                }
+                return null;
+            },
+            inject: [Logger, ConfigService],
+        });
+
+        return {
+            module: ProvidersModule,
+            imports: options.imports || [],
+            providers,
+            exports: [
+                EvmProviderService,
+                ...(options.extraProviders || []),
+                ZKChainProviderService,
+            ],
+        };
     }
 }

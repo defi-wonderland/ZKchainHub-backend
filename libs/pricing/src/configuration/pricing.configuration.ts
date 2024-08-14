@@ -1,4 +1,6 @@
 import { CacheModuleOptions } from "@nestjs/cache-manager";
+import { ModuleMetadata, Provider } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
 import { IPricingOptions } from "@zkchainhub/pricing/interfaces";
 
@@ -28,6 +30,7 @@ export interface CoingeckoOptions extends IPricingOptions {
     provider: "coingecko";
     apiKey: string;
     apiBaseUrl: string;
+    apiType: "demo" | "pro";
 }
 
 /**
@@ -39,4 +42,16 @@ export interface PricingModuleOptions<
 > {
     cacheOptions: CacheModuleOptions<CacheConfig>;
     pricingOptions: PricingProviderOptions<P>;
+}
+
+export interface PricingModuleAsyncOptions<P extends PricingProvider>
+    extends Pick<ModuleMetadata, "imports"> {
+    useFactory: (
+        config: ConfigService<PricingProviderOptions<P>, true>,
+        ...args: any[]
+    ) =>
+        | Promise<Pick<PricingModuleOptions<any, P>, "pricingOptions">>
+        | Pick<PricingModuleOptions<any, P>, "pricingOptions">;
+    inject?: any[];
+    extraProviders?: Provider[];
 }

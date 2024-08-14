@@ -8,7 +8,8 @@ import { IPricingService } from "@zkchainhub/pricing/interfaces";
 import { TokenPrices } from "@zkchainhub/pricing/types/tokenPrice.type";
 import { BASE_CURRENCY, Optional } from "@zkchainhub/shared";
 
-export const AUTH_HEADER = "x-cg-pro-api-key";
+export const AUTH_HEADER = (type: "demo" | "pro") =>
+    type === "demo" ? "x-cg-demo-api-key" : "x-cg-pro-api-key";
 export const DECIMALS_PRECISION = 3;
 
 /**
@@ -31,13 +32,13 @@ export class CoingeckoService implements IPricingService {
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
         @Inject(Logger) private readonly logger: LoggerService,
     ) {
-        const { apiKey, apiBaseUrl } = options;
+        const { apiKey, apiBaseUrl, apiType } = options;
 
         this.axios = axios.create({
             baseURL: apiBaseUrl,
             headers: {
                 common: {
-                    [AUTH_HEADER]: apiKey,
+                    [AUTH_HEADER(apiType)]: apiKey,
                     Accept: "application/json",
                 },
             },

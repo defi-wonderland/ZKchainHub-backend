@@ -1,7 +1,11 @@
+import { CacheModule } from "@nestjs/cache-manager";
 import { Logger, MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
-import { config } from "apps/api/src/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import appConfig from "apps/api/src/config";
 
 import { MetricsModule } from "@zkchainhub/metrics";
+import { PricingModule, PricingProviderOptions } from "@zkchainhub/pricing";
+import { ProvidersModule, ProvidersModuleOptions } from "@zkchainhub/providers";
 import { LoggerModule } from "@zkchainhub/shared";
 
 import { RequestLoggerMiddleware } from "./common/middleware/request.middleware";
@@ -14,26 +18,61 @@ import { MetricsController } from "./metrics/metrics.controller";
 @Module({
     imports: [
         LoggerModule,
-        MetricsModule.register({
-            pricingModuleOptions: {
-                cacheOptions: config.cacheOptions,
-                pricingOptions: {
-                    provider: "coingecko",
-                    apiKey: config.coingecko.apiKey,
-                    apiBaseUrl: config.coingecko.baseUrl,
-                },
+        ConfigModule.forRoot({ load: [appConfig] }),
+        MetricsModule.registerAsync({
+            imports: [
+                ConfigModule,
+                ProvidersModule.registerAsync({
+                    imports: [ConfigModule],
+                    useFactory: (config: ConfigService<ProvidersModuleOptions, true>) => {
+                        return {
+                            l1: {
+                                rpcUrls: config.get("l1.rpcUrls", { infer: true }),
+                                chain: config.get("l1.chain", { infer: true }),
+                            },
+                        };
+                    },
+                    extraProviders: [Logger],
+                }),
+                PricingModule.registerAsync({
+                    imports: [
+                        ConfigModule,
+                        CacheModule.registerAsync({
+                            imports: [ConfigModule],
+                            inject: [ConfigService],
+                            useFactory: (config: ConfigService) => ({
+                                cacheOptions: {
+                                    store: "memory",
+                                    ttl: config.get("cacheOptions.ttl")!,
+                                },
+                            }),
+                        }),
+                    ],
+                    useFactory: (
+                        config: ConfigService<PricingProviderOptions<"coingecko">, true>,
+                    ) => {
+                        return {
+                            pricingOptions: {
+                                provider: "coingecko",
+                                apiKey: config.get("apiKey", { infer: true }),
+                                apiBaseUrl: config.get("apiBaseUrl", { infer: true }),
+                                apiType: config.get("apiType", { infer: true }),
+                            },
+                        };
+                    },
+                    extraProviders: [Logger],
+                }),
+            ],
+            useFactory: (config: ConfigService) => {
+                return {
+                    contracts: {
+                        bridgeHub: config.get("bridgeHubAddress")!,
+                        sharedBridge: config.get("sharedBridgeAddress")!,
+                        stateTransitionManager: config.get("stateTransitionManagerAddresses")!,
+                    },
+                };
             },
-            providerModuleOptions: {
-                l1: {
-                    rpcUrls: config.l1.rpcUrls,
-                    chain: config.l1.chain,
-                },
-            },
-            contracts: {
-                bridgeHub: config.bridgeHubAddress,
-                sharedBridge: config.sharedBridgeAddress,
-                stateTransitionManager: config.stateTransitionManagerAddresses,
-            },
+            inject: [ConfigService],
         }),
     ],
     controllers: [MetricsController],
