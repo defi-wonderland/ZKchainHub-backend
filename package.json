@@ -104,6 +104,7 @@
     },
     "packageManager": "pnpm@9.5.0+sha1.8c155dc114e1689d18937974f6571e0ceee66f1d",
     "lint-staged": {
+        "*.ts": "tsc --noEmit",
         "(apps|libs)/**/*.(ts|js)": [
             "pnpm lint",
             "pnpm format"
