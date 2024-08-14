@@ -1,11 +1,11 @@
 import { CacheModule } from "@nestjs/cache-manager";
 import { Logger, MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import appConfig from "apps/api/src/config";
+import { config, ConfigType, validationSchema } from "apps/api/src/config";
 
 import { MetricsModule } from "@zkchainhub/metrics";
-import { PricingModule, PricingProviderOptions } from "@zkchainhub/pricing";
-import { ProvidersModule, ProvidersModuleOptions } from "@zkchainhub/providers";
+import { PricingModule } from "@zkchainhub/pricing";
+import { ProvidersModule } from "@zkchainhub/providers";
 import { LoggerModule } from "@zkchainhub/shared";
 
 import { RequestLoggerMiddleware } from "./common/middleware/request.middleware";
@@ -18,13 +18,19 @@ import { MetricsController } from "./metrics/metrics.controller";
 @Module({
     imports: [
         LoggerModule,
-        ConfigModule.forRoot({ load: [appConfig] }),
+        ConfigModule.forRoot({
+            load: [config],
+            validationSchema: validationSchema,
+            validationOptions: {
+                abortEarly: true,
+            },
+        }),
         MetricsModule.registerAsync({
             imports: [
                 ConfigModule,
                 ProvidersModule.registerAsync({
                     imports: [ConfigModule],
-                    useFactory: (config: ConfigService<ProvidersModuleOptions, true>) => {
+                    useFactory: (config: ConfigService<ConfigType, true>) => {
                         return {
                             l1: {
                                 rpcUrls: config.get("l1.rpcUrls", { infer: true }),
@@ -40,16 +46,18 @@ import { MetricsController } from "./metrics/metrics.controller";
                         CacheModule.registerAsync({
                             imports: [ConfigModule],
                             inject: [ConfigService],
-                            useFactory: (config: ConfigService) => ({
+                            useFactory: (
+                                config: ConfigService<ConfigType["pricing"]["cacheOptions"], true>,
+                            ) => ({
                                 cacheOptions: {
                                     store: "memory",
-                                    ttl: config.get("cacheOptions.ttl")!,
+                                    ttl: config.get("ttl", { infer: true }),
                                 },
                             }),
                         }),
                     ],
                     useFactory: (
-                        config: ConfigService<PricingProviderOptions<"coingecko">, true>,
+                        config: ConfigService<Omit<ConfigType["pricing"], "cacheOptions">, true>,
                     ) => {
                         return {
                             pricingOptions: {
