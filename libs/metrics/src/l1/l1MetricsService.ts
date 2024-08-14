@@ -28,14 +28,18 @@ import {
 import { AssetTvl, FeeParams, feeParamsFieldHexDigits, GasInfo } from "@zkchainhub/metrics/types";
 import { IPricingService, PRICING_PROVIDER } from "@zkchainhub/pricing";
 import { EvmProviderService } from "@zkchainhub/providers";
-import { BatchesInfo, ChainId, Chains, ChainType, vitalikAddress } from "@zkchainhub/shared";
 import {
+    BatchesInfo,
+    ChainId,
+    Chains,
+    ChainType,
     erc20Tokens,
     ETH_TOKEN_ADDRESS,
     nativeToken,
     tokens,
+    vitalikAddress,
     WETH,
-} from "@zkchainhub/shared/constants";
+} from "@zkchainhub/shared";
 import { Token } from "@zkchainhub/shared/types";
 import { isNativeToken } from "@zkchainhub/shared/utils";
 

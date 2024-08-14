@@ -38,8 +38,8 @@ const mockEvmProviderService = createMock<EvmProviderService>();
 const mockPricingService = createMock<IPricingService>();
 
 const ONE_ETHER = parseEther("1");
-jest.mock("@zkchainhub/shared/constants/token", () => ({
-    ...jest.requireActual("@zkchainhub/shared/constants/token"),
+jest.mock("@zkchainhub/shared/metadata/token", () => ({
+    ...jest.requireActual("@zkchainhub/shared/metadata/token"),
     erc20Tokens: {
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": {
             name: "USDC",

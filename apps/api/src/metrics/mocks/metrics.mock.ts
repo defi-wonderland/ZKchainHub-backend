@@ -4,13 +4,13 @@ export const getEcosystemInfo = () => {
     const mock = new EcosystemInfo({
         l1Tvl: { ETH: 1000000, USDC: 500000 },
         ethGasInfo: {
-            gasPrice: 50,
-            ethTransfer: 21000,
-            erc20Transfer: 65000,
+            gasPrice: "50",
+            ethTransfer: "21000",
+            erc20Transfer: "65000",
         },
         zkChains: [
             {
-                chainId: 0,
+                chainId: "0",
                 chainType: "Rollup",
                 nativeToken: "ETH",
                 tvl: 1000000,
@@ -18,7 +18,7 @@ export const getEcosystemInfo = () => {
                 rpc: true,
             },
             {
-                chainId: 1,
+                chainId: "1",
                 chainType: "Validium",
                 nativeToken: "ETH",
                 tvl: 500000,
@@ -26,14 +26,14 @@ export const getEcosystemInfo = () => {
                 rpc: false,
             },
             {
-                chainId: 2,
+                chainId: "2",
                 chainType: "Rollup",
                 tvl: 300000,
                 metadata: false,
                 rpc: true,
             },
             {
-                chainId: 3,
+                chainId: "3",
                 chainType: "Rollup",
                 tvl: 10000,
                 metadata: false,
@@ -48,14 +48,13 @@ const mockMetadata: Metadata = {
     iconUrl: "https://s2.coinmarketcap.com/static/img/coins/64x64/24091.png",
     chainName: "ZKsyncERA",
     publicRpcs: [
-        { url: "https://mainnet.era.zksync.io", status: true },
-        { url: "https://1rpc.io/zksync2-era", status: true },
-        { url: "https://zksync.drpc.org", status: false },
+        "https://mainnet.era.zksync.io",
+        "https://1rpc.io/zksync2-era",
+        "https://zksync.drpc.org",
     ],
     explorerUrl: "https://explorer.zksync.io/",
     launchDate: 1679626800,
-    environment: "mainnet",
-    nativeToken: "ETH",
+    baseToken: "ETH",
 };
 
 const mockL2Info: L2ChainInfo = {
@@ -70,9 +69,9 @@ export const getZKChainInfo = (chainId: number): ZKChainInfo => {
         chainType: "Rollup",
         tvl: { ETH: 1000000, USDC: 500000 },
         batchesInfo: {
-            commited: 100,
-            verified: 90,
-            proved: 80,
+            commited: "100",
+            verified: "90",
+            executed: "80",
         },
         feeParams: {
             batchOverheadL1Gas: 50000,
