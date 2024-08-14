@@ -1,28 +1,4 @@
 /**
- * RPC class representing the RPC information.
- */
-export class RPC {
-    /**
-     * The URL of the RPC.
-     * @type {string}
-     * @memberof RPC
-     */
-    url: string;
-
-    /**
-     * The status of the RPC (optional).
-     * @type {boolean}
-     * @memberof RPC
-     */
-    status?: boolean;
-
-    constructor(data: RPC) {
-        this.url = data.url;
-        this.status = data.status;
-    }
-}
-
-/**
  * Metadata class representing the metadata information.
  */
 export class Metadata {
@@ -31,7 +7,7 @@ export class Metadata {
      * @type {string}
      * @memberof Metadata
      */
-    iconUrl?: string;
+    iconUrl: string;
 
     /**
      * The name of the chain.
@@ -45,7 +21,7 @@ export class Metadata {
      * @type {RPC[]}
      * @memberof Metadata
      */
-    publicRpcs: RPC[];
+    publicRpcs: string[];
 
     /**
      * The URL of the chain's explorer.
@@ -62,18 +38,11 @@ export class Metadata {
     launchDate: number;
 
     /**
-     * The environment of the chain (e.g., mainnet, testnet).
-     * @type {string}
-     * @memberof Metadata
-     */
-    environment: string;
-
-    /**
      * The native token of the chain.
      * @type {string}
      * @memberof Metadata
      */
-    nativeToken: string;
+    baseToken: string;
 
     constructor(data: Metadata) {
         this.iconUrl = data.iconUrl;
@@ -81,7 +50,6 @@ export class Metadata {
         this.publicRpcs = data.publicRpcs;
         this.explorerUrl = data.explorerUrl;
         this.launchDate = data.launchDate;
-        this.environment = data.environment;
-        this.nativeToken = data.nativeToken;
+        this.baseToken = data.baseToken;
     }
 }

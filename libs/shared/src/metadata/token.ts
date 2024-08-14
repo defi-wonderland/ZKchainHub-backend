@@ -10,7 +10,7 @@
 
 import { Address } from "abitype";
 
-import { Token, TokenType } from "@zkchainhub/shared/types";
+import { Token, TokenType } from "@zkchainhub/shared";
 
 export const nativeToken: Readonly<Token<"native">> = {
     name: "Ethereum",

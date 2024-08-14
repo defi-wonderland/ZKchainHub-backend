@@ -58,7 +58,7 @@ export class ZKChainSummary {
      * @type {number}
      * @memberof ZKChainSummary
      */
-    chainId: number;
+    chainId: string;
 
     /**
      * The type of chain.

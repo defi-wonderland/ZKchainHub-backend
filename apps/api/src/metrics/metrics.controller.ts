@@ -3,8 +3,10 @@ import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { Logger } from "winston";
 
+// import { zkChainsMetadata } from "@zkchainhub/shared/metadata";
+
 import { ParsePositiveIntPipe } from "../common/pipes/parsePositiveInt.pipe";
-import { ZKChainInfo } from "./dto/response";
+import { EcosystemInfo, ZKChainInfo } from "./dto/response";
 import { getEcosystemInfo, getZKChainInfo } from "./mocks/metrics.mock";
 
 @ApiTags("metrics")
@@ -19,7 +21,74 @@ export class MetricsController {
      * @returns {Promise<EcosystemInfo>} The ecosystem information.
      */
     @Get("/ecosystem")
-    public async getEcosystem() {
+    public async getEcosystem(): Promise<EcosystemInfo> {
+        // const [l1Tvl, gasInfo, chainIds] = await Promise.all([
+        //     this.l1MetricsService.l1Tvl(),
+        //     this.l1MetricsService.ethGasInfo(),
+        //     this.l1MetricsService.getChainIds(),
+        // ]);
+
+        // const zkChains = chainIds.map(async (chainId) => {
+        //     const metadata = zkChainsMetadata.get(chainId);
+        //     if (!metadata) {
+        //         return {
+        //             chainId,
+        //             chainType: await this.l1MetricsService.getChainType(chainId),
+        //             baseToken: await this.l1MetricsService.getBaseToken(chainId),
+        //             tvl: await this.l1MetricsService.tvl(chainId),
+        //             metadata: false,
+        //         };
+        //     }
+        //     return {
+        //         chainId,
+        //         chainType: metadata.chainType,
+        //         baseToken: metadata.baseToken,
+        //         tvl: metadata.tvl,
+        //         metadata: true,
+        //         rpc: false,
+        //     };
+        // });
+
+        new EcosystemInfo({
+            l1Tvl: { ETH: 1000000, USDC: 500000 },
+            ethGasInfo: {
+                gasPrice: "50",
+                ethTransfer: "21000",
+                erc20Transfer: "65000",
+            },
+            zkChains: [
+                {
+                    chainId: "0",
+                    chainType: "Rollup",
+                    nativeToken: "ETH",
+                    tvl: 1000000,
+                    metadata: true,
+                    rpc: true,
+                },
+                {
+                    chainId: "1",
+                    chainType: "Validium",
+                    nativeToken: "ETH",
+                    tvl: 500000,
+                    metadata: true,
+                    rpc: false,
+                },
+                {
+                    chainId: "2",
+                    chainType: "Rollup",
+                    tvl: 300000,
+                    metadata: false,
+                    rpc: true,
+                },
+                {
+                    chainId: "3",
+                    chainType: "Rollup",
+                    tvl: 10000,
+                    metadata: false,
+                    rpc: false,
+                },
+            ],
+        });
         return getEcosystemInfo();
     }
 
@@ -31,7 +100,9 @@ export class MetricsController {
 
     @ApiResponse({ status: 200, type: ZKChainInfo })
     @Get("zkchain/:chainId")
-    public async getChain(@Param("chainId", new ParsePositiveIntPipe()) chainId: number) {
+    public async getChain(
+        @Param("chainId", new ParsePositiveIntPipe()) chainId: number,
+    ): Promise<ZKChainInfo> {
         return getZKChainInfo(chainId);
     }
 }
