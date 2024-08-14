@@ -9,7 +9,6 @@ import {
     PricingModuleAsyncOptions,
     PricingModuleOptions,
     PricingProvider,
-    PricingProviderOptions,
 } from "@zkchainhub/pricing/configuration";
 import { IPricingService } from "@zkchainhub/pricing/interfaces";
 import { LoggerModule } from "@zkchainhub/shared";
@@ -39,7 +38,7 @@ const pricingProviderFactory = <P extends PricingProvider>(
         provide: PRICING_PROVIDER,
         useFactory: async (
             cache: Cache,
-            config: ConfigService<PricingProviderOptions<P>, true>,
+            config: ConfigService<{ pricing: PricingModuleOptions<any, P> }, true>,
             logger: Logger,
         ) => {
             const opts = await options.useFactory(config);

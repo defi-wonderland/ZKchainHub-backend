@@ -47,7 +47,7 @@ export interface PricingModuleOptions<
 export interface PricingModuleAsyncOptions<P extends PricingProvider>
     extends Pick<ModuleMetadata, "imports"> {
     useFactory: (
-        config: ConfigService<PricingProviderOptions<P>, true>,
+        config: ConfigService<{ pricing: PricingModuleOptions<any, P> }, true>,
         ...args: any[]
     ) =>
         | Promise<Pick<PricingModuleOptions<any, P>, "pricingOptions">>
