@@ -23,8 +23,6 @@ export class MetricsController {
      */
     @Get("/ecosystem")
     public async getEcosystem() {
-        const gasInfo = await this.l1Metrics.l1Tvl();
-        this.logger.log(gasInfo);
         return getEcosystemInfo();
     }
 

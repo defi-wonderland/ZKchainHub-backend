@@ -1,7 +1,6 @@
 import { CacheModule } from "@nestjs/cache-manager";
 import { Logger, MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { config, ConfigType, validationSchema } from "apps/api/src/config";
 
 import { MetricsModule } from "@zkchainhub/metrics";
 import { PricingModule } from "@zkchainhub/pricing";
@@ -9,6 +8,7 @@ import { ProvidersModule } from "@zkchainhub/providers";
 import { LoggerModule } from "@zkchainhub/shared";
 
 import { RequestLoggerMiddleware } from "./common/middleware/request.middleware";
+import { config, ConfigType, validationSchema } from "./config";
 import { MetricsController } from "./metrics/metrics.controller";
 
 /**
