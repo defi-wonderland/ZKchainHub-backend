@@ -1,9 +1,7 @@
-import { Token } from "@zkchainhub/shared";
-
 /**
  * Metadata class representing the metadata information.
  */
-export class Metadata {
+export class ZkChainMetadata {
     /**
      * The URL of the chain's icon (optional).
      * @type {string}
@@ -39,19 +37,11 @@ export class Metadata {
      */
     launchDate: number;
 
-    /**
-     * The native token of the chain.
-     * @type {string}
-     * @memberof Metadata
-     */
-    baseToken: Token<"erc20" | "native">;
-
-    constructor(data: Metadata) {
+    constructor(data: ZkChainMetadata) {
         this.iconUrl = data.iconUrl;
         this.name = data.name;
         this.publicRpcs = data.publicRpcs;
         this.explorerUrl = data.explorerUrl;
         this.launchDate = data.launchDate;
-        this.baseToken = data.baseToken;
     }
 }

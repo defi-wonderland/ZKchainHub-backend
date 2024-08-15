@@ -6,7 +6,7 @@ import { L1MetricsService } from "@zkchainhub/metrics/l1";
 import { zkChainsMetadata } from "@zkchainhub/shared";
 
 import { ParsePositiveIntPipe } from "../common/pipes/parsePositiveInt.pipe";
-import { EcosystemInfo, ZKChainInfo } from "./dto/response";
+import { EcosystemInfo, ZKChainInfo, ZkChainMetadata } from "./dto/response";
 import { ChainNotFound } from "./exceptions";
 
 @ApiTags("metrics")
@@ -46,7 +46,6 @@ export class MetricsController {
                         chainType: await this.l1MetricsService.chainType(chainId),
                         baseToken,
                         tvl,
-                        metadata: false,
                         rpc: false,
                     };
                 }
@@ -55,7 +54,7 @@ export class MetricsController {
                     chainType: metadata.chainType,
                     baseToken: metadata.baseToken,
                     tvl,
-                    metadata: true,
+                    metadata: new ZkChainMetadata(metadata),
                     rpc: false,
                 };
             }),
@@ -89,11 +88,14 @@ export class MetricsController {
             throw new ChainNotFound(chainIdBn);
         }
 
-        const [tvl, batchesInfo, feeParams] = await Promise.all([
+        const [tvl, batchesInfo, feeParams, baseTokenInfo] = await Promise.all([
             this.l1MetricsService.tvl(chainIdBn),
             this.l1MetricsService.getBatchesInfo(chainIdBn),
             this.l1MetricsService.feeParams(chainIdBn),
+            this.l1MetricsService.getBaseTokens([chainIdBn]),
         ]);
+        const baseToken = baseTokenInfo[0];
+
         const baseZkChainInfo = {
             batchesInfo: {
                 commited: batchesInfo.commited.toString(),
@@ -113,18 +115,16 @@ export class MetricsController {
             return new ZKChainInfo({
                 ...baseZkChainInfo,
                 chainType: await this.l1MetricsService.chainType(chainIdBn),
+                baseToken,
             });
         }
         const { chainId: _metadataChainId, ...metadataRest } = metadata;
         void _metadataChainId;
-
         return new ZKChainInfo({
             ...baseZkChainInfo,
-            chainType: await this.l1MetricsService.chainType(chainIdBn),
-
-            metadata: {
-                ...metadataRest,
-            },
+            chainType: metadataRest.chainType,
+            baseToken: metadataRest.baseToken,
+            metadata: new ZkChainMetadata(metadataRest),
         });
     }
 }

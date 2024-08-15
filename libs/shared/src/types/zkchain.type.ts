@@ -9,7 +9,6 @@ export type ZKChainMetadataItem = {
     publicRpcs: string[];
     explorerUrl: string;
     launchDate: number;
-    tokenImgUrl: string;
 };
 
 export type ZKChainMetadata = Map<ChainId, ZKChainMetadataItem>;

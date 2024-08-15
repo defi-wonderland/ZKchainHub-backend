@@ -1,9 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 import { AssetTvl } from "@zkchainhub/metrics/types";
-import { Chains, ChainType } from "@zkchainhub/shared";
+import { Chains, ChainType, Token } from "@zkchainhub/shared";
 
-import { BatchesInfo, FeeParams, L2ChainInfo, Metadata } from ".";
+import { BatchesInfo, FeeParams, L2ChainInfo, ZkChainMetadata } from ".";
 
 /**
  * ZKChainInfo class representing the ZK chain information.
@@ -17,6 +17,12 @@ export class ZKChainInfo {
     @ApiProperty({ enum: Chains, enumName: "ChainType" })
     chainType: ChainType;
 
+    /**
+     * The native token of the chain (optional).
+     * @type {string}
+     * @memberof ZKChainSummary
+     */
+    baseToken?: Token<"erc20" | "native">;
     /**
      * A map of asset names to their respective amounts.
      * @type {AssetDistribution}
@@ -52,8 +58,8 @@ export class ZKChainInfo {
      * @type {Metadata}
      * @memberof ZKChainInfo
      */
-    @ApiPropertyOptional({ type: Metadata })
-    metadata?: Metadata;
+    @ApiPropertyOptional({ type: ZkChainMetadata })
+    metadata?: ZkChainMetadata;
 
     /**
      * Optional Layer 2 chain information.
@@ -66,6 +72,7 @@ export class ZKChainInfo {
     constructor(data: ZKChainInfo) {
         this.chainType = data.chainType;
         this.tvl = data.tvl;
+        this.baseToken = data.baseToken;
         this.batchesInfo = data.batchesInfo;
         this.feeParams = data.feeParams;
         this.metadata = data.metadata;

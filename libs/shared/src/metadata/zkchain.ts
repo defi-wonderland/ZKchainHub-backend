@@ -17,8 +17,6 @@ export const zkChainsMetadata: ZKChainMetadata = new Map([
             launchDate: 1679626800,
             chainType: "Rollup",
             baseToken: nativeToken,
-            tokenImgUrl:
-                "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
         },
     ],
     [
@@ -33,8 +31,6 @@ export const zkChainsMetadata: ZKChainMetadata = new Map([
             explorerUrl: "https://explorer.zkevm.cronos.org/",
             baseToken: nativeToken,
             launchDate: 1679626800,
-            tokenImgUrl:
-                "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
         },
     ],
 ]);

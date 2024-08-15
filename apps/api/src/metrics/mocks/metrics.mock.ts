@@ -1,6 +1,4 @@
-import { nativeToken } from "@zkchainhub/shared";
-
-import { EcosystemInfo, L2ChainInfo, Metadata, ZKChainInfo } from "../dto/response";
+import { EcosystemInfo, L2ChainInfo, ZKChainInfo, ZkChainMetadata } from "../dto/response";
 
 export const getEcosystemInfo = () => {
     const mock = new EcosystemInfo({
@@ -15,28 +13,24 @@ export const getEcosystemInfo = () => {
                 chainId: "0",
                 chainType: "Rollup",
                 tvl: "1000000000.123123123123",
-                metadata: true,
                 rpc: true,
             },
             {
                 chainId: "1",
                 chainType: "Validium",
                 tvl: "1000000000.123123123123",
-                metadata: true,
                 rpc: false,
             },
             {
                 chainId: "2",
                 chainType: "Rollup",
                 tvl: "1000000000.123123123123",
-                metadata: false,
                 rpc: true,
             },
             {
                 chainId: "3",
                 chainType: "Rollup",
                 tvl: "1000000000.123123123123",
-                metadata: false,
                 rpc: false,
             },
         ],
@@ -44,7 +38,7 @@ export const getEcosystemInfo = () => {
     return mock;
 };
 
-const mockMetadata: Metadata = {
+const mockZkChainMetada: ZkChainMetadata = {
     iconUrl: "https://s2.coinmarketcap.com/static/img/coins/64x64/24091.png",
     name: "ZKsyncERA",
     publicRpcs: [
@@ -54,7 +48,6 @@ const mockMetadata: Metadata = {
     ],
     explorerUrl: "https://explorer.zksync.io/",
     launchDate: 1679626800,
-    baseToken: nativeToken,
 };
 
 const mockL2Info: L2ChainInfo = {
@@ -83,11 +76,11 @@ export const getZKChainInfo = (chainId: number): ZKChainInfo => {
     });
     switch (chainId) {
         case 0:
-            mock.metadata = mockMetadata;
+            mock.metadata = mockZkChainMetada;
             mock.l2ChainInfo = mockL2Info;
             break;
         case 1:
-            mock.metadata = mockMetadata;
+            mock.metadata = mockZkChainMetada;
             break;
         case 2:
             mock.l2ChainInfo = mockL2Info;

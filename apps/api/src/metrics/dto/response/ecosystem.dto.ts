@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { AssetTvl } from "@zkchainhub/metrics/types";
 import { Chains, ChainType, Token } from "@zkchainhub/shared";
 
-import { EthGasInfo } from ".";
+import { EthGasInfo, ZkChainMetadata } from ".";
 
 /**
  * EcosystemInfo class representing the information about the ecosystem.
@@ -85,10 +85,10 @@ export class ZKChainSummary {
 
     /**
      * Metadata flag (optional).
-     * @type {boolean}
+     * @type {ZkChainMetadata}
      * @memberof ZKChainSummary
      */
-    metadata?: boolean;
+    metadata?: ZkChainMetadata;
 
     /**
      * RPC flag (optional).
