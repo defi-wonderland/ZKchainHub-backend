@@ -1,3 +1,4 @@
+import { isNativeError } from "util/types";
 import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable, Logger, LoggerService } from "@nestjs/common";
 import axios, { AxiosInstance, isAxiosError } from "axios";
@@ -135,11 +136,14 @@ export class CoingeckoService implements IPricingService {
                 exception = new RateLimitExceeded();
             } else {
                 exception = new Error(
-                    error.response?.data || "An error occurred while fetching data",
+                    error.response?.data || `An error occurred while fetching data: ${error}`,
                 );
             }
 
             throw exception;
+        } else if (isNativeError(error)) {
+            this.logger.error(error);
+            throw new Error("A non network related error occurred");
         } else {
             this.logger.error(error);
             throw new Error("A non network related error occurred");

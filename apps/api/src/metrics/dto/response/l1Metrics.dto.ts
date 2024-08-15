@@ -107,10 +107,10 @@ export class FeeParams {
 
     /**
      * The minimal L2 gas price.
-     * @type {number}
+     * @type {string}
      * @memberof FeeParams
      */
-    minimalL2GasPrice: number;
+    minimalL2GasPrice: string;
 
     /**
      * Constructs an instance of the FeeParams class.

@@ -1,8 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
+import { AssetTvl } from "@zkchainhub/metrics/types";
 import { Chains, ChainType } from "@zkchainhub/shared";
 
-import { AssetDistribution, BatchesInfo, FeeParams, L2ChainInfo, Metadata } from ".";
+import { BatchesInfo, FeeParams, L2ChainInfo, Metadata } from ".";
 
 /**
  * ZKChainInfo class representing the ZK chain information.
@@ -29,7 +30,7 @@ export class ZKChainInfo {
             type: "number",
         },
     })
-    tvl: AssetDistribution;
+    tvl: AssetTvl[];
 
     /**
      * Optional batches information.

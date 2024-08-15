@@ -1,11 +1,14 @@
-import { ChainId, ChainType } from "@zkchainhub/shared";
+import { ChainId, ChainType, Token } from "../types";
 
 export type ZKChainMetadataItem = {
     chainId: ChainId;
     name: string;
     iconUrl: string;
     chainType: ChainType;
-    baseToken: string;
+    baseToken: Token<"erc20" | "native">;
+    publicRpcs: string[];
+    explorerUrl: string;
+    launchDate: number;
     tokenImgUrl: string;
 };
 

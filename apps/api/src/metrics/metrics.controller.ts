@@ -1,13 +1,13 @@
 import { Controller, Get, Inject, Logger, LoggerService, Param } from "@nestjs/common";
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
+import BigNumber from "bignumber.js";
 
 import { L1MetricsService } from "@zkchainhub/metrics/l1";
-
-// import { zkChainsMetadata } from "@zkchainhub/shared/metadata";
+import { zkChainsMetadata } from "@zkchainhub/shared";
 
 import { ParsePositiveIntPipe } from "../common/pipes/parsePositiveInt.pipe";
-import { ZKChainInfo } from "./dto/response";
-import { getEcosystemInfo, getZKChainInfo } from "./mocks/metrics.mock";
+import { EcosystemInfo, ZKChainInfo } from "./dto/response";
+import { ChainNotFound } from "./exceptions";
 
 @ApiTags("metrics")
 @Controller("metrics")
@@ -17,15 +17,58 @@ import { getEcosystemInfo, getZKChainInfo } from "./mocks/metrics.mock";
 export class MetricsController {
     constructor(
         @Inject(Logger) private readonly logger: LoggerService,
-        private readonly l1Metrics: L1MetricsService,
+        private readonly l1MetricsService: L1MetricsService,
     ) {}
     /**
      * Retrieves the ecosystem information.
      * @returns {Promise<EcosystemInfo>} The ecosystem information.
      */
     @Get("/ecosystem")
-    public async getEcosystem() {
-        return getEcosystemInfo();
+    public async getEcosystem(): Promise<EcosystemInfo> {
+        const [l1Tvl, gasInfo, chainIds] = await Promise.all([
+            this.l1MetricsService.l1Tvl(),
+            this.l1MetricsService.ethGasInfo(),
+            this.l1MetricsService.getChainIds(),
+        ]);
+        const zkChains = await Promise.all(
+            chainIds.map(async (chainId) => {
+                const metadata = zkChainsMetadata.get(chainId);
+                const tvl = (await this.l1MetricsService.tvl(chainId))
+                    .reduce((acc, curr) => {
+                        return acc.plus(BigNumber(curr.amountUsd));
+                    }, new BigNumber(0))
+                    .toString();
+                const chainIdStr = chainId.toString();
+                const baseToken = (await this.l1MetricsService.getBaseTokens([chainId]))[0];
+                if (!metadata) {
+                    return {
+                        chainId: chainIdStr,
+                        chainType: await this.l1MetricsService.chainType(chainId),
+                        baseToken,
+                        tvl,
+                        metadata: false,
+                        rpc: false,
+                    };
+                }
+                return {
+                    chainId: chainIdStr,
+                    chainType: metadata.chainType,
+                    baseToken: metadata.baseToken,
+                    tvl,
+                    metadata: true,
+                    rpc: false,
+                };
+            }),
+        );
+        return new EcosystemInfo({
+            l1Tvl,
+            ethGasInfo: {
+                gasPrice: gasInfo.gasPrice.toString(),
+                erc20Transfer: gasInfo.erc20Transfer.toString(),
+                ethTransfer: gasInfo.ethTransfer.toString(),
+            },
+            zkChains,
+        });
     }
 
     /**
@@ -39,6 +82,49 @@ export class MetricsController {
     public async getChain(
         @Param("chainId", new ParsePositiveIntPipe()) chainId: number,
     ): Promise<ZKChainInfo> {
-        return getZKChainInfo(chainId);
+        const chainIdBn = BigInt(chainId);
+        const metadata = zkChainsMetadata.get(chainIdBn);
+        const ecosystemChainIds = await this.l1MetricsService.getChainIds();
+        if (ecosystemChainIds.includes(chainIdBn) === false) {
+            throw new ChainNotFound(chainIdBn);
+        }
+
+        const [tvl, batchesInfo, feeParams] = await Promise.all([
+            this.l1MetricsService.tvl(chainIdBn),
+            this.l1MetricsService.getBatchesInfo(chainIdBn),
+            this.l1MetricsService.feeParams(chainIdBn),
+        ]);
+        const baseZkChainInfo = {
+            batchesInfo: {
+                commited: batchesInfo.commited.toString(),
+                verified: batchesInfo.verified.toString(),
+                executed: batchesInfo.executed.toString(),
+            },
+            tvl,
+            feeParams: {
+                batchOverheadL1Gas: feeParams.batchOverheadL1Gas,
+                maxL2GasPerBatch: feeParams.maxL2GasPerBatch,
+                maxPubdataPerBatch: feeParams.maxPubdataPerBatch,
+                minimalL2GasPrice: feeParams.minimalL2GasPrice.toString(),
+                priorityTxMaxPubdata: feeParams.priorityTxMaxPubdata,
+            },
+        };
+        if (!metadata) {
+            return new ZKChainInfo({
+                ...baseZkChainInfo,
+                chainType: await this.l1MetricsService.chainType(chainIdBn),
+            });
+        }
+        const { chainId: _metadataChainId, ...metadataRest } = metadata;
+        void _metadataChainId;
+
+        return new ZKChainInfo({
+            ...baseZkChainInfo,
+            chainType: await this.l1MetricsService.chainType(chainIdBn),
+
+            metadata: {
+                ...metadataRest,
+            },
+        });
     }
 }

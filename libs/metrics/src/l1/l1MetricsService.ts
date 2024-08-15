@@ -36,7 +36,6 @@ import {
     ETH_TOKEN_ADDRESS,
     nativeToken,
     tokens,
-    vitalikAddress,
     WETH,
 } from "@zkchainhub/shared";
 import { Token } from "@zkchainhub/shared/types";
@@ -304,13 +303,13 @@ export class L1MetricsService {
             const [ethTransferGasCost, erc20TransferGasCost, gasPrice] = await Promise.all([
                 // Estimate gas for an ETH transfer.
                 this.evmProviderService.estimateGas({
-                    account: vitalikAddress,
+                    account: zeroAddress,
                     to: zeroAddress,
                     value: ONE_ETHER,
                 }),
                 // Estimate gas for an ERC20 transfer.
                 this.evmProviderService.estimateGas({
-                    account: vitalikAddress,
+                    account: zeroAddress,
                     to: WETH.contractAddress,
                     data: encodeFunctionData({
                         abi: erc20Abi,
@@ -321,7 +320,6 @@ export class L1MetricsService {
                 // Get the current gas price.
                 this.evmProviderService.getGasPrice(),
             ]);
-
             // Get the current price of ether.
             let ethPriceInUsd: number | undefined = undefined;
             try {
@@ -336,14 +334,14 @@ export class L1MetricsService {
             return {
                 gasPrice,
                 ethPrice: ethPriceInUsd,
-                ethTransferGas: ethTransferGasCost,
-                erc20TransferGas: erc20TransferGasCost,
+                ethTransfer: ethTransferGasCost,
+                erc20Transfer: erc20TransferGasCost,
             };
         } catch (e: unknown) {
             if (isNativeError(e)) {
                 this.logger.error(`Failed to get gas information: ${e.message}`);
             }
-            throw new L1MetricsServiceException("Failed to get gas information from L1.");
+            throw new L1MetricsServiceException(`Failed to get gas information from L1. ${e}`);
         }
     }
 
@@ -352,6 +350,7 @@ export class L1MetricsService {
      * @returns A list of chainIds
      */
     async getChainIds(): Promise<ChainId[]> {
+        //FIXME: this should have a ttl. Will be fixed once we add caching here.
         if (!this.chainIds) {
             const chainIds = await this.evmProviderService.multicall({
                 contracts: this.stateTransitionManagerAddresses.map((address) => {

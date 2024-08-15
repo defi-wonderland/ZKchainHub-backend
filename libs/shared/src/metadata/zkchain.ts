@@ -1,4 +1,5 @@
-import { ZKChainMetadata } from "@zkchainhub/shared";
+import { ZKChainMetadata } from "../types";
+import { nativeToken } from "./index";
 
 export const zkChainsMetadata: ZKChainMetadata = new Map([
     [
@@ -12,9 +13,10 @@ export const zkChainsMetadata: ZKChainMetadata = new Map([
                 "https://zksync.drpc.org",
                 "https://zksync.meowrpc.com",
             ],
+            explorerUrl: "https://explorer.zksync.io/",
             launchDate: 1679626800,
             chainType: "Rollup",
-            baseToken: "ETH",
+            baseToken: nativeToken,
             tokenImgUrl:
                 "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
         },
@@ -28,7 +30,8 @@ export const zkChainsMetadata: ZKChainMetadata = new Map([
                 "https://s3.coinmarketcap.com/static-gravity/image/84e1ec1257dd4a6da6ee5584338a2460.jpeg",
             chainType: "Rollup",
             publicRpcs: ["https://mainnet.zkevm.cronos.org"],
-            baseToken: "ETH",
+            explorerUrl: "https://explorer.zkevm.cronos.org/",
+            baseToken: nativeToken,
             launchDate: 1679626800,
             tokenImgUrl:
                 "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",

@@ -1,3 +1,5 @@
+import { Token } from "@zkchainhub/shared";
+
 /**
  * Metadata class representing the metadata information.
  */
@@ -14,7 +16,7 @@ export class Metadata {
      * @type {string}
      * @memberof Metadata
      */
-    chainName: string;
+    name: string;
 
     /**
      * An array of public RPCs.
@@ -42,11 +44,11 @@ export class Metadata {
      * @type {string}
      * @memberof Metadata
      */
-    baseToken: string;
+    baseToken: Token<"erc20" | "native">;
 
     constructor(data: Metadata) {
         this.iconUrl = data.iconUrl;
-        this.chainName = data.chainName;
+        this.name = data.name;
         this.publicRpcs = data.publicRpcs;
         this.explorerUrl = data.explorerUrl;
         this.launchDate = data.launchDate;
