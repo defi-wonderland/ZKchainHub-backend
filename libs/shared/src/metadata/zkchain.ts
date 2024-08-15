@@ -24,12 +24,19 @@ export const zkChainsMetadata: ZKChainMetadata = new Map([
         {
             chainId: 388n,
             name: "Cronos",
-            iconUrl:
-                "https://s3.coinmarketcap.com/static-gravity/image/84e1ec1257dd4a6da6ee5584338a2460.jpeg",
+            iconUrl: "https://zkevm.cronos.org/images/chains/zkevm.svg",
             chainType: "Rollup",
             publicRpcs: ["https://mainnet.zkevm.cronos.org"],
             explorerUrl: "https://explorer.zkevm.cronos.org/",
-            baseToken: nativeToken,
+            baseToken: {
+                symbol: "zkCRO",
+                name: "zkCRO",
+                contractAddress: "0x28Ff2E4dD1B58efEB0fC138602A28D5aE81e44e2",
+                coingeckoId: "unknown",
+                type: "erc20",
+                imageUrl: "https://zkevm.cronos.org/images/chains/zkevm.svg",
+                decimals: 18,
+            },
             launchDate: 1679626800,
         },
     ],
