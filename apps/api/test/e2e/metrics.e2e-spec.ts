@@ -17,19 +17,19 @@ describe("MetricsController (e2e)", () => {
     // afterEach(async () => {
     //     await app.close();
     // });
-    // describe("/ecosystem (GET)", () => {
-    //     it("/ecosystem (GET)", () => {
-    //         return request(app.getHttpServer())
-    //             .get("/metrics/ecosystem")
-    //             .expect(200)
-    //             .expect(({ body }) => {
-    //                 expect(body.l1Tvl).toBeDefined();
-    //                 expect(body.ethGasInfo).toBeDefined();
-    //                 expect(body.zkChains).toBeDefined();
-    //                 expect(body.zkChains.length).toBeGreaterThan(0);
-    //             });
-    //     });
-    // });
+    describe("/ecosystem (GET)", () => {
+        it("/ecosystem (GET)", () => {
+            // return request(app.getHttpServer())
+            //     .get("/metrics/ecosystem")
+            //     .expect(200)
+            //     .expect(({ body }) => {
+            //         expect(body.l1Tvl).toBeDefined();
+            //         expect(body.ethGasInfo).toBeDefined();
+            //         expect(body.zkChains).toBeDefined();
+            //         expect(body.zkChains.length).toBeGreaterThan(0);
+            //     });
+        });
+    });
     // describe("/chain/:chainId (GET)", () => {
     //     it("correct request for RPC + METADATA", () => {
     //         return request(app.getHttpServer())
