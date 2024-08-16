@@ -1,0 +1,26 @@
+{
+    "name": "@zkchainhub/api",
+    "version": "1.0.0",
+    "main": "./dist/index.js",
+    "type": "module",
+    "scripts": {
+        "build": "tsc -p tsconfig.build.json",
+        "check-types": "tsc --noEmit -p ./tsconfig.json",
+        "clean": "rm -rf dist",
+        "dev": "tsx watch src/index.ts",
+        "lint": "eslint \"{src,test}/**/*.{js,ts,json}\"",
+        "lint:fix": "pnpm lint --fix",
+        "format": "prettier --check \"{src,test}/**/*.{js,ts,json}\"",
+        "format:fix": "prettier --write \"{src,test}/**/*.{js,ts,json}\"",
+        "start": "node dist/index.js"
+    },
+    "dependencies": {
+        "cors": "2.8.5",
+        "express": "4.19.2"
+    },
+    "devDependencies": {
+        "@types/cors": "2.8.17",
+        "@types/express": "4.17.17",
+        "tsx": "4.17.0"
+    }
+}
