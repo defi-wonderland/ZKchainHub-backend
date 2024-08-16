@@ -39,12 +39,11 @@ export class MetricsController {
                     }, new BigNumber(0))
                     .toString();
                 const chainIdStr = chainId.toString();
-                const baseToken = (await this.l1MetricsService.getBaseTokens([chainId]))[0];
                 if (!metadata) {
                     return {
                         chainId: chainIdStr,
                         chainType: await this.l1MetricsService.chainType(chainId),
-                        baseToken,
+                        baseToken: (await this.l1MetricsService.getBaseTokens([chainId]))[0],
                         tvl,
                         rpc: false,
                     };
