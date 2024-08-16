@@ -1,7 +1,7 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiPropertyOptional } from "@nestjs/swagger";
 
 import { AssetTvl } from "@zkchainhub/metrics/types";
-import { Chains, ChainType, Token } from "@zkchainhub/shared";
+import { ChainType, Token } from "@zkchainhub/shared";
 
 import { BatchesInfo, FeeParams, L2ChainInfo, ZkChainMetadata } from ".";
 
@@ -14,28 +14,19 @@ export class ZKChainInfo {
      * @type {ChainType}
      * @memberof ZKChainInfo
      */
-    @ApiProperty({ enum: Chains, enumName: "ChainType" })
     chainType: ChainType;
 
     /**
      * The native token of the chain (optional).
-     * @type {string}
+     * @type {Token<"erc20" | "native">}
      * @memberof ZKChainSummary
      */
     baseToken?: Token<"erc20" | "native">;
     /**
      * A map of asset names to their respective amounts.
-     * @type {AssetDistribution}
+     * @type {AssetTvl}
      * @memberof ZKChainInfo
-     * @example { ETH: 1000000, ZK: 500000 }
      */
-    @ApiProperty({
-        example: { ETH: 1000000, ZK: 500000 },
-        description: "A map of asset names to their respective amounts",
-        additionalProperties: {
-            type: "number",
-        },
-    })
     tvl: AssetTvl[];
 
     /**
@@ -43,7 +34,6 @@ export class ZKChainInfo {
      * @type {BatchesInfo}
      * @memberof ZKChainInfo
      */
-    @ApiPropertyOptional()
     batchesInfo?: BatchesInfo;
 
     /**
@@ -55,7 +45,7 @@ export class ZKChainInfo {
 
     /**
      * Optional metadata.
-     * @type {Metadata}
+     * @type {ZkChainMetadata}
      * @memberof ZKChainInfo
      */
     @ApiPropertyOptional({ type: ZkChainMetadata })
