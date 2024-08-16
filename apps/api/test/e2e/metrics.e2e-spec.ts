@@ -1,26 +1,22 @@
-import { INestApplication } from "@nestjs/common";
-import { Test, TestingModule } from "@nestjs/testing";
+// import { INestApplication } from "@nestjs/common";
+// import { Test, TestingModule } from "@nestjs/testing";
 
 // import request from "supertest";
 
-import { ApiModule } from "../../src/api.module";
+// import { ApiModule } from "../../src/api.module";
 
 describe("MetricsController (e2e)", () => {
-    let app: INestApplication;
-
-    beforeEach(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [ApiModule],
-        }).compile();
-
-        app = moduleFixture.createNestApplication();
-        await app.init();
-    });
-
-    afterEach(async () => {
-        await app.close();
-    });
-
+    // let app: INestApplication;
+    // beforeEach(async () => {
+    //     const moduleFixture: TestingModule = await Test.createTestingModule({
+    //         imports: [ApiModule],
+    //     }).compile();
+    //     app = moduleFixture.createNestApplication();
+    //     await app.init();
+    // });
+    // afterEach(async () => {
+    //     await app.close();
+    // });
     // describe("/ecosystem (GET)", () => {
     //     it("/ecosystem (GET)", () => {
     //         return request(app.getHttpServer())
@@ -34,7 +30,6 @@ describe("MetricsController (e2e)", () => {
     //             });
     //     });
     // });
-
     // describe("/chain/:chainId (GET)", () => {
     //     it("correct request for RPC + METADATA", () => {
     //         return request(app.getHttpServer())
@@ -49,7 +44,6 @@ describe("MetricsController (e2e)", () => {
     //                 expect(body.l2ChainInfo).toBeDefined();
     //             });
     //     });
-
     //     it("correct request for METADATA", () => {
     //         return request(app.getHttpServer())
     //             .get("/metrics/zkchain/1")
@@ -63,7 +57,6 @@ describe("MetricsController (e2e)", () => {
     //                 expect(body.l2ChainInfo).toBeUndefined();
     //             });
     //     });
-
     //     it("correct request for RPC", () => {
     //         return request(app.getHttpServer())
     //             .get("/metrics/zkchain/2")
@@ -77,7 +70,6 @@ describe("MetricsController (e2e)", () => {
     //                 expect(body.l2ChainInfo).toBeDefined();
     //             });
     //     });
-
     //     it("correct request for NO RPC + METADATA", () => {
     //         return request(app.getHttpServer())
     //             .get("/metrics/zkchain/3")
@@ -91,7 +83,6 @@ describe("MetricsController (e2e)", () => {
     //                 expect(body.l2ChainInfo).toBeUndefined();
     //             });
     //     });
-
     //     it("invalid negative number for chain id", () => {
     //         return request(app.getHttpServer())
     //             .get("/metrics/zkchain/-1")
@@ -102,7 +93,6 @@ describe("MetricsController (e2e)", () => {
     //                 );
     //             });
     //     });
-
     //     it("not a number for chain id", () => {
     //         return request(app.getHttpServer())
     //             .get("/metrics/zkchain/notanumber")
