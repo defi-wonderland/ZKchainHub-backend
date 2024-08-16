@@ -36,7 +36,7 @@ $ cp .env.example .env
 ```
 - Set up `L1_RPC_URLS` as CSV list of RPC URLs. For example, `https://eth.llamarpc.com,https://rpc.flashbots.net/fast`. You can check [Chainlist](https://chainlist.org/) for a list of public RPCs
 - Set up `L2_RPC_URLS` as CSV list of RPC URLs. For example, `https://mainnet.era.zksync.io`. You can check [Chainlist](https://chainlist.org/) for a list of public RPCs
-- Set `CONIGECKO_API_KEY`, `CONIGECKO_BASE_URL` and `CONIGECKO_API_KEY` depending on your API plan. You can get an API Key creating an account on [Coingecko's site](https://www.coingecko.com/en/api)
+- Set `COINGECKO_API_KEY`, `COINGECKO_BASE_URL` and `COINGECKO_API_KEY` depending on your API plan. You can get an API Key creating an account on [Coingecko's site](https://www.coingecko.com/en/api)
 - (Optionally) Set `PORT` on which API is made available. By default is port 3000
 
 ## Running the app
