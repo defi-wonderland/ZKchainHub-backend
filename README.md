@@ -41,8 +41,6 @@ $ cp .env.example .env
 
 ## Running the app
 
-By default, 
-
 ```bash
 # development
 $ pnpm run start
@@ -56,6 +54,8 @@ $ pnpm run start:prod
 # running a specific app
 $ pnpm run start my-app
 ```
+
+Verify that ZKchainHub API is running on http://localhost:3000 (or the port specified)
 
 ## Test
 
