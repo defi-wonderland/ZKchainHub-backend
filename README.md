@@ -1,4 +1,4 @@
-# ZKchainHub API
+# ZKchainHub - Backend
 
 ## Description
 
