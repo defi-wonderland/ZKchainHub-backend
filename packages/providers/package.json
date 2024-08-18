@@ -10,8 +10,13 @@
         "lint": "eslint \"{src,test}/**/*.{js,ts,json}\"",
         "lint:fix": "pnpm lint --fix",
         "format": "prettier --check \"{src,test}/**/*.{js,ts,json}\"",
-        "format:fix": "prettier --write \"{src,test}/**/*.{js,ts,json}\""
+        "format:fix": "prettier --write \"{src,test}/**/*.{js,ts,json}\"",
+        "test": "vitest run --config vitest.config.ts --passWithNoTests",
+        "test:cov": "vitest run --config vitest.config.ts --coverage"
     },
-    "dependencies": {},
-    "devDependencies": {}
+    "dependencies": {
+        "abitype": "1.0.6",
+        "viem": "2.19.6",
+        "@zkchainhub/shared": "workspace:*"
+    }
 }
