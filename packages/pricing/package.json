@@ -11,8 +11,15 @@
         "lint": "eslint \"{src,test}/**/*.{js,ts,json}\"",
         "lint:fix": "pnpm lint --fix",
         "format": "prettier --check \"{src,test}/**/*.{js,ts,json}\"",
-        "format:fix": "prettier --write \"{src,test}/**/*.{js,ts,json}\""
+        "format:fix": "prettier --write \"{src,test}/**/*.{js,ts,json}\"",
+        "test": "vitest run --config vitest.config.ts --passWithNoTests",
+        "test:cov": "vitest run --config vitest.config.ts --coverage"
     },
-    "dependencies": {},
-    "devDependencies": {}
+    "dependencies": {
+        "@zkchainhub/shared": "workspace:*",
+        "axios": "1.7.4"
+    },
+    "devDependencies": {
+        "axios-mock-adapter": "2.0.0"
+    }
 }
