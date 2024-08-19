@@ -15,8 +15,16 @@
         "start": "node dist/index.js"
     },
     "dependencies": {
+        "@zkchainhub/metrics": "workspace:*",
+        "@zkchainhub/pricing": "workspace:*",
+        "@zkchainhub/providers": "workspace:*",
+        "@zkchainhub/shared": "workspace:*",
+        "bignumber.js": "9.1.2",
         "cors": "2.8.5",
-        "express": "4.19.2"
+        "dotenv": "16.4.5",
+        "express": "4.19.2",
+        "viem": "2.19.6",
+        "zod": "3.23.8"
     },
     "devDependencies": {
         "@types/cors": "2.8.17",
