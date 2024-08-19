@@ -64,6 +64,7 @@ export class MetricsController {
                 gasPrice: gasInfo.gasPrice.toString(),
                 erc20Transfer: gasInfo.erc20Transfer.toString(),
                 ethTransfer: gasInfo.ethTransfer.toString(),
+                ethPrice: gasInfo.ethPrice?.toString() || undefined,
             },
             zkChains,
         });

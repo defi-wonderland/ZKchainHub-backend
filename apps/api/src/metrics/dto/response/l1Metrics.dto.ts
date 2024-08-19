@@ -66,10 +66,18 @@ export class EthGasInfo {
      */
     erc20Transfer: string;
 
+    /**
+     * The price of ETH in USD
+     * @type {string}
+     * @memberof EthGasInfo
+     */
+    ethPrice?: string;
+
     constructor(data: EthGasInfo) {
         this.gasPrice = data.gasPrice;
         this.ethTransfer = data.ethTransfer;
         this.erc20Transfer = data.erc20Transfer;
+        this.ethPrice = data.ethPrice;
     }
 }
 
