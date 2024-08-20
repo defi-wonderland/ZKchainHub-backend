@@ -14,35 +14,6 @@ const ChainIdSchema = z.object({
     }),
 });
 
-// export const metricsRoutes = (router: Router, metricsService: MetricsController) => {
-//     router.get("/metrics/ecosystem", async (_req, res, next) => {
-//         try {
-//             const data = await metricsService.getEcosystem();
-//             res.json(data);
-//         } catch (error: unknown) {
-//             next(error);
-//         }
-//     });
-
-//     router.get("/metrics/zkchain/:chainId", async (req, res, next) => {
-//         try {
-//             const { params } = ChainIdSchema.parse(req);
-
-//             const data = await metricsService.getChain(params.chainId);
-//             res.json(data);
-//         } catch (error: unknown) {
-//             if (error instanceof ChainNotFound) {
-//                 return res.status(404).json({
-//                     message: error.message,
-//                 });
-//             }
-//             next(error);
-//         }
-//     });
-
-//     return router;
-// };
-
 /**
  * @swagger
  * tags:
