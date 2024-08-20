@@ -1,7 +1,7 @@
 import type { Router } from "express";
 import { z } from "zod";
 
-import { ChainNotFound, MetricsService } from "../index.js";
+import { ChainNotFound, MetricsController } from "../index.js";
 
 const ChainIdSchema = z.object({
     params: z.object({
@@ -215,7 +215,7 @@ const ChainIdSchema = z.object({
  *           example: 1638307200
  *           description: The launch date of the chain (timestamp).
  */
-export const metricsRoutes = (router: Router, metricsService: MetricsService) => {
+export const metricsRoutes = (router: Router, metricsService: MetricsController) => {
     /**
      * @swagger
      * /metrics/ecosystem:

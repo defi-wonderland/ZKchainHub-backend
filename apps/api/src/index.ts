@@ -3,14 +3,14 @@ import express, { json } from "express";
 
 import { L1MetricsService } from "@zkchainhub/metrics";
 import { CoingeckoService, IPricingService } from "@zkchainhub/pricing";
+import { EvmProviderService } from "@zkchainhub/providers";
 import { Logger } from "@zkchainhub/shared";
 
-import { EvmProviderService } from "../../../packages/providers/dist/src/internal.js";
+import { listRoutes, setupOpenApiConfiguration as setupOpenApi } from "./api-docs/index.js";
 import { InMemoryCache } from "./common/cache/inMemoryCache.js";
 import { config } from "./common/config/index.js";
-import { listRoutes, setupOpenApiConfiguration as setupOpenApi } from "./common/docs/index.js";
 import { requestLogger, zodErrorHandler } from "./common/middleware/index.js";
-import { MetricsService, metricsRoutes as registerMetricsRoutes } from "./metrics/index.js";
+import { MetricsController, metricsRoutes as registerMetricsRoutes } from "./metrics/index.js";
 
 const port = config.port;
 const server = express();
@@ -38,7 +38,7 @@ const l1Metrics = new L1MetricsService(
     logger,
 );
 
-const metricsService = new MetricsService(l1Metrics, logger);
+const metricsService = new MetricsController(l1Metrics, logger);
 
 // register request middleware
 server.use(requestLogger).use(json()).use(cors());

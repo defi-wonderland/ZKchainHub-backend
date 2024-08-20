@@ -67,6 +67,6 @@ export const config = {
             apiType: envData.COINGECKO_API_TYPE,
         },
     },
-};
+} as const;
 
 export type ConfigType = typeof config;

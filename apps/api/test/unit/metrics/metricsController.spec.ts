@@ -11,6 +11,7 @@ import {
     zkChainsMetadata,
 } from "@zkchainhub/shared";
 
+import { MetricsController } from "../../../src/metrics/controllers";
 import {
     EcosystemInfo,
     ZKChainInfo,
@@ -18,7 +19,6 @@ import {
     ZKChainSummary,
 } from "../../../src/metrics/dto/response";
 import { ChainNotFound } from "../../../src/metrics/exceptions";
-import { MetricsService } from "../../../src/metrics/services";
 
 const mockLogger: ILogger = {
     info: vi.fn(),
@@ -27,8 +27,8 @@ const mockLogger: ILogger = {
     debug: vi.fn(),
 };
 
-describe("MetricsService", () => {
-    let service: MetricsService;
+describe("MetricsController", () => {
+    let service: MetricsController;
     let l1MetricsService: L1MetricsService;
 
     afterEach(() => {
@@ -46,7 +46,7 @@ describe("MetricsService", () => {
             chainType: vi.fn(),
             feeParams: vi.fn(),
         } as unknown as L1MetricsService;
-        service = new MetricsService(l1MetricsService, mockLogger);
+        service = new MetricsController(l1MetricsService, mockLogger);
     });
 
     it("should be defined", () => {

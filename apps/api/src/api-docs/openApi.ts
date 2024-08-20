@@ -2,7 +2,7 @@ import { Express } from "express";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
-import { ConfigType } from "../config/index.js";
+import { ConfigType } from "../common/config/index.js";
 
 export const setupOpenApiConfiguration = (app: Express, config: ConfigType) => {
     const options = {

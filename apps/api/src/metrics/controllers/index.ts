@@ -6,7 +6,7 @@ import { ILogger, zkChainsMetadata } from "@zkchainhub/shared";
 import { EcosystemInfo, ZKChainInfo, ZkChainMetadata } from "../dto/response/index.js";
 import { ChainNotFound } from "../exceptions/index.js";
 
-export class MetricsService {
+export class MetricsController {
     constructor(
         private readonly l1MetricsService: L1MetricsService,
         private readonly logger: ILogger,
