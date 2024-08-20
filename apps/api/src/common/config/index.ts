@@ -35,7 +35,7 @@ const validationSchema = z.object({
 const env = validationSchema.safeParse(process.env);
 
 if (!env.success) {
-    logger.error(env.error.issues.map((issue) => issue.message).join("\n"));
+    logger.error(env.error.issues.map((issue) => JSON.stringify(issue)).join("\n"));
     process.exit(1);
 }
 

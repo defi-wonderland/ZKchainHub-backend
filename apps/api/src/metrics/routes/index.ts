@@ -1,6 +1,8 @@
-import type { Router } from "express";
 import { z } from "zod";
 
+import { ILogger } from "@zkchainhub/shared";
+
+import { BaseRouter } from "../../common/routes/baseRouter.js";
 import { ChainNotFound, MetricsController } from "../index.js";
 
 const ChainIdSchema = z.object({
@@ -11,6 +13,35 @@ const ChainIdSchema = z.object({
             .int("Chain ID must be a positive integer"),
     }),
 });
+
+// export const metricsRoutes = (router: Router, metricsService: MetricsController) => {
+//     router.get("/metrics/ecosystem", async (_req, res, next) => {
+//         try {
+//             const data = await metricsService.getEcosystem();
+//             res.json(data);
+//         } catch (error: unknown) {
+//             next(error);
+//         }
+//     });
+
+//     router.get("/metrics/zkchain/:chainId", async (req, res, next) => {
+//         try {
+//             const { params } = ChainIdSchema.parse(req);
+
+//             const data = await metricsService.getChain(params.chainId);
+//             res.json(data);
+//         } catch (error: unknown) {
+//             if (error instanceof ChainNotFound) {
+//                 return res.status(404).json({
+//                     message: error.message,
+//                 });
+//             }
+//             next(error);
+//         }
+//     });
+
+//     return router;
+// };
 
 /**
  * @swagger
@@ -215,82 +246,90 @@ const ChainIdSchema = z.object({
  *           example: 1638307200
  *           description: The launch date of the chain (timestamp).
  */
-export const metricsRoutes = (router: Router, metricsService: MetricsController) => {
-    /**
-     * @swagger
-     * /metrics/ecosystem:
-     *   get:
-     *     summary: Get ecosystem metrics
-     *     tags: [Metrics]
-     *     responses:
-     *       200:
-     *         description: Returns the ecosystem information.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               $ref: '#/components/schemas/EcosystemInfo'
-     *       500:
-     *         description: Internal server error.
-     */
-    /**
-     * Retrieves the ecosystem information.
-     * @returns {Promise<EcosystemInfo>} The ecosystem information.
-     */
-    router.get("/metrics/ecosystem", async (_req, res, next) => {
-        try {
-            const data = await metricsService.getEcosystem();
-            res.json(data);
-        } catch (error: unknown) {
-            next(error);
-        }
-    });
+export class MetricsRouter extends BaseRouter {
+    constructor(
+        private readonly metricsController: MetricsController,
+        private readonly logger: ILogger,
+    ) {
+        super("/metrics");
+    }
 
-    /**
-     * @swagger
-     * /metrics/zkchain/{chainId}:
-     *   get:
-     *     summary: Get metrics for a specific chain
-     *     tags: [Metrics]
-     *     parameters:
-     *       - in: path
-     *         name: chainId
-     *         required: true
-     *         schema:
-     *           type: integer
-     *           minimum: 1
-     *         description: The ID of the chain
-     *     responses:
-     *       200:
-     *         description: Returns the chain information.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               $ref: '#/components/schemas/ZKChainInfo'
-     *       404:
-     *         description: Chain not found.
-     *       500:
-     *         description: Internal server error.
-     */
-    /**
-     * Retrieves the chain information for the specified chain ID.
-     * @param {number} chainId - The ID of the chain.
-     * @returns {Promise<ZKChainInfo>} The chain information.
-     */
-    router.get("/metrics/zkchain/:chainId", async (req, res, next) => {
-        try {
-            const { params } = ChainIdSchema.parse(req);
-
-            const data = await metricsService.getChain(params.chainId);
-            res.json(data);
-        } catch (error: unknown) {
-            if (error instanceof ChainNotFound) {
-                return res.status(404).json({
-                    message: error.message,
-                });
+    protected initializeRoutes(): void {
+        /**
+         * @swagger
+         * /metrics/ecosystem:
+         *   get:
+         *     summary: Get ecosystem metrics
+         *     tags: [Metrics]
+         *     responses:
+         *       200:
+         *         description: Returns the ecosystem information.
+         *         content:
+         *           application/json:
+         *             schema:
+         *               $ref: '#/components/schemas/EcosystemInfo'
+         *       500:
+         *         description: Internal server error.
+         */
+        /**
+         * Retrieves the ecosystem information.
+         * @returns {Promise<EcosystemInfo>} The ecosystem information.
+         */
+        this.router.get("/ecosystem", async (_req, res, next) => {
+            try {
+                const data = await this.metricsController.getEcosystem();
+                res.json(data);
+            } catch (error: unknown) {
+                this.logger.error(JSON.stringify(error));
+                next(error);
             }
-            next(error);
-        }
-    });
+        });
 
-    return router;
-};
+        /**
+         * @swagger
+         * /metrics/zkchain/{chainId}:
+         *   get:
+         *     summary: Get metrics for a specific chain
+         *     tags: [Metrics]
+         *     parameters:
+         *       - in: path
+         *         name: chainId
+         *         required: true
+         *         schema:
+         *           type: integer
+         *           minimum: 1
+         *         description: The ID of the chain
+         *     responses:
+         *       200:
+         *         description: Returns the chain information.
+         *         content:
+         *           application/json:
+         *             schema:
+         *               $ref: '#/components/schemas/ZKChainInfo'
+         *       404:
+         *         description: Chain not found.
+         *       500:
+         *         description: Internal server error.
+         */
+        /**
+         * Retrieves the chain information for the specified chain ID.
+         * @param {number} chainId - The ID of the chain.
+         * @returns {Promise<ZKChainInfo>} The chain information.
+         */
+        this.router.get("/zkchain/:chainId", async (req, res, next) => {
+            try {
+                const { params } = ChainIdSchema.parse(req);
+
+                const data = await this.metricsController.getChain(params.chainId);
+                res.json(data);
+            } catch (error: unknown) {
+                if (error instanceof ChainNotFound) {
+                    return res.status(404).json({
+                        message: error.message,
+                    });
+                }
+                next(error);
+            }
+        });
+    }
+}

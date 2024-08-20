@@ -1,59 +1,28 @@
-import cors from "cors";
-import express, { json } from "express";
+import { inspect } from "util";
 
-import { L1MetricsService } from "@zkchainhub/metrics";
-import { CoingeckoService, IPricingService } from "@zkchainhub/pricing";
-import { EvmProviderService } from "@zkchainhub/providers";
-import { Logger } from "@zkchainhub/shared";
+import { ILogger } from "@zkchainhub/shared";
 
-import { listRoutes, setupOpenApiConfiguration as setupOpenApi } from "./api-docs/index.js";
-import { InMemoryCache } from "./common/cache/inMemoryCache.js";
+import { App } from "./app.js";
 import { config } from "./common/config/index.js";
-import { requestLogger, zodErrorHandler } from "./common/middleware/index.js";
-import { MetricsController, metricsRoutes as registerMetricsRoutes } from "./metrics/index.js";
+import { Container } from "./container.js";
 
-const port = config.port;
-const server = express();
+const container = new Container(config);
+const logger = container.get<ILogger>("ILogger");
 
-const logger = Logger.getInstance();
+const main = async (): Promise<void> => {
+    const app = new App(config, [container.get("MetricsRouter")], logger);
 
-// instantiate services
-const evmProvider = new EvmProviderService(config.l1.rpcUrls, config.l1.chain, logger);
-const pricingService: IPricingService = new CoingeckoService(
-    {
-        apiBaseUrl: config.pricing.pricingOptions.apiBaseUrl,
-        apiKey: config.pricing.pricingOptions.apiKey,
-        apiType: config.pricing.pricingOptions.apiType,
-    },
-    new InMemoryCache(),
-    logger,
-);
+    app.listen();
+};
 
-const l1Metrics = new L1MetricsService(
-    config.bridgeHubAddress,
-    config.sharedBridgeAddress,
-    config.stateTransitionManagerAddresses,
-    evmProvider,
-    pricingService,
-    logger,
-);
+process.on("unhandledRejection", (reason, p) => {
+    logger.error(`Unhandled Rejection at: \n${inspect(p, undefined, 100)}, \nreason: ${reason}`);
+});
 
-const metricsService = new MetricsController(l1Metrics, logger);
+process.on("uncaughtException", (error: Error) => {
+    logger.error(`An uncaught exception occurred: ${error}\n` + `Exception origin: ${error.stack}`);
+});
 
-// register request middleware
-server.use(requestLogger).use(json()).use(cors());
-
-setupOpenApi(server, config);
-
-// register routes
-registerMetricsRoutes(server, metricsService);
-
-// register response middlewares
-server.use(zodErrorHandler);
-
-listRoutes(server, logger);
-
-// start server
-server.listen(port, () => {
-    logger.info(`Starting ZKchainHub API on port ${port}`);
+main().catch((err) => {
+    logger.error(`Caught error in main handler: ${err}`);
 });
