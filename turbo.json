@@ -9,7 +9,12 @@
         "test": {
             "dependsOn": ["build"]
         },
-        "coverage": {},
+        "test:cov": {
+            "dependsOn": ["build"]
+        },
+        "test:e2e": {
+            "dependsOn": ["build"]
+        },
         "build": {
             "dependsOn": ["^build"]
         },

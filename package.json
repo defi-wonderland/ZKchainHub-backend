@@ -16,6 +16,7 @@
         "check-types": "turbo run check-types",
         "test": "turbo run test",
         "test:cov": "turbo run test:cov",
+        "test:e2e": "turbo run test:e2e",
         "prepare": "husky",
         "preinstall": "npx only-allow pnpm"
     },
