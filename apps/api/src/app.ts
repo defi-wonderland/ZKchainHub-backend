@@ -59,7 +59,7 @@ export class App {
     }
 
     private initializeOpenApi(): void {
-        setupOpenApi(this.app, this.config);
+        setupOpenApi(this.app);
     }
 
     private initializeErrorHandling(): void {
