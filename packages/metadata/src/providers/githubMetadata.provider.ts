@@ -57,7 +57,9 @@ export class GithubMetadataProvider implements IMetadataProvider {
 
     async getChainsMetadata(): Promise<ZKChainMetadata> {
         const { data } = await this.axios.get(this.chainJsonUrl).catch((e) => {
-            this.logger.error(`Failed to fetch chains metadata: ${e.message}`);
+            this.logger.error(
+                `Failed to fetch chains metadata from ${this.chainJsonUrl}: ${e.message}`,
+            );
             throw new FetchError(`Failed to fetch chains metadata: ${e.message}`);
         });
 
@@ -78,7 +80,9 @@ export class GithubMetadataProvider implements IMetadataProvider {
 
     async getTokensMetadata(): Promise<Token<TokenType>[]> {
         const { data } = await this.axios.get(this.tokenJsonUrl).catch((e) => {
-            this.logger.error(`Failed to fetch chains metadata: ${e.message}`);
+            this.logger.error(
+                `Failed to fetch chains metadata from ${this.chainJsonUrl}: ${e.message}`,
+            );
             throw new FetchError(`Failed to fetch chains metadata: ${e.message}`);
         });
 

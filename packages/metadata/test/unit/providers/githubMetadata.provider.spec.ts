@@ -40,46 +40,48 @@ describe("GithubMetadataProvider", () => {
 
             const chain1 = result.get(324n) as ZKChainMetadataItem;
             expect(chain1).toBeDefined();
-            expect(chain1.chainId).toBe(324n);
-            expect(chain1.name).toBe("ZKsyncERA");
-            expect(chain1.iconUrl).toBe(
-                "https://s2.coinmarketcap.com/static/img/coins/64x64/24091.png",
-            );
-            expect(chain1.publicRpcs).toEqual([
-                "https://mainnet.era.zksync.io",
-                "https://zksync.drpc.org",
-                "https://zksync.meowrpc.com",
-            ]);
-            expect(chain1.explorerUrl).toBe("https://explorer.zksync.io/");
-            expect(chain1.launchDate).toBe(1679626800);
-            expect(chain1.chainType).toBe("Rollup");
-            expect(chain1.baseToken).toEqual({
-                name: "Ethereum",
-                symbol: "ETH",
-                coingeckoId: "ethereum",
-                type: "native",
-                contractAddress: null,
-                decimals: 18,
-                imageUrl:
-                    "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+            expect(chain1).toMatchObject({
+                chainId: 324n,
+                name: "ZKsyncERA",
+                iconUrl: "https://s2.coinmarketcap.com/static/img/coins/64x64/24091.png",
+                publicRpcs: [
+                    "https://mainnet.era.zksync.io",
+                    "https://zksync.drpc.org",
+                    "https://zksync.meowrpc.com",
+                ],
+                explorerUrl: "https://explorer.zksync.io/",
+                launchDate: 1679626800,
+                chainType: "Rollup",
+                baseToken: {
+                    name: "Ethereum",
+                    symbol: "ETH",
+                    coingeckoId: "ethereum",
+                    type: "native",
+                    contractAddress: null,
+                    decimals: 18,
+                    imageUrl:
+                        "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+                },
             });
 
             const chain2 = result.get(388n) as ZKChainMetadataItem;
             expect(chain2).toBeDefined();
-            expect(chain2.chainId).toBe(388n);
-            expect(chain2.name).toBe("Cronos");
-            expect(chain2.chainType).toBe("Validium");
-            expect(chain2.publicRpcs).toEqual(["https://mainnet.zkevm.cronos.org"]);
-            expect(chain2.explorerUrl).toBe("https://explorer.zkevm.cronos.org/");
-            expect(chain2.launchDate).toBe(1679626800);
-            expect(chain2.baseToken).toEqual({
-                name: "zkCRO",
-                symbol: "zkCRO",
-                coingeckoId: "unknown",
-                type: "erc20",
-                contractAddress: "0x28Ff2E4dD1B58efEB0fC138602A28D5aE81e44e2",
-                decimals: 18,
-                imageUrl: "https://zkevm.cronos.org/images/chains/zkevm.svg",
+            expect(chain2).toMatchObject({
+                chainId: 388n,
+                name: "Cronos",
+                chainType: "Validium",
+                publicRpcs: ["https://mainnet.zkevm.cronos.org"],
+                explorerUrl: "https://explorer.zkevm.cronos.org/",
+                launchDate: 1679626800,
+                baseToken: {
+                    name: "zkCRO",
+                    symbol: "zkCRO",
+                    coingeckoId: "unknown",
+                    type: "erc20",
+                    contractAddress: "0x28Ff2E4dD1B58efEB0fC138602A28D5aE81e44e2",
+                    decimals: 18,
+                    imageUrl: "https://zkevm.cronos.org/images/chains/zkevm.svg",
+                },
             });
         });
 
@@ -114,8 +116,8 @@ describe("GithubMetadataProvider", () => {
 
             axios.onGet().replyOnce(500, {
                 data: {},
-                status: 404,
-                statusText: "Not found",
+                status: 500,
+                statusText: "Internal Server Error",
             });
 
             await expect(provider.getChainsMetadata()).rejects.toThrow(FetchError);
@@ -166,8 +168,8 @@ describe("GithubMetadataProvider", () => {
 
             axios.onGet().replyOnce(500, {
                 data: {},
-                status: 404,
-                statusText: "Not found",
+                status: 500,
+                statusText: "Internal Server Error",
             });
 
             await expect(provider.getTokensMetadata()).rejects.toThrow(FetchError);
