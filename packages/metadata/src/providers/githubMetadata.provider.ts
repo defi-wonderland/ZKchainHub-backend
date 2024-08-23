@@ -2,7 +2,6 @@ import axios, { AxiosInstance } from "axios";
 import { z } from "zod";
 
 import {
-    Address,
     ILogger,
     Token,
     TokenType,
@@ -12,31 +11,7 @@ import {
 
 import { IMetadataProvider } from "../interfaces/index.js";
 import { FetchError, InvalidSchema } from "../internal.js";
-
-const TokenSchema = z.object({
-    name: z.string(),
-    symbol: z.string(),
-    coingeckoId: z.string(), // FIXME: on pricing refactor, this should not be part of the token metadata
-    type: z.union([z.literal("erc20"), z.literal("native")]),
-    contractAddress: z
-        .string()
-        .regex(/^0x[a-fA-F0-9]{40}$/)
-        .transform((v) => (v ? (v as Address) : null))
-        .nullable(),
-    decimals: z.number(),
-    imageUrl: z.string().optional(),
-});
-
-const ChainSchema = z.object({
-    chainId: z.number().positive(),
-    name: z.string(),
-    iconUrl: z.string().url().optional(),
-    publicRpcs: z.array(z.string().url()).default([]),
-    explorerUrl: z.string().url().optional(),
-    launchDate: z.number().positive(),
-    chainType: z.union([z.literal("Rollup"), z.literal("Validium")]),
-    baseToken: TokenSchema,
-});
+import { ChainSchema, TokenSchema } from "../schemas/index.js";
 
 /**
  * Represents a provider for retrieving metadata from GitHub.
