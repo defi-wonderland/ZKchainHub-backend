@@ -16,7 +16,7 @@ import { ChainSchema, TokenSchema } from "../schemas/index.js";
 export const LOCALFILE_METADATA_PREFIX = "local-metadata";
 
 /**
- * Represents a local file metadata provider.
+ * Represents a provider that retrieves metadata from local files.
  */
 export class LocalFileMetadataProvider implements IMetadataProvider {
     /**
@@ -42,6 +42,7 @@ export class LocalFileMetadataProvider implements IMetadataProvider {
         }
     }
 
+    /** @inheritdoc */
     async getChainsMetadata(): Promise<ZKChainMetadata> {
         let cachedData = await this.cache.get<ZKChainMetadata>(
             `${LOCALFILE_METADATA_PREFIX}-chains`,
@@ -70,6 +71,7 @@ export class LocalFileMetadataProvider implements IMetadataProvider {
         return cachedData;
     }
 
+    /** @inheritdoc */
     async getTokensMetadata(): Promise<Token<TokenType>[]> {
         let cachedData = await this.cache.get<Token<TokenType>[]>(
             `${LOCALFILE_METADATA_PREFIX}-tokens`,

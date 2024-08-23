@@ -34,6 +34,7 @@ export class GithubMetadataProvider implements IMetadataProvider {
         });
     }
 
+    /** @inheritdoc */
     async getChainsMetadata(): Promise<ZKChainMetadata> {
         let cachedData = await this.cache.get<ZKChainMetadata | undefined>(
             `${GITHUB_METADATA_PREFIX}-chains`,
@@ -66,6 +67,7 @@ export class GithubMetadataProvider implements IMetadataProvider {
         return cachedData;
     }
 
+    /** @inheritdoc */
     async getTokensMetadata(): Promise<Token<TokenType>[]> {
         let cachedData = await this.cache.get<Token<TokenType>[] | undefined>(
             `${GITHUB_METADATA_PREFIX}-tokens`,
