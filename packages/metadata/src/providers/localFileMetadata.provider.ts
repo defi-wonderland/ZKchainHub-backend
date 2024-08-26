@@ -2,7 +2,6 @@ import { existsSync, readFileSync } from "fs";
 import { z } from "zod";
 
 import {
-    Cache,
     ILogger,
     Token,
     TokenType,
@@ -17,21 +16,23 @@ export const LOCALFILE_METADATA_PREFIX = "local-metadata";
 
 /**
  * Represents a provider that retrieves metadata from local files.
+ * Note: Files are read only once and saved to instance variables.
  */
 export class LocalFileMetadataProvider implements IMetadataProvider {
+    private readonly chainMetadata: ZKChainMetadata;
+    private readonly tokenMetadata: Token<TokenType>[];
+
     /**
      * Constructs a new instance of the LocalFileMetadataProvider class.
      * @param tokenJsonPath The path to the token JSON file.
      * @param chainJsonPath The path to the chain JSON file.
      * @param logger The logger instance.
-     * @param cache The cache instance.
      * @throws {FileNotFound} if any of the files is not found.
      */
     constructor(
         private readonly tokenJsonPath: string,
         private readonly chainJsonPath: string,
         private readonly logger: ILogger,
-        private readonly cache: Cache,
     ) {
         if (!existsSync(tokenJsonPath)) {
             throw new FileNotFound(tokenJsonPath);
@@ -40,58 +41,51 @@ export class LocalFileMetadataProvider implements IMetadataProvider {
         if (!existsSync(chainJsonPath)) {
             throw new FileNotFound(chainJsonPath);
         }
+
+        this.tokenMetadata = this.readAndParseTokenMetadata();
+        this.chainMetadata = this.readAndParseChainMetadata();
     }
 
     /** @inheritdoc */
     async getChainsMetadata(): Promise<ZKChainMetadata> {
-        let cachedData = await this.cache.get<ZKChainMetadata>(
-            `${LOCALFILE_METADATA_PREFIX}-chains`,
-        );
-        if (!cachedData) {
-            const jsonData = readFileSync(this.chainJsonPath, "utf-8");
-            const parsed = JSON.parse(jsonData);
+        return Promise.resolve(this.chainMetadata);
+    }
 
-            const validatedData = z.array(ChainSchema).safeParse(parsed);
+    readAndParseChainMetadata() {
+        const jsonData = readFileSync(this.chainJsonPath, "utf-8");
+        const parsed = JSON.parse(jsonData);
 
-            if (!validatedData.success) {
-                this.logger.error(`Invalid ZKChains metadata: ${validatedData.error.errors}`);
-                throw new InvalidSchema("Invalid ZKChains metadata");
-            }
+        const validatedData = z.array(ChainSchema).safeParse(parsed);
 
-            cachedData = validatedData.data.reduce((acc, chain) => {
-                const { chainId, ...rest } = chain;
-                const chainIdBn = BigInt(chainId);
-                acc.set(chainIdBn, { ...rest, chainId: chainIdBn });
-                return acc;
-            }, new Map<bigint, ZKChainMetadataItem>());
-
-            await this.cache.set(`${LOCALFILE_METADATA_PREFIX}-chains`, cachedData);
+        if (!validatedData.success) {
+            this.logger.error(`Invalid ZKChains metadata: ${validatedData.error.errors}`);
+            throw new InvalidSchema("Invalid ZKChains metadata");
         }
 
-        return cachedData;
+        return validatedData.data.reduce((acc, chain) => {
+            const { chainId, ...rest } = chain;
+            const chainIdBn = BigInt(chainId);
+            acc.set(chainIdBn, { ...rest, chainId: chainIdBn });
+            return acc;
+        }, new Map<bigint, ZKChainMetadataItem>());
     }
 
     /** @inheritdoc */
     async getTokensMetadata(): Promise<Token<TokenType>[]> {
-        let cachedData = await this.cache.get<Token<TokenType>[]>(
-            `${LOCALFILE_METADATA_PREFIX}-tokens`,
-        );
-        if (!cachedData) {
-            const jsonData = readFileSync(this.tokenJsonPath, "utf-8");
-            const parsed = JSON.parse(jsonData);
+        return Promise.resolve(this.tokenMetadata);
+    }
 
-            const validatedData = z.array(TokenSchema).safeParse(parsed);
+    readAndParseTokenMetadata() {
+        const jsonData = readFileSync(this.tokenJsonPath, "utf-8");
+        const parsed = JSON.parse(jsonData);
 
-            if (!validatedData.success) {
-                this.logger.error(`Invalid Tokens metadata: ${validatedData.error.errors}`);
-                throw new InvalidSchema("Invalid Tokens metadata");
-            }
+        const validatedData = z.array(TokenSchema).safeParse(parsed);
 
-            cachedData = validatedData.data;
-
-            await this.cache.set(`${LOCALFILE_METADATA_PREFIX}-tokens`, cachedData);
+        if (!validatedData.success) {
+            this.logger.error(`Invalid Tokens metadata: ${validatedData.error.errors}`);
+            throw new InvalidSchema("Invalid Tokens metadata");
         }
 
-        return cachedData;
+        return validatedData.data;
     }
 }
