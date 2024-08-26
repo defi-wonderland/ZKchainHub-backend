@@ -2,6 +2,7 @@ import { inspect } from "util";
 import { caching } from "cache-manager";
 
 import { EvmProvider } from "@zkchainhub/chain-providers";
+import { MetadataProviderFactory } from "@zkchainhub/metadata";
 import { L1MetricsService } from "@zkchainhub/metrics";
 import { CoingeckoProvider } from "@zkchainhub/pricing";
 import { Logger } from "@zkchainhub/shared";
@@ -28,6 +29,12 @@ const main = async (): Promise<void> => {
         memoryCache,
         logger,
     );
+
+    const _metadataProvider = MetadataProviderFactory.create(config.metadata, {
+        logger,
+        cache: memoryCache,
+    });
+
     const l1MetricsService = new L1MetricsService(
         config.bridgeHubAddress,
         config.sharedBridgeAddress,
