@@ -3,7 +3,7 @@ import axios, { AxiosInstance, isAxiosError } from "axios";
 
 import { Address, BASE_CURRENCY, Cache, ILogger } from "@zkchainhub/shared";
 
-import type { IPricingProvider, TokenPrices } from "../internal.js";
+import type { IPricingProvider, PriceResponse, TokenPrices } from "../internal.js";
 import { addressToId, ApiNotAvailable, idToAddress, RateLimitExceeded } from "../internal.js";
 
 export const AUTH_HEADER = (type: "demo" | "pro") =>
@@ -56,8 +56,8 @@ export class CoingeckoProvider implements IPricingProvider {
      * @param tokenIds - An array of Coingecko Tokens IDs.
      * @returns A promise that resolves to a record of token prices in USD.
      */
-    async getTokenPrices(addresses: Address[]): Promise<Record<Address, number | undefined>> {
-        const baseMap: Record<Address, number | undefined> = Object.fromEntries(
+    async getTokenPrices(addresses: Address[]): Promise<PriceResponse> {
+        const baseMap: PriceResponse = Object.fromEntries(
             addresses.map((address) => [address, undefined]),
         );
 

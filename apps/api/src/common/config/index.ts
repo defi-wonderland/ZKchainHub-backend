@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import { Address } from "viem";
 import { mainnet, zksync } from "viem/chains";
 
-import { MetadataConfig, MetadataSource } from "@zkchainhub/metadata";
+import { MetadataConfig } from "@zkchainhub/metadata";
 import { Logger } from "@zkchainhub/shared";
 
 import { validationSchema } from "./schemas.js";
@@ -20,19 +20,21 @@ if (!env.success) {
 
 const { data: envData } = env;
 
-const createMetadataConfig = (env: typeof envData): MetadataConfig<MetadataSource> => {
+const createMetadataConfig = (
+    env: typeof envData,
+): MetadataConfig<typeof envData.METADATA_SOURCE> => {
     switch (env.METADATA_SOURCE) {
         case "github":
             return {
                 source: "github",
-                tokenUrl: env.METADATA_TOKEN_URL!,
-                chainUrl: env.METADATA_CHAIN_URL!,
+                tokenUrl: env.METADATA_TOKEN_URL,
+                chainUrl: env.METADATA_CHAIN_URL,
             };
         case "local":
             return {
                 source: "local",
-                tokenJsonPath: env.METADATA_TOKEN_JSON_PATH!,
-                chainJsonPath: env.METADATA_CHAIN_JSON_PATH!,
+                tokenJsonPath: env.METADATA_TOKEN_JSON_PATH,
+                chainJsonPath: env.METADATA_CHAIN_JSON_PATH,
             };
         case "static":
             return { source: "static" };

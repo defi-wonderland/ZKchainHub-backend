@@ -4,7 +4,7 @@ import { Address, erc20Abi, formatUnits, Hex, parseUnits, zeroAddress } from "vi
 
 import { EvmProvider } from "@zkchainhub/chain-providers";
 import { IMetadataProvider } from "@zkchainhub/metadata";
-import { IPricingProvider } from "@zkchainhub/pricing";
+import { IPricingProvider, PriceResponse } from "@zkchainhub/pricing";
 import {
     BatchesInfo,
     ChainId,
@@ -75,6 +75,7 @@ export class L1MetricsService {
 
     /**
      * Calculates the Total Value Locked (TVL) for each token based on the provided balances, addresses, and prices.
+     * @param tokens - The array of tokens for which to calculate the TVL.
      * @param balances - The balances object containing the ETH balance and an array of erc20 token addresses balance.
      * @param addresses - The array of erc20 addresses.
      * @param prices - The object containing the prices of tokens.
@@ -84,7 +85,7 @@ export class L1MetricsService {
         tokens: Token<TokenType>[],
         balances: { ethBalance: bigint; addressesBalance: bigint[] },
         addresses: Address[],
-        prices: Record<Address, number | undefined>,
+        prices: PriceResponse,
     ): AssetTvl[] {
         const tvl: AssetTvl[] = [];
 
