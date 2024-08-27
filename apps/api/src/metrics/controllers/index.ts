@@ -24,7 +24,7 @@ export class MetricsController {
                 const metadata = zkChainsMetadata.get(chainId);
                 const tvl = (await this.l1MetricsService.tvl(chainId))
                     .reduce((acc, curr) => {
-                        return acc.plus(BigNumber(curr.amountUsd));
+                        return acc.plus(BigNumber(curr.amountUsd || 0));
                     }, new BigNumber(0))
                     .toString();
                 const chainIdStr = chainId.toString();

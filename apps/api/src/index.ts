@@ -30,7 +30,7 @@ const main = async (): Promise<void> => {
         logger,
     );
 
-    const _metadataProvider = MetadataProviderFactory.create(config.metadata, {
+    const metadataProvider = MetadataProviderFactory.create(config.metadata, {
         logger,
         cache: memoryCache,
     });
@@ -41,6 +41,7 @@ const main = async (): Promise<void> => {
         config.stateTransitionManagerAddresses,
         evmProvider,
         pricingProvider,
+        metadataProvider,
         logger,
     );
     const metricsController = new MetricsController(l1MetricsService, logger);
