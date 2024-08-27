@@ -44,7 +44,7 @@ const main = async (): Promise<void> => {
         metadataProvider,
         logger,
     );
-    const metricsController = new MetricsController(l1MetricsService, logger);
+    const metricsController = new MetricsController(l1MetricsService, metadataProvider, logger);
     const metricsRouter = new MetricsRouter(metricsController, logger);
 
     const app = new App(config, [metricsRouter], logger);
