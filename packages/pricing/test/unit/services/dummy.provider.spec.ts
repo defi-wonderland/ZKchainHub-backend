@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { Address } from "@zkchainhub/shared";
 
-import { DummyPricingProvider } from "../../../src/providers/dummy.provider";
+import { DummyPricingProvider } from "../../../src/providers/dummy.provider.js";
 
 describe("DummyPricingProvider", () => {
     let provider: DummyPricingProvider;
