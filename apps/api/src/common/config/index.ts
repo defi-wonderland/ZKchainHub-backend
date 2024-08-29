@@ -1,6 +1,13 @@
 import dotenv from "dotenv";
 import { Address } from "viem";
-import { mainnet, zksync } from "viem/chains";
+import {
+    localhost,
+    mainnet,
+    sepolia,
+    zksync,
+    zksyncLocalNode,
+    zksyncSepoliaTestnet,
+} from "viem/chains";
 
 import { MetadataConfig } from "@zkchainhub/metadata";
 import { PricingConfig } from "@zkchainhub/pricing";
@@ -59,19 +66,41 @@ const createPricingConfig = (env: typeof envData): PricingConfig<typeof env.PRIC
     }
 };
 
+const getChain = (environment: "mainnet" | "testnet" | "local") => {
+    switch (environment) {
+        case "mainnet":
+            return mainnet;
+        case "testnet":
+            return sepolia;
+        case "local":
+            return localhost;
+    }
+};
+
+const getL2Chain = (environment: "mainnet" | "testnet" | "local") => {
+    switch (environment) {
+        case "mainnet":
+            return zksync;
+        case "testnet":
+            return zksyncSepoliaTestnet;
+        case "local":
+            return zksyncLocalNode;
+    }
+};
+
 export const config = {
     port: envData.PORT,
     environment: envData.ENVIRONMENT,
 
     l1: {
         rpcUrls: envData.L1_RPC_URLS,
-        chain: mainnet,
+        chain: getChain(envData.ENVIRONMENT),
     },
     l2:
         envData.L2_RPC_URLS.length > 0
             ? {
                   rpcUrls: envData.L2_RPC_URLS,
-                  chain: zksync,
+                  chain: getL2Chain(envData.ENVIRONMENT),
               }
             : undefined,
     bridgeHubAddress: envData.BRIDGE_HUB_ADDRESS as Address,
