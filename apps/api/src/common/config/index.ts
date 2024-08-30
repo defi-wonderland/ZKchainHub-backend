@@ -1,13 +1,6 @@
 import dotenv from "dotenv";
 import { Address } from "viem";
-import {
-    localhost,
-    mainnet,
-    sepolia,
-    zksync,
-    zksyncLocalNode,
-    zksyncSepoliaTestnet,
-} from "viem/chains";
+import { localhost, mainnet, sepolia } from "viem/chains";
 
 import { MetadataConfig } from "@zkchainhub/metadata";
 import { PricingConfig } from "@zkchainhub/pricing";
@@ -77,17 +70,6 @@ const getChain = (environment: "mainnet" | "testnet" | "local") => {
     }
 };
 
-const getL2Chain = (environment: "mainnet" | "testnet" | "local") => {
-    switch (environment) {
-        case "mainnet":
-            return zksync;
-        case "testnet":
-            return zksyncSepoliaTestnet;
-        case "local":
-            return zksyncLocalNode;
-    }
-};
-
 export const config = {
     port: envData.PORT,
     environment: envData.ENVIRONMENT,
@@ -96,13 +78,6 @@ export const config = {
         rpcUrls: envData.L1_RPC_URLS,
         chain: getChain(envData.ENVIRONMENT),
     },
-    l2:
-        envData.L2_RPC_URLS.length > 0
-            ? {
-                  rpcUrls: envData.L2_RPC_URLS,
-                  chain: getL2Chain(envData.ENVIRONMENT),
-              }
-            : undefined,
     bridgeHubAddress: envData.BRIDGE_HUB_ADDRESS as Address,
     sharedBridgeAddress: envData.SHARED_BRIDGE_ADDRESS as Address,
     stateTransitionManagerAddresses: envData.STATE_MANAGER_ADDRESSES as Address[],

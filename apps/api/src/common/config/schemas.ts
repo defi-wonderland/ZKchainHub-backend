@@ -25,13 +25,6 @@ const baseSchema = z.object({
     STATE_MANAGER_ADDRESSES: addressArraySchema,
     ENVIRONMENT: z.enum(["mainnet", "testnet", "local"]).default("mainnet"),
     L1_RPC_URLS: urlArraySchema,
-    L2_RPC_URLS: z
-        .union([z.literal(""), urlArraySchema])
-        .optional()
-        .transform((val) => {
-            if (val === undefined || val === "") return [];
-            return val;
-        }),
     PRICING_SOURCE: z.enum(["dummy", "coingecko"]).default("dummy"),
     DUMMY_PRICE: z.coerce.number().optional(),
     COINGECKO_API_KEY: z.string().optional(),
