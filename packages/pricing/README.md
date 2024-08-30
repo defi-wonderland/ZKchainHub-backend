@@ -87,7 +87,7 @@ Retrieves the price for the list of token.
 
 1. To create a new provider, create it inside [`providers`](./src/providers/) folder and implement the [`IPricingProvider`](./src/interfaces/pricing.interface.ts) interface.
 
-> Note 1: is provider implementation responsibility to map token addresses to their internal id if needed.
+> Note 1: it is the provider's responsibility to map token addresses to their internal id if needed
 
 > Note 2: for native token (eg. ETH), use the one address
 

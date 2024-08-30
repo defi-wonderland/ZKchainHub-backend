@@ -31,21 +31,24 @@ $ cp .env.example .env
 ```
 
 Available options:
-
--   (optional) `PORT` on which API is made available. By default is port 3000
--   (optional) `ENVIRONMENT` which environment we are using ( 'mainnet' | 'testnet' | 'local'). By default is 'mainnet'
--   `BRIDGE_HUB_ADDRESS`
--   `SHARED_BRIDGE_ADDRESS`
--   `STATE_MANAGER_ADDRESSES` CSV list of State managers addresses
--   `L1_RPC_URLS` as CSV list of RPC URLs. For example, `https://eth.llamarpc.com,https://rpc.flashbots.net/fast`. You can check [Chainlist](https://chainlist.org/) for a list of public RPCs
--   (optional) `PRICING_SOURCE` which pricing source to use ('dummy' | 'coingecko'). By default is dummy
--   (optional) `DUMMY_PRICE` for dummy pricing source. Default is undefined
--   (required if 'coingecko' is selected)`COINGECKO_API_KEY`, `COINGECKO_BASE_URL` and `COINGECKO_API_KEY` depending on your API plan. You can get an API Key creating an account on [Coingecko's site](https://www.coingecko.com/en/api)
--   `METADATA_SOURCE` which metadata source to use ('github' | 'local' | 'static')
--   (required if METADATA_SOURCE is 'github') `METADATA_TOKEN_URL` Metadata tokens URL
--   (required if METADATA_SOURCE is 'github') `METADATA_CHAIN_URL` Metadata chains URL
--   (required if METADATA_SOURCE is 'local') `METADATA_TOKEN_JSON_PATH` Metadata tokens JSON file path (see examples on `packages/metadata`)
--   (required if METADATA_SOURCE is 'local') `METADATA_CHAIN_JSON_PATH` Metadata chain JSON file path (see examples on `packages/metadata`)
+| Name | Description | Default | Required | Notes |
+|-----------------------------|--------------------------------------------------------------------------------------------------------------------------------|-----------|----------------------------------|-----------------------------------------------------------------|
+| `PORT` | Port on which API is made available | 3000 | No | |
+| `ENVIRONMENT` | Environment we are using (`'mainnet'`, `'testnet'`, `'local'`) | 'mainnet' | No | |
+| `BRIDGE_HUB_ADDRESS` | Bridge Hub address | N/A | Yes | |
+| `SHARED_BRIDGE_ADDRESS` | Shared Bridge address | N/A | Yes | |
+| `STATE_MANAGER_ADDRESSES` | CSV list of State manager addresses | N/A | Yes | |
+| `L1_RPC_URLS` | CSV list of RPC URLs. For example, `https://eth.llamarpc.com,https://rpc.flashbots.net/fast` | N/A | Yes | You can check [Chainlist](https://chainlist.org/) for a list of public RPCs |
+| `PRICING_SOURCE` | Pricing source to use (`'dummy'`, `'coingecko'`) | 'dummy' | No | |
+| `DUMMY_PRICE` | Price for dummy pricing source | undefined | No | Only applicable if `PRICING_SOURCE` is `'dummy'` |
+| `COINGECKO_API_KEY` | API key for CoinGecko | N/A | If `'coingecko'` is selected | You can get an API key by creating an account on [CoinGecko's site](https://www.coingecko.com/en/api) |
+| `COINGECKO_BASE_URL` | Base URL for CoinGecko | N/A | If `'coingecko'` is selected | |
+| `COINGECKO_API_TYPE` | CoinGecko API Type (`'demo'` or `'pro'`) | N/A | If `'coingecko'` is selected | |
+| `METADATA_SOURCE` | Metadata source to use (`'github'`, `'local'`, `'static'`) | N/A | Yes | |
+| `METADATA_TOKEN_URL` | Metadata tokens URL | N/A | If `METADATA_SOURCE` is `'github'` | |
+| `METADATA_CHAIN_URL` | Metadata chains URL | N/A | If `METADATA_SOURCE` is `'github'` | |
+| `METADATA_TOKEN_JSON_PATH` | Metadata tokens JSON file path | N/A | If `METADATA_SOURCE` is `'local'` | See examples in `packages/metadata` |
+| `METADATA_CHAIN_JSON_PATH` | Metadata chain JSON file path | N/A | If `METADATA_SOURCE` is `'local'` | See examples in `packages/metadata` |
 
 ## Running the app
 
