@@ -12,7 +12,10 @@ dotenv.config();
 
 const logger = Logger.getInstance();
 
-const env = validationSchema.safeParse(process.env);
+const env = validationSchema.safeParse({
+    ...process.env,
+    L2_RPC_URLS_MAP: JSON.parse(process.env.L2_RPC_URLS_MAP || "{}"),
+});
 
 if (!env.success) {
     logger.error(env.error.issues.map((issue) => JSON.stringify(issue)).join("\n"));
@@ -78,6 +81,7 @@ export const config = {
         rpcUrls: envData.L1_RPC_URLS,
         chain: getChain(envData.ENVIRONMENT),
     },
+    l2: envData.L2_RPC_URLS_MAP,
     bridgeHubAddress: envData.BRIDGE_HUB_ADDRESS as Address,
     sharedBridgeAddress: envData.SHARED_BRIDGE_ADDRESS as Address,
     stateTransitionManagerAddresses: envData.STATE_MANAGER_ADDRESSES as Address[],

@@ -18,6 +18,11 @@ const urlArraySchema = z
         message: "Must be a comma-separated list of valid URLs",
     });
 
+const urlArrayMapSchema = z.record(
+    z.union([z.coerce.number().int(), z.string().regex(/^\d+$/)]), // key: number or string number
+    urlArraySchema,
+);
+
 const baseSchema = z.object({
     PORT: z.coerce.number().positive().default(3000),
     BRIDGE_HUB_ADDRESS: addressSchema,
@@ -25,6 +30,7 @@ const baseSchema = z.object({
     STATE_MANAGER_ADDRESSES: addressArraySchema,
     ENVIRONMENT: z.enum(["mainnet", "testnet", "local"]).default("mainnet"),
     L1_RPC_URLS: urlArraySchema,
+    L2_RPC_URLS_MAP: urlArrayMapSchema,
     PRICING_SOURCE: z.enum(["dummy", "coingecko"]).default("dummy"),
     DUMMY_PRICE: z.coerce.number().optional(),
     COINGECKO_API_KEY: z.string().optional(),
