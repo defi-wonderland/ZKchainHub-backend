@@ -1,4 +1,3 @@
-import { BaseError } from "viem";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ZKChainProvider } from "@zkchainhub/chain-providers";
@@ -77,16 +76,6 @@ describe("L2MetricsService", () => {
 
             expect(result).toBe(expectedEndBlock);
             expect(provider.getL1BatchBlockRange).toHaveBeenCalledWith(lastVerifiedBatch);
-        });
-        it("return undefined if an error occurs", async () => {
-            const lastVerifiedBatch = 500;
-            vi.spyOn(provider, "getL1BatchBlockRange").mockRejectedValue(
-                new BaseError("Invalid batch number"),
-            );
-
-            const result = await service.getLastVerifiedBlock(lastVerifiedBatch);
-
-            expect(result).toBeUndefined();
         });
     });
 });

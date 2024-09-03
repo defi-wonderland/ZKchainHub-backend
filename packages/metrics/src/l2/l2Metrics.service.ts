@@ -1,6 +1,3 @@
-import { isNativeError } from "util/types";
-import { BaseError } from "viem";
-
 import { ZKChainProvider } from "@zkchainhub/chain-providers";
 import { ILogger } from "@zkchainhub/shared";
 
@@ -47,16 +44,7 @@ export class L2MetricsService {
      * @returns A Promise that resolves to the number of the last verified block, or undefined if an error occurs.
      */
     async getLastVerifiedBlock(lastVerifiedBatch: number): Promise<number | undefined> {
-        try {
-            const [, endBlock] = await this.provider.getL1BatchBlockRange(lastVerifiedBatch);
-            return endBlock;
-        } catch (error) {
-            if (error instanceof BaseError) {
-                this.logger.error(error.message);
-            } else if (isNativeError(error)) {
-                this.logger.error(error);
-            }
-            return undefined;
-        }
+        const [, endBlock] = await this.provider.getL1BatchBlockRange(lastVerifiedBatch);
+        return endBlock;
     }
 }
