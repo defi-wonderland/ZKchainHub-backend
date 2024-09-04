@@ -12,10 +12,7 @@ dotenv.config();
 
 const logger = Logger.getInstance();
 
-const env = validationSchema.safeParse({
-    ...process.env,
-    L2_RPC_URLS_MAP: JSON.parse(process.env.L2_RPC_URLS_MAP || "{}"),
-});
+const env = validationSchema.safeParse(process.env);
 
 if (!env.success) {
     logger.error(env.error.issues.map((issue) => JSON.stringify(issue)).join("\n"));
