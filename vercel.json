@@ -1,0 +1,19 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "apps/api/dist/index.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "apps/api/dist/index.js"
+        }
+    ],
+    "installCommand": "HUSKY=0 pnpm install --frozen-lockfile",
+    "buildCommand": "HUSKY=0 pnpm build",
+    "outputDirectory": "apps/api/dist",
+    "ignoreCommand": "git diff --quiet HEAD^ HEAD ."
+}

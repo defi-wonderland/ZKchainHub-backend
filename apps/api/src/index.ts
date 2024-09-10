@@ -13,7 +13,7 @@ import { MetricsController, MetricsRouter } from "./metrics/index.js";
 
 const logger = Logger.getInstance();
 
-const main = async (): Promise<void> => {
+const main = async (): Promise<Express.Application> => {
     const memoryCache = await caching("memory", {
         max: 150, // maximum number of items to store
         ttl: config.pricing.cacheOptions.ttl * 1000 /*milliseconds*/,
@@ -61,6 +61,8 @@ const main = async (): Promise<void> => {
     const app = new App(config, [metricsRouter], logger);
 
     app.listen();
+
+    return app.app;
 };
 
 process.on("unhandledRejection", (reason, p) => {
@@ -71,6 +73,8 @@ process.on("uncaughtException", (error: Error) => {
     logger.error(`An uncaught exception occurred: ${error}\n` + `Exception origin: ${error.stack}`);
 });
 
-main().catch((err) => {
+const res = main().catch((err) => {
     logger.error(`Caught error in main handler: ${err}`);
 });
+
+export default res;

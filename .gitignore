@@ -47,3 +47,4 @@ contracts/cache
 .turbo
 
 .tmp
+.vercel
